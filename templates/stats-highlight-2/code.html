@@ -1,0 +1,316 @@
+<!DOCTYPE html><html lang="zh-TW" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>品牌數據｜深耕品質</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#616363",
+                    "surface-container": "#ededfb",
+                    "surface-bright": "#faf8ff",
+                    "on-surface": "#191b25",
+                    "secondary": "#5d5f5f",
+                    "on-tertiary-fixed": "#3b0900",
+                    "tertiary": "#972500",
+                    "error-container": "#ffdad6",
+                    "primary-fixed-dim": "#b6c4ff",
+                    "on-secondary": "#ffffff",
+                    "on-primary-container": "#e3e6ff",
+                    "surface-tint": "#004dea",
+                    "primary-fixed": "#dce1ff",
+                    "surface-container-high": "#e7e7f5",
+                    "outline-variant": "#c3c5d9",
+                    "on-tertiary-fixed-variant": "#872100",
+                    "surface-variant": "#e1e1ef",
+                    "tertiary-container": "#c13301",
+                    "on-tertiary-container": "#ffe1d9",
+                    "surface": "#faf8ff",
+                    "surface-container-low": "#f3f2ff",
+                    "inverse-primary": "#b6c4ff",
+                    "background": "#faf8ff",
+                    "surface-container-lowest": "#ffffff",
+                    "primary": "#0041c8",
+                    "brand-dark": "#002b80",
+                    "on-secondary-fixed": "#1a1c1c",
+                    "on-primary": "#ffffff",
+                    "on-primary-fixed": "#001551",
+                    "inverse-surface": "#2e303a",
+                    "on-error": "#ffffff",
+                    "primary-container": "#0055ff",
+                    "error": "#ba1a1a",
+                    "inverse-on-surface": "#f0f0fd",
+                    "secondary-fixed": "#e2e2e2",
+                    "on-surface-variant": "#434656",
+                    "on-background": "#191b25",
+                    "tertiary-fixed": "#ffdbd1",
+                    "secondary-fixed-dim": "#c6c6c7",
+                    "surface-container-highest": "#e1e1ef",
+                    "secondary-container": "#dfe0e0",
+                    "outline": "#737688",
+                    "on-secondary-fixed-variant": "#454747",
+                    "on-primary-fixed-variant": "#0039b3",
+                    "on-error-container": "#93000a",
+                    "tertiary-fixed-dim": "#ffb5a0",
+                    "surface-dim": "#d9d9e6",
+                    "on-tertiary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "24px",
+                    "sm": "12px",
+                    "xs": "4px",
+                    "md": "24px",
+                    "base": "8px",
+                    "margin-mobile": "20px",
+                    "margin-desktop": "64px",
+                    "lg": "48px",
+                    "xl": "80px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Geist"],
+                    "label-md": ["Geist"],
+                    "headline-lg": ["Geist"],
+                    "body-lg": ["Inter"],
+                    "display": ["Geist"],
+                    "body-md": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["32px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "label-md": ["14px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "headline-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "display": ["72px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        @keyframes flow {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-2%, 2%) scale(1.05); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+        .animate-flow {
+            animation: flow 15s ease-in-out infinite;
+        }
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .fade-in-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .stagger-1 { transition-delay: 0.1s; }
+        .stagger-2 { transition-delay: 0.2s; }
+        .stagger-3 { transition-delay: 0.3s; }
+        .stagger-4 { transition-delay: 0.4s; }
+        .stagger-5 { transition-delay: 0.5s; }
+        .stagger-6 { transition-delay: 0.6s; }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased overflow-x-hidden">
+<section class="relative w-full min-h-[600px] flex items-center justify-center bg-brand-dark overflow-hidden py-md">
+<!-- Animated Background Pattern - Lower contrast for darker background -->
+<div class="absolute inset-0 z-0 opacity-10 pointer-events-none">
+<svg class="w-full h-full animate-flow" viewBox="0 0 1440 800" xmlns="http://www.w3.org/2000/svg">
+<path d="M-100 600 Q 300 400 700 600 T 1500 400" fill="none" stroke="white" stroke-width="1"></path>
+<path d="M-100 500 Q 400 700 800 400 T 1600 600" fill="none" opacity="0.5" stroke="white" stroke-width="0.5"></path>
+<path d="M-100 300 Q 200 100 600 300 T 1400 100" fill="none" stroke="white" stroke-width="1"></path>
+<circle cx="200" cy="200" fill="white" opacity="0.05" r="150"></circle>
+<circle cx="1200" cy="600" fill="white" opacity="0.03" r="200"></circle>
+</svg>
+</div>
+<!-- Content Canvas -->
+<div class="relative z-10 w-full max-w-[1440px] px-margin-mobile md:px-margin-desktop mx-auto">
+<!-- New Section Heading and Description -->
+<div class="mb-lg md:mb-xl">
+<h2 class="fade-in-up stagger-1 font-headline-lg text-headline-lg md:text-display text-white mb-md leading-tight visible whitespace-nowrap">深耕品質，用數據見證承諾</h2>
+<p class="fade-in-up stagger-2 font-body-lg text-body-lg text-white/70 leading-relaxed visible">我們透過持續的技術革新與嚴格的品質控管，為超過數千名用戶提供最值得信賴的生活解決方案。</p>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-md md:gap-lg items-start">
+<!-- Data Item 01 -->
+<div class="fade-in-up stagger-3 flex flex-col group visible">
+<span class="font-label-md text-label-md text-white/30 mb-xs tracking-widest">01</span>
+<div class="flex items-baseline gap-xs mb-sm">
+<span class="counter font-display text-4xl md:text-display text-white" data-target="24">24</span>
+<span class="font-headline-md text-headline-md text-primary-fixed-dim">H</span>
+</div>
+<div class="h-px w-full bg-white/10 mb-md"></div>
+<p class="font-body-md text-body-md text-white/60">全天候智慧服務</p>
+</div>
+<!-- Data Item 02 -->
+<div class="fade-in-up stagger-4 flex flex-col group visible">
+<span class="font-label-md text-label-md text-white/30 mb-xs tracking-widest">02</span>
+<div class="flex items-baseline gap-xs mb-sm">
+<span class="counter font-display text-4xl md:text-display text-white" data-target="2958">2,958</span>
+<span class="font-headline-md text-headline-md text-primary-fixed-dim">+</span>
+</div>
+<div class="h-px w-full bg-white/10 mb-md"></div>
+<p class="font-body-md text-body-md text-white/60">累積服務使用次數</p>
+</div>
+<!-- Data Item 03 -->
+<div class="fade-in-up stagger-5 flex flex-col group visible">
+<span class="font-label-md text-label-md text-white/30 mb-xs tracking-widest">03</span>
+<div class="flex items-baseline gap-xs mb-sm">
+<span class="counter font-display text-4xl md:text-display text-white" data-target="98">98</span>
+<span class="font-headline-md text-headline-md text-primary-fixed-dim">%</span>
+</div>
+<div class="h-px w-full bg-white/10 mb-md"></div>
+<p class="font-body-md text-body-md text-white/60">品質管理與定期檢查</p>
+</div>
+<!-- Data Item 04 -->
+<div class="fade-in-up stagger-6 flex flex-col group visible">
+<span class="font-label-md text-label-md text-white/30 mb-xs tracking-widest">04</span>
+<div class="flex items-baseline gap-xs mb-sm">
+<span class="counter font-display text-4xl md:text-display text-white" data-target="11">11</span>
+<span class="font-headline-md text-headline-md text-primary-fixed-dim">處</span>
+</div>
+<div class="h-px w-full bg-white/10 mb-md"></div>
+<p class="font-body-md text-body-md text-white/60">合作與服務據點</p>
+</div>
+</div>
+</div>
+</section>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const counters = document.querySelectorAll('.counter');
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const counterObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const target = entry.target;
+                    const targetValue = parseInt(target.getAttribute('data-target'));
+                    const duration = 2500; 
+                    const startTime = performance.now();
+
+                    const updateCounter = (currentTime) => {
+                        const elapsedTime = currentTime - startTime;
+                        const progress = Math.min(elapsedTime / duration, 1);
+                        
+                        // Easing function (easeOutQuart)
+                        const easeProgress = 1 - Math.pow(1 - progress, 4);
+                        const currentValue = Math.floor(easeProgress * targetValue);
+                        
+                        target.innerText = currentValue.toLocaleString();
+
+                        if (progress < 1) {
+                            requestAnimationFrame(updateCounter);
+                        } else {
+                            target.innerText = targetValue.toLocaleString();
+                        }
+                    };
+
+                    requestAnimationFrame(updateCounter);
+                    observer.unobserve(target);
+                }
+            });
+        }, observerOptions);
+
+        counters.forEach(counter => {
+            counterObserver.observe(counter);
+        });
+
+        // Separate observer for fade-in animations
+        const fadeObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    fadeObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.fade-in-up').forEach(el => {
+            fadeObserver.observe(el);
+        });
+    });
+</script>
+
+
+
+
+<script id="stats-preview-bridge">
+(() => {
+  const params = new URLSearchParams(window.location.search);
+  const pick = (key, fallback = "") => params.get(key) || fallback;
+  const setText = (selector, value) => {
+    if (!value) return;
+    const node = document.querySelector(selector);
+    if (node) node.textContent = value;
+  };
+  const applyPalette = () => {
+    const palette = {
+      primary: pick("primary"),
+      accent: pick("accent"),
+      bg: pick("bg"),
+      surface: pick("surface"),
+      text: pick("text"),
+      muted: pick("muted")
+    };
+    if (!palette.primary) return;
+    const darkBase = palette.text || "#0b1f2a";
+    document.body.style.background = darkBase;
+    document.querySelector("section")?.style.setProperty("background", darkBase);
+    document.querySelectorAll(".text-primary-fixed-dim").forEach((el) => { el.style.color = palette.accent || palette.primary; });
+    document.querySelectorAll(".text-white").forEach((el) => { el.style.color = palette.surface || "#fff"; });
+    document.querySelectorAll(".text-white\\/70, .text-white\\/60").forEach((el) => { el.style.color = palette.bg || "#eef4f5"; });
+    document.querySelectorAll("svg path").forEach((el) => {
+      el.style.stroke = palette.primary;
+      el.style.opacity = "0.28";
+    });
+  };
+  const applyStats = () => {
+    const numberNodes = document.querySelectorAll(".counter");
+    numberNodes.forEach((node, index) => {
+      const order = index + 1;
+      const value = pick(`stat${order}Value`);
+      const unit = pick(`stat${order}Unit`);
+      const label = pick(`stat${order}Label`);
+      if (value) {
+        node.dataset.target = value.replace(/,/g, "");
+        node.textContent = value;
+      }
+      const unitNode = node.nextElementSibling;
+      if (unitNode && unit) unitNode.textContent = unit;
+      const labelNode = node.closest(".flex-col")?.querySelector("p");
+      if (labelNode && label) labelNode.textContent = label;
+    });
+  };
+
+  applyPalette();
+  setText("section h2", pick("title"));
+  setText("section h2 + p", pick("subtitle"));
+  applyStats();
+})();
+</script>
+<script>
+(() => {
+  const reportHeight = () => parent.postMessage({ type: "front-preview-height", height: Math.max(document.body.scrollHeight, document.documentElement.scrollHeight) }, "*");
+  window.addEventListener("load", reportHeight); window.addEventListener("resize", reportHeight);
+  new ResizeObserver(reportHeight).observe(document.documentElement);
+  document.querySelectorAll("img").forEach((image) => image.addEventListener("load", reportHeight)); reportHeight();
+})();
+</script>
+</body></html>

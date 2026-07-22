@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-TW"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>利每家 LIMJIA × Dash-U | 智慧富氫水站</title>
+<!-- Google Fonts: Playfair Display for headlines, Inter for body -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&amp;family=Inter:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#d4dbdd",
+                        "on-tertiary-fixed": "#001f27",
+                        "inverse-primary": "#94ccff",
+                        "surface-variant": "#dde4e6",
+                        "primary-container": "#0077b6",
+                        "outline": "#707881",
+                        "on-secondary-container": "#4a6f00",
+                        "on-primary": "#ffffff",
+                        "surface-container-high": "#e2e9ec",
+                        "on-surface": "#161d1f",
+                        "background": "#f4fafd",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#94ccff",
+                        "tertiary": "#006176",
+                        "error-container": "#ffdad6",
+                        "secondary": "#456800",
+                        "on-primary-container": "#f3f7ff",
+                        "on-error-container": "#93000a",
+                        "surface-container-highest": "#dde4e6",
+                        "primary-fixed": "#cde5ff",
+                        "surface-tint": "#006399",
+                        "inverse-on-surface": "#ebf2f4",
+                        "tertiary-fixed": "#b3ebff",
+                        "tertiary-container": "#007c95",
+                        "secondary-container": "#b7f555",
+                        "surface": "#f4fafd",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed-dim": "#4cd6fb",
+                        "secondary-fixed-dim": "#9dd83b",
+                        "surface-bright": "#f4fafd",
+                        "on-tertiary-fixed-variant": "#004e5f",
+                        "on-primary-fixed": "#001d32",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed-variant": "#004b74",
+                        "primary": "#005d90",
+                        "on-tertiary-container": "#ecf9ff",
+                        "error": "#ba1a1a",
+                        "on-surface-variant": "#404850",
+                        "outline-variant": "#bfc7d1",
+                        "surface-container-low": "#eef5f7",
+                        "on-secondary-fixed-variant": "#334f00",
+                        "inverse-surface": "#2b3234",
+                        "surface-container": "#e8eff1",
+                        "on-secondary-fixed": "#121f00",
+                        "on-background": "#161d1f",
+                        "on-error": "#ffffff",
+                        "secondary-fixed": "#b7f555"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-desktop": "48px",
+                        "section-gap": "80px",
+                        "base": "8px",
+                        "margin-mobile": "16px",
+                        "container-max": "1280px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Playfair Display"],
+                        "body-md": ["Inter"],
+                        "headline-md": ["Playfair Display"],
+                        "headline-lg": ["Playfair Display"],
+                        "body-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "display-lg-mobile": ["Playfair Display"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "display-lg-mobile": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        
+        /* Custom scroll indicator animation */
+        @keyframes scroll-bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-8px);}
+            60% {transform: translateY(-4px);}
+        }
+        .scroll-indicator {
+            animation: scroll-bounce 2s infinite;
+        }
+
+        /* Gradient Overlay for Readability */
+        .hero-overlay {
+            background: linear-gradient(to right, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.3) 40%, rgba(0, 0, 0, 0) 100%);
+        }
+
+        .nav-glass {
+            backdrop-filter: blur(12px);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-background font-body-md text-on-surface antialiased overflow-hidden">
+<!-- Top Navigation Bar (Shared Component Anchor) -->
+<nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-desktop h-20 transition-all duration-300 nav-glass border-b border-white/10">
+<div class="flex items-center gap-base">
+<span class="font-headline-md text-headline-md font-bold text-white tracking-tight">利每家 LIMJIA × Dash-U</span>
+</div>
+<div class="hidden md:flex items-center space-x-8">
+<a class="font-label-md text-label-md text-primary dark:text-primary-fixed font-bold border-b-2 border-primary pb-1" href="#">首頁</a>
+<a class="font-label-md text-label-md text-white/80 hover:text-white transition-colors" href="#">認識利每家</a>
+<a class="font-label-md text-label-md text-white/80 hover:text-white transition-colors" href="#">智慧富氫水站</a>
+<a class="font-label-md text-label-md text-white/80 hover:text-white transition-colors" href="#">最新資訊</a>
+<a class="font-label-md text-label-md text-white/80 hover:text-white transition-colors" href="#">聯絡我們</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="bg-primary text-on-primary px-6 py-2.5 rounded-full font-label-md text-label-md hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-primary/20">
+                合作諮詢
+            </button>
+</div>
+</nav>
+<!-- Main Hero Section (Layout A: Immersive Full-Screen Hero) -->
+<main class="relative h-screen w-full overflow-hidden bg-on-surface">
+<!-- Background Image with data-alt -->
+<div class="absolute inset-0 w-full h-full">
+<div class="w-full h-full bg-cover bg-center" data-alt="A cinematic, high-quality photograph of a modern, multi-generational family—elderly couple, young parents, and a child—gathered in a sun-drenched, premium minimalist kitchen. They are smiling warmly while interacting with a sleek, white smart hydrogen water dispenser with a glowing blue digital display. The setting is luxurious with natural wood cabinetry and soft sunlight streaming through large floor-to-ceiling windows, creating a serene, health-conscious atmosphere that emphasizes pure, technological wellness." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBOUbeyAEETrl2ui57T_7q_JxRzRg84kBmPOa54sLq5PqLTBM9BfkDcNkbpQbI2B8Ep9PoPKj0l15EGsSgQRxe85s7aqxGsaItbaVKlyaHh5N5LkqeEj-jNoyLsaCihuWcGoglf9BuRzlECaD4R-A2N4wDAoP4-NntcxzzcfNcdhctAOM1mP3AzLl2zsWUhsDa6XUtM3R9LG3bEp7PBzJIFjTeAStxVXTt74Epzgvuh2qG87Lvy0eL0liVjNjv5lRGNQTUCEpbU-nRC')">
+</div>
+<!-- Dark Gradient Overlay for Text Readability -->
+<div class="absolute inset-0 hero-overlay"></div>
+</div>
+<!-- Content Container -->
+<div class="relative z-10 h-full max-w-container-max mx-auto px-margin-desktop flex flex-col justify-center">
+<div class="w-full md:w-[45%] text-white space-y-6">
+<!-- Tagline -->
+<p class="font-label-md text-label-md uppercase tracking-[0.2em] text-white/70 animate-fade-in">
+                    SMARTER LIVING, BETTER FUTURE
+                </p>
+<!-- Headline -->
+<h1 class="font-display-lg text-display-lg leading-tight">
+                    「讓創新科技，<br/>自然融入每一天」
+                </h1>
+<!-- Description -->
+<p class="font-body-lg text-body-lg text-white/80 max-w-md">
+                    結合智慧技術、產品設計與生活體驗，打造更便利、更安心的日常服務。利每家與您一同開啟純淨、健康的未來生活方式。
+                </p>
+<!-- CTA Actions -->
+<div class="flex items-center gap-gutter pt-4">
+<button class="group flex items-center gap-2 bg-primary text-white px-8 py-4 rounded-full font-label-md text-label-md hover:bg-primary-container transition-all shadow-xl shadow-primary/30">
+                        探索產品
+                        <span class="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+<button class="flex items-center gap-2 border border-white/30 text-white px-8 py-4 rounded-full font-label-md text-label-md hover:bg-white/10 transition-all">
+<span class="material-symbols-outlined text-[20px]">play_circle</span>
+                        觀看影片
+                    </button>
+</div>
+</div>
+</div>
+<!-- Minimalist Video Controls -->
+<div class="absolute bottom-10 right-10 z-20 flex gap-4">
+<button aria-label="Mute/Unmute" class="w-12 h-12 flex items-center justify-center rounded-full border border-white/20 text-white hover:bg-white/10 transition-all">
+<span class="material-symbols-outlined">volume_up</span>
+</button>
+<button aria-label="Pause Background" class="w-12 h-12 flex items-center justify-center rounded-full border border-white/20 text-white hover:bg-white/10 transition-all">
+<span class="material-symbols-outlined">pause</span>
+</button>
+</div>
+<!-- Scroll Indicator -->
+<div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 text-white/50">
+<span class="font-label-md text-[10px] tracking-widest uppercase">Scroll</span>
+<div class="scroll-indicator">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+<!-- Subtle Decorative Hydrogen Motif (Bottom Left) -->
+<div class="absolute bottom-12 left-12 z-20 hidden lg:block opacity-20">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-white"></div>
+<div class="w-8 h-[1px] bg-white"></div>
+<div class="w-2 h-2 rounded-full border border-white"></div>
+<div class="w-12 h-[1px] bg-white"></div>
+<div class="w-4 h-4 rounded-full border-2 border-white"></div>
+</div>
+</div>
+</main>
+<script id="hero-preview-bridge">
+(() => {
+  const params = new URLSearchParams(window.location.search);
+  const pick = (key, fallback = "") => params.get(key) || fallback;
+  const linkEnabled = params.get("linkEnabled") === "1";
+  const setText = (selector, value) => {
+    if (!value) return;
+    const el = document.querySelector(selector);
+    if (el) el.textContent = value;
+  };
+  const setButton = (btn, value) => {
+    if (!btn) return;
+    const icon = btn.querySelector(".material-symbols-outlined");
+    btn.textContent = value;
+    if (icon) btn.appendChild(icon);
+  };
+  const applyPalette = () => {
+    const palette = {
+      primary: pick("primary"),
+      accent: pick("accent"),
+      bg: pick("bg"),
+      surface: pick("surface"),
+      text: pick("text"),
+      muted: pick("muted")
+    };
+    if (!palette.primary) return;
+    document.body.style.background = palette.bg;
+    document.body.style.color = palette.text;
+    document.querySelectorAll(".text-primary").forEach((el) => { el.style.color = palette.primary; });
+    document.querySelectorAll(".text-on-surface").forEach((el) => { el.style.color = palette.text; });
+    document.querySelectorAll(".text-on-surface-variant").forEach((el) => { el.style.color = palette.muted; });
+    document.querySelectorAll(".bg-primary, .bg-primary-container").forEach((el) => {
+      el.style.background = palette.primary;
+      el.style.color = "#fff";
+    });
+    document.querySelectorAll(".border-primary").forEach((el) => { el.style.borderColor = palette.primary; });
+    document.querySelectorAll(".bg-background, .bg-surface, .bg-surface-bright").forEach((el) => { el.style.background = palette.bg; });
+    document.querySelectorAll(".bg-white").forEach((el) => { el.style.background = palette.surface; });
+  };
+  applyPalette();
+  document.querySelector("nav")?.remove();
+  document.querySelectorAll("button").forEach((btn) => { btn.style.display = "none"; });
+  setText("h1", pick("title"));
+  setText("main p.font-label-md", pick("subtitle"));
+  document.querySelector("main p.font-body-lg")?.remove();
+  let imageUrl = pick("imageUrl");
+  const imageKey = pick("imageKey");
+  if (!imageUrl && imageKey) {
+    try {
+      imageUrl = sessionStorage.getItem(imageKey) || "";
+    } catch (error) {}
+  }
+  if (imageUrl) {
+    const image = document.querySelector("[style*='background-image']");
+    if (image) image.style.backgroundImage = `url('${imageUrl}')`;
+  }
+  window.addEventListener("message", (event) => {
+    if (event.data?.type !== "hero-preview-image" || !event.data.imageUrl) return;
+    const image = document.querySelector("[style*='background-image']");
+    if (image) image.style.backgroundImage = `url('${event.data.imageUrl}')`;
+  });
+  const primaryButton = document.querySelector("main button.bg-primary");
+  if (linkEnabled) {
+    setButton(primaryButton, pick("cta", "查看更多"));
+    if (primaryButton) primaryButton.style.display = "inline-flex";
+  }
+})();
+</script>
+<script>
+        // Simple Interaction logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const nav = document.querySelector('nav');
+            
+            // Interaction for Nav transparency on scroll (though only hero section exists here)
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    nav.classList.add('bg-white/90', 'dark:bg-surface/90', 'text-on-surface');
+                    nav.classList.remove('text-white', 'nav-glass');
+                } else {
+                    nav.classList.remove('bg-white/90', 'dark:bg-surface/90', 'text-on-surface');
+                    nav.classList.add('nav-glass');
+                }
+            });
+
+            // Micro-interactions for buttons
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(btn => {
+                btn.addEventListener('mouseenter', () => {
+                    // Could add sounds or custom cursors here
+                });
+            });
+        });
+    </script>
+<script>
+(() => {
+  const reportHeight = () => parent.postMessage({ type: "front-preview-height", height: Math.max(document.body.scrollHeight, document.documentElement.scrollHeight) }, "*");
+  window.addEventListener("load", reportHeight); window.addEventListener("resize", reportHeight);
+  new ResizeObserver(reportHeight).observe(document.documentElement);
+  document.querySelectorAll("img").forEach((image) => image.addEventListener("load", reportHeight)); reportHeight();
+})();
+</script>
+</body></html>

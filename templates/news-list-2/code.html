@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+
+<html lang="zh-TW"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed": "#dce1ff",
+                        "surface": "#faf8ff",
+                        "surface-container-highest": "#e1e1ef",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "surface-bright": "#faf8ff",
+                        "secondary-fixed": "#e2e2e2",
+                        "on-error": "#ffffff",
+                        "error": "#ba1a1a",
+                        "surface-container-high": "#e7e7f5",
+                        "on-tertiary-fixed-variant": "#872100",
+                        "error-container": "#ffdad6",
+                        "on-primary": "#ffffff",
+                        "surface-variant": "#e1e1ef",
+                        "outline": "#737688",
+                        "on-primary-container": "#e3e6ff",
+                        "on-primary-fixed-variant": "#0039b3",
+                        "inverse-on-surface": "#f0f0fd",
+                        "secondary-container": "#dfe0e0",
+                        "on-tertiary-fixed": "#3b0900",
+                        "tertiary": "#972500",
+                        "primary": "#0041c8",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed-variant": "#454747",
+                        "background": "#faf8ff",
+                        "surface-dim": "#d9d9e6",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#5d5f5f",
+                        "on-surface-variant": "#434656",
+                        "tertiary-container": "#c13301",
+                        "surface-tint": "#004dea",
+                        "on-surface": "#191b25",
+                        "tertiary-fixed": "#ffdbd1",
+                        "on-background": "#191b25",
+                        "outline-variant": "#c3c5d9",
+                        "primary-fixed-dim": "#b6c4ff",
+                        "tertiary-fixed-dim": "#ffb5a0",
+                        "on-tertiary-container": "#ffe1d9",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "on-primary-fixed": "#001551",
+                        "on-error-container": "#93000a",
+                        "inverse-surface": "#2e303a",
+                        "inverse-primary": "#b6c4ff",
+                        "primary-container": "#0055ff",
+                        "on-secondary-container": "#616363",
+                        "surface-container-low": "#f3f2ff",
+                        "surface-container": "#ededfb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "24px",
+                        "lg": "48px",
+                        "xs": "4px",
+                        "base": "8px",
+                        "xl": "80px",
+                        "margin-desktop": "64px",
+                        "sm": "12px",
+                        "margin-mobile": "20px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Geist"],
+                        "headline-lg": ["Geist"],
+                        "body-lg": ["Inter"],
+                        "label-sm": ["Geist"],
+                        "label-md": ["Geist"],
+                        "display": ["Geist"],
+                        "headline-lg-mobile": ["Geist"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["32px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "headline-lg": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "1", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "display": ["72px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .news-image-container img {
+            transition: transform 0.7s cubic-bezier(0.2, 0, 0.2, 1);
+        }
+        .news-group:hover .news-image-container img {
+            transform: scale(1.05);
+        }
+        .news-group:hover .news-headline {
+            color: #0041c8; /* primary */
+        }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface antialiased">
+<!-- News List Module: 版型 B｜焦點新聞編輯版 -->
+<section class="max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop py-xl">
+<!-- Top Section -->
+<div class="flex justify-between items-end mb-lg border-b border-outline-variant/30 pb-md">
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">
+                最新消息
+            </h2>
+<a class="group flex items-center gap-xs font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">
+                查看全部消息
+                <span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</div>
+<!-- Main Body: 65/35 Split -->
+<div class="grid grid-cols-1 lg:grid-cols-10 gap-xl items-start">
+<!-- Left Side (65%): Featured News -->
+<div class="lg:col-span-6">
+<a class="news-group block" href="#">
+<div class="news-image-container aspect-[16/9] overflow-hidden rounded-lg mb-md bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="A cinematic, high-angle wide shot of a modern city courtyard with a sleek, minimalist public water refill station. People are walking by in stylish, high-end casual attire. The lighting is bright and airy with a professional architectural photography feel, featuring soft natural sunlight and clean glass textures. The color palette is dominated by neutral whites and warm wood tones with vibrant greenery accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuATx45dEc8zNxREqeEU-28YBrj8w9hmberJLEWJLOifFeM4xv8yYDZHnSDr40EafyxEzQyETvm7PKgX0Q0glIrso16b5pe6KyHhdytx4ToHxh4yQZn0sC1dWxAq3yJ3RFAsKmOs14RhD4Ni3TT9GsdlbKapFHX4odpPWOCv71u2y5PjJ_CzoJmXl-faPp5FxqcNPfnkUcVkLyrjyICGyBLsHAHj3YjgSb1a5DUO7mo5rP3C9BqgXLqg8dM8L713e_q37G-yYj2IHZE"/>
+</div>
+<div class="space-y-sm">
+<span class="font-label-sm text-label-sm text-primary tracking-widest uppercase">Featured</span>
+<p class="font-label-md text-label-md text-primary">2024.05.20</p>
+<h3 class="news-headline font-headline-md text-headline-md text-on-surface transition-colors duration-300 line-clamp-3">
+                            社區智慧水站正式進駐，提升公共飲水品質
+                        </h3>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-2 max-w-2xl">
+                            我們致力於推動城市永續發展，首座社區智慧水站正式揭幕，提供高品質過濾飲用水，透過數位看板串連社區資訊，為市民帶來更便捷、健康的都會生活體驗。
+                        </p>
+</div>
+</a>
+</div>
+<!-- Right Side (35%): Secondary News Items -->
+<div class="lg:col-span-4 flex flex-col">
+<!-- Secondary Item 1 -->
+<a class="news-group block pb-xl mb-xl border-b border-outline-variant/30" href="#">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-md">
+<div class="news-image-container aspect-[16/9] overflow-hidden rounded-lg bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="A warm, cozy interior shot of a minimalist high-end kitchen. A woman is interacting with a sleek, circular smart home display screen on a marble countertop next to a fresh breakfast spread. The lighting is soft and golden, suggesting a peaceful morning atmosphere. The style is premium tech-lifestyle with a focus on tactile materials and intuitive interaction." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8i7G6gSDQLRsrooi6UkB8Z8kuFB9ogGfzEhEHmSjZy1bECurEDr90j7679HDEG93HSrWQPXjlabrqRCqk480vADBjJkQw_CtrM9eKvonQauSrmykbZQ5-RD8flq_9WEURHTRh96bLWTu7xUWEguox_ahS8073Znzv9cHNpNGxCrtgmCtWrZ9gMdXoo3GWAlUj0JPjJ3p3ZR3YW07BYoEjPr1DdgX-GQO3o6_5ZzEFxOSylYg4uAScKv5eU9Pxbq2HMk-yitUOr4A"/>
+</div>
+<div class="space-y-sm py-xs">
+<p class="font-label-md text-label-md text-primary">2024.05.15</p>
+<h4 class="news-headline font-headline-md text-headline-md text-on-surface transition-colors duration-300 line-clamp-2 text-xl leading-tight">
+                                智能家庭核心升級：更懂你的生活節奏
+                            </h4>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-2">
+                                全新作業系統更新，透過邊緣運算技術，更精準地學習使用者的作息規律，自動調節室內環境與光影。
+                            </p>
+</div>
+</div>
+</a>
+<!-- Secondary Item 2 -->
+<a class="news-group block" href="#">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-md">
+<div class="news-image-container aspect-[16/9] overflow-hidden rounded-lg bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="An intimate lifestyle scene of an elderly woman and a young child laughing together on a soft, cream-colored linen sofa. In the background, a small, elegant smart display on a wooden console shows wellness data metrics. The scene is illuminated by soft window light, creating a heartwarming and trustworthy feeling of health and family connection." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlnpnIs6s2h3_eRm8OyOvOaSf6KSgGtEHdJavG_ILlamOqLCBoh-0-X_YpRflTlCLaOQuoxV2XvEGgz3_n8k1092pwUGv25bvLQEQMzH735KISEVgxP2PmjwNBgBQopsGgBaJRXjI24ZKHfrXkdbV_1KMDjyfZlN-7TvSEg3DPahyCOkqFtyi-wpiUwS5oTCFSm_LcT6qD8H2m_65iNsjwmUeU4t5B0q1gekuvKwVaVeVOm9Zra8SnhlGGACNaCuUMtMN0j1ny1rI"/>
+</div>
+<div class="space-y-sm py-xs">
+<p class="font-label-md text-label-md text-primary">2024.05.10</p>
+<h4 class="news-headline font-headline-md text-headline-md text-on-surface transition-colors duration-300 line-clamp-2 text-xl leading-tight">
+                                運動健康數據追蹤，精準紀錄每一分努力
+                            </h4>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-2">
+                                專為家庭健康設計的追蹤系統，現在支援跨裝置連動，無論是高強度健身或日常步行，都能完美呈現在雲端儀表板上。
+                            </p>
+</div>
+</div>
+</a>
+</div>
+</div>
+</section>
+<script id="news-preview-bridge">
+(() => {
+  const params = new URLSearchParams(window.location.search);
+  const pick = (key, fallback = "") => params.get(key) || fallback;
+  const setTextFor = (node, value) => {
+    if (node && value) node.textContent = value;
+  };
+  const applyPalette = () => {
+    const palette = {
+      primary: pick("primary"),
+      bg: pick("bg"),
+      surface: pick("surface"),
+      text: pick("text"),
+      muted: pick("muted")
+    };
+    if (!palette.primary) return;
+    document.body.style.background = palette.bg;
+    document.body.style.color = palette.text;
+    document.querySelector("section")?.style.setProperty("background", palette.bg);
+    document.querySelectorAll(".text-primary").forEach((el) => { el.style.color = palette.primary; });
+    document.querySelectorAll(".text-on-surface").forEach((el) => { el.style.color = palette.text; });
+    document.querySelectorAll(".text-on-surface-variant").forEach((el) => { el.style.color = palette.muted; });
+    document.querySelectorAll(".bg-surface-container").forEach((el) => { el.style.background = palette.surface; });
+    document.querySelectorAll(".border-outline-variant\\/30").forEach((el) => { el.style.borderColor = palette.muted; });
+  };
+  const applyNews = () => {
+    document.querySelectorAll(".news-group").forEach((item, index) => {
+      const order = index + 1;
+      setTextFor(item.querySelector(".text-primary:not(span)"), pick(`item${order}Date`));
+      setTextFor(item.querySelector("h3, h4"), pick(`item${order}`));
+      setTextFor(item.querySelector("p.font-body-md"), pick(`item${order}Subtitle`));
+      const category = item.querySelector("span.text-primary");
+      if (category && index === 0) category.textContent = pick("category", "Featured");
+    });
+  };
+
+  applyPalette();
+  setTextFor(document.querySelector("section > div h2"), pick("title"));
+  const cta = document.querySelector("section > div a");
+  if (cta) {
+    const icon = cta.querySelector(".material-symbols-outlined");
+    cta.textContent = pick("cta", "查看更多");
+    if (icon) cta.appendChild(icon);
+  }
+  applyNews();
+})();
+</script>
+<script>
+(() => {
+  const reportHeight = () => parent.postMessage({ type: "front-preview-height", height: Math.max(document.body.scrollHeight, document.documentElement.scrollHeight) }, "*");
+  window.addEventListener("load", reportHeight); window.addEventListener("resize", reportHeight);
+  new ResizeObserver(reportHeight).observe(document.documentElement);
+  document.querySelectorAll("img").forEach((image) => image.addEventListener("load", reportHeight)); reportHeight();
+})();
+</script>
+</body></html>

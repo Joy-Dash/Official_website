@@ -1,0 +1,1768 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>A/B 方案後台功能頁原型</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --panel-2: #f1f4f7;
+      --text: #19202a;
+      --muted: #657184;
+      --line: #d9e0e8;
+      --brand: #2563eb;
+      --brand-soft: #eaf1ff;
+      --ok: #16835b;
+      --warn: #a15c08;
+      --danger: #b42318;
+      --shadow: 0 10px 26px rgba(25, 32, 42, 0.08);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      line-height: 1.5;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .topbar {
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      padding: 14px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 230px;
+    }
+
+    .logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: var(--brand);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+    }
+
+    .brand-title {
+      font-weight: 700;
+    }
+
+    .brand-subtitle {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .plan-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn,
+    .btn,
+    .icon-btn {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--text);
+      border-radius: 7px;
+      min-height: 36px;
+      padding: 8px 12px;
+    }
+
+    .tab-btn.active,
+    .btn.primary {
+      background: var(--brand);
+      color: #fff;
+      border-color: var(--brand);
+    }
+
+    .user-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--panel-2);
+      display: grid;
+      place-items: center;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      min-height: 0;
+    }
+
+    .sidebar {
+      border-right: 1px solid var(--line);
+      background: var(--panel);
+      padding: 18px 14px;
+      overflow: auto;
+      max-height: calc(100vh - 65px);
+      position: sticky;
+      top: 65px;
+    }
+
+    .side-section-title {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      margin: 16px 10px 8px;
+    }
+
+    .nav-list {
+      display: grid;
+      gap: 4px;
+    }
+
+    .nav-btn {
+      width: 100%;
+      text-align: left;
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      border-radius: 7px;
+      padding: 9px 10px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .nav-btn:hover,
+    .nav-btn.active {
+      background: var(--brand-soft);
+      color: var(--brand);
+    }
+
+    .nav-btn small {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    main {
+      padding: 24px;
+      min-width: 0;
+    }
+
+    .page-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 4px;
+      font-size: 24px;
+      line-height: 1.25;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+    }
+
+    .page-desc {
+      color: var(--muted);
+      max-width: 820px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid.two {
+      grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+    }
+
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      min-width: 0;
+    }
+
+    .plain-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      min-width: 0;
+    }
+
+    .metric {
+      display: grid;
+      gap: 4px;
+    }
+
+    .metric-value {
+      font-size: 26px;
+      font-weight: 700;
+    }
+
+    .muted,
+    .hint {
+      color: var(--muted);
+    }
+
+    .hint {
+      font-size: 13px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      border-radius: 999px;
+      padding: 2px 9px;
+      font-size: 12px;
+      background: var(--panel-2);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .badge.ok {
+      background: #e7f6ef;
+      color: var(--ok);
+    }
+
+    .badge.warn {
+      background: #fff4df;
+      color: var(--warn);
+    }
+
+    .badge.brand {
+      background: var(--brand-soft);
+      color: var(--brand);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      border-radius: 7px;
+      padding: 9px 10px;
+      min-height: 38px;
+    }
+
+    textarea {
+      min-height: 96px;
+      resize: vertical;
+    }
+
+    .content-type-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .content-type-tabs .tab-btn {
+      min-height: 34px;
+      padding: 7px 11px;
+    }
+
+    .editor-textarea {
+      min-height: 260px;
+      line-height: 1.7;
+    }
+
+    .field-note {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: -2px;
+    }
+
+    .status-pin-row {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(220px, 0.45fr);
+      gap: 14px;
+      align-items: end;
+    }
+
+    .pin-control {
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 9px 10px;
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #fff;
+    }
+
+    .pin-control.disabled {
+      color: var(--muted);
+      background: var(--panel-2);
+    }
+
+    .pin-control.disabled .switch {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .toggle-row:last-child {
+      border-bottom: 0;
+    }
+
+    .switch {
+      width: 44px;
+      height: 24px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--brand);
+      padding: 3px;
+      display: flex;
+      justify-content: flex-end;
+      flex: none;
+    }
+
+    .switch.off {
+      background: #a7b0bf;
+      justify-content: flex-start;
+    }
+
+    .knob {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      padding: 11px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-weight: 700;
+      background: var(--panel-2);
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .toolbar-left,
+    .toolbar-right {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .search-input {
+      min-width: 230px;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 9px;
+    }
+
+    .check-item {
+      display: grid;
+      grid-template-columns: 24px minmax(0, 1fr) auto;
+      gap: 9px;
+      align-items: start;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--panel);
+    }
+
+    .check-mark {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #e7f6ef;
+      color: var(--ok);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .check-mark.warn {
+      background: #fff4df;
+      color: var(--warn);
+    }
+
+    .flow-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .flow-item {
+      display: grid;
+      grid-template-columns: 36px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+    }
+
+    .flow-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--brand-soft);
+      color: var(--brand);
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+    }
+
+    .preview-box {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .browser-bar {
+      color: var(--muted);
+      font-size: 13px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 8px;
+    }
+
+    .serp-title {
+      color: #1a0dab;
+      font-size: 18px;
+    }
+
+    .serp-url {
+      color: #188038;
+      font-size: 13px;
+    }
+
+    .mini-list {
+      display: grid;
+      gap: 7px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .mini-list li {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .mini-list li:last-child {
+      border-bottom: 0;
+    }
+
+    .relation-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .relation-box {
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 1100px) {
+      .layout {
+        grid-template-columns: 230px minmax(0, 1fr);
+      }
+
+      .grid.two,
+      .grid.three {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 780px) {
+      .topbar,
+      .page-head {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+        max-height: none;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      main {
+        padding: 16px;
+      }
+
+      .form-grid,
+      .status-pin-row,
+      .relation-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .search-input {
+        min-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">CMS</div>
+        <div>
+          <div class="brand-title">品牌官網後台原型</div>
+          <div class="brand-subtitle">A 基本版 / B 進階版功能頁</div>
+        </div>
+      </div>
+      <div class="plan-tabs" aria-label="方案切換">
+        <button class="tab-btn active" type="button" data-plan="a">A 基本版</button>
+        <button class="tab-btn" type="button" data-plan="b">B 進階版</button>
+      </div>
+      <div class="user-box">
+        <span>Dash Joy</span>
+        <span class="avatar">J</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="side-section-title">後台功能</div>
+        <nav class="nav-list" id="navList" aria-label="後台功能選單"></nav>
+      </aside>
+
+      <main>
+        <div class="page-head">
+          <div>
+            <h1 id="pageTitle"></h1>
+            <div class="page-desc" id="pageDesc"></div>
+          </div>
+          <div class="actions" id="pageActions"></div>
+        </div>
+        <div id="pageContent"></div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const basePages = [
+      {
+        id: "overview",
+        group: "方案說明",
+        label: "方案總覽",
+        desc: "整理 A/B 後台功能差異，協助判斷方案邊界。",
+        actions: ["匯出規格", "建立報價"],
+        type: "overview"
+      },
+      {
+        id: "dashboard",
+        group: "基礎營運",
+        label: "儀表板",
+        desc: "查看網站內容、表單與待處理事項的基本狀態。",
+        actions: ["查看前台", "新增內容"],
+        type: "dashboard"
+      },
+      {
+        id: "accounts",
+        group: "基礎營運",
+        label: "帳號與權限",
+        desc: "管理後台使用者、角色與登入權限。",
+        actions: ["新增帳號"],
+        type: "tableForm",
+        formTitle: "帳號資料",
+        fields: ["姓名", "Email", "角色", "狀態"],
+        columns: ["使用者", "角色", "狀態", "最後登入"],
+        rows: [
+          ["Joy", "管理員", "啟用", "2026/07/16 14:20"],
+          ["Editor", "編輯者", "啟用", "2026/07/15 18:02"],
+          ["Partner", "檢視者", "停用", "2026/07/08 09:31"]
+        ]
+      },
+      {
+        id: "home",
+        group: "內容管理",
+        label: "首頁內容管理",
+        desc: "維護首頁 Banner、標題、簡介、主要 CTA 與首頁區塊。",
+        actions: ["儲存", "預覽首頁"],
+        type: "editor",
+        fields: [
+          ["首頁主標題", "打造能被搜尋、能被信任的品牌官網"],
+          ["首頁副標題", "整合品牌頁面、文章案例與詢問表單。"],
+          ["主要 CTA 文字", "立即諮詢"],
+          ["主要 CTA 連結", "/contact"]
+        ],
+        toggles: ["顯示服務重點", "顯示成功案例", "顯示 FAQ", "顯示聯絡 CTA"]
+      },
+      {
+        id: "pages",
+        group: "內容管理",
+        label: "基本頁面管理",
+        desc: "管理關於我們、服務介紹、聯絡資訊等基本頁面。",
+        actions: ["新增頁面", "儲存排序"],
+        type: "pageList",
+        columns: ["頁面", "網址", "狀態", "更新時間"],
+        rows: [
+          ["關於我們", "/about", "已發布", "2026/07/16"],
+          ["服務介紹", "/services", "已發布", "2026/07/15"],
+          ["聯絡我們", "/contact", "已發布", "2026/07/14"],
+          ["隱私權政策", "/privacy", "草稿", "2026/07/13"]
+        ]
+      },
+      {
+        id: "articles",
+        group: "內容管理",
+        label: "文章 / 最新消息",
+        desc: "新增、編輯、刪除與發布文章或公告。",
+        actions: ["新增文章"],
+        type: "contentTable",
+        columns: ["標題", "類型", "狀態", "更新時間"],
+        rows: [
+          ["如何挑選適合的品牌官網方案", "知識文章", "已發布", "2026/07/16"],
+          ["夏季服務優惠公告", "最新消息", "草稿", "2026/07/15"],
+          ["網站改版前需要準備什麼", "知識文章", "已發布", "2026/07/12"]
+        ]
+      },
+      {
+        id: "cases",
+        group: "內容管理",
+        label: "案例 / 作品管理",
+        desc: "管理案例圖片、成果說明、排序與顯示狀態。",
+        actions: ["新增案例"],
+        type: "contentTable",
+        columns: ["案例名稱", "產業", "狀態", "排序"],
+        rows: [
+          ["室內設計公司官網", "設計服務", "已發布", "1"],
+          ["牙醫診所品牌站", "醫療服務", "已發布", "2"],
+          ["教育顧問內容站", "教育", "隱藏", "3"]
+        ]
+      },
+      {
+        id: "faq",
+        group: "內容管理",
+        label: "FAQ 管理",
+        desc: "新增常見問題與答案，並控制排序與顯示狀態。",
+        actions: ["新增 FAQ"],
+        type: "faq",
+        rows: [
+          ["網站製作需要多久？", "依頁面數量與內容準備狀況，通常需要 3 到 8 週。", "顯示"],
+          ["可以自己更新內容嗎？", "可以，後台可維護頁面、文章、案例與 FAQ。", "顯示"],
+          ["是否包含 SEO？", "A 方案包含基本 SEO，B 方案包含進階 SEO/GEO 架構。", "顯示"]
+        ]
+      },
+      {
+        id: "leads",
+        group: "詢問與資料",
+        label: "表單資料管理",
+        desc: "查看聯絡表單資料，並標記已處理或未處理。",
+        actions: ["匯出 CSV"],
+        type: "leads",
+        columns: ["姓名", "需求", "狀態", "送出時間"],
+        rows: [
+          ["王小姐", "想了解進階版", "未處理", "2026/07/16 13:22"],
+          ["陳先生", "詢問品牌官網", "已處理", "2026/07/15 17:41"],
+          ["林小姐", "需要多據點頁面", "未處理", "2026/07/15 10:08"]
+        ]
+      },
+      {
+        id: "media",
+        group: "詢問與資料",
+        label: "媒體庫",
+        desc: "管理 Logo、圖片與網站內容會用到的檔案。",
+        actions: ["上傳圖片", "新增資料夾"],
+        type: "media"
+      },
+      {
+        id: "seo-basic",
+        group: "搜尋設定",
+        label: "搜尋顯示設定",
+        desc: "A 方案提供基本 SEO，客戶只維護看得懂的搜尋標題、搜尋摘要與分享圖片。",
+        actions: ["儲存 SEO"],
+        type: "seoBasic"
+      },
+      {
+        id: "settings",
+        group: "網站設定",
+        label: "網站基本設定",
+        desc: "管理網站名稱、Logo、聯絡方式、社群連結與 Footer。",
+        actions: ["儲存設定"],
+        type: "settings"
+      },
+      {
+        id: "logs",
+        group: "網站設定",
+        label: "操作紀錄",
+        desc: "簡單記錄後台使用者修改內容的時間與項目。",
+        actions: ["篩選紀錄"],
+        type: "logs"
+      }
+    ];
+
+    const advancedPages = [
+      {
+        id: "seo-structure",
+        group: "SEO / GEO 進階",
+        label: "SEO 強化架構",
+        desc: "強化 H1/H2、canonical、OG、Breadcrumb 與頁面完整度檢查。技術欄位由系統處理。",
+        actions: ["執行檢查"],
+        type: "seoChecklist"
+      },
+      {
+        id: "schema",
+        group: "SEO / GEO 進階",
+        label: "Schema 自動化",
+        desc: "依頁型自動產生 Organization、Article、FAQ、Breadcrumb、LocalBusiness 結構化資料。",
+        actions: ["預覽 JSON-LD"],
+        type: "schema"
+      },
+      {
+        id: "sitemap",
+        group: "SEO / GEO 進階",
+        label: "Sitemap / 收錄設定",
+        desc: "自動產生 Sitemap，使用者只需用簡單開關控制是否開放搜尋收錄。",
+        actions: ["重新產生 Sitemap"],
+        type: "sitemap"
+      },
+      {
+        id: "geo",
+        group: "GEO 地區內容",
+        label: "GEO 地區頁管理",
+        desc: "建立縣市、行政區與服務區落地頁，承接本地搜尋流量。",
+        actions: ["新增地區頁"],
+        type: "geo"
+      },
+      {
+        id: "service-area",
+        group: "GEO 地區內容",
+        label: "服務區域對應",
+        desc: "將服務項目與地區頁互相對應，形成可擴充的 SEO/GEO 內容架構。",
+        actions: ["新增對應"],
+        type: "relations"
+      },
+      {
+        id: "locations",
+        group: "GEO 地區內容",
+        label: "據點 / 門市管理",
+        desc: "管理地址、電話、營業時間、地圖、服務內容與據點狀態。",
+        actions: ["新增據點"],
+        type: "locations"
+      },
+      {
+        id: "taxonomy",
+        group: "內容結構強化",
+        label: "文章分類 / 標籤",
+        desc: "管理文章分類與標籤，讓內容更有結構，也能產生分類搜尋入口。",
+        actions: ["新增分類", "新增標籤"],
+        type: "taxonomy"
+      },
+      {
+        id: "content-relations",
+        group: "內容結構強化",
+        label: "內容關聯管理",
+        desc: "把文章、案例、服務、地區與 FAQ 串起來，提升內部連結與頁面完整度。",
+        actions: ["新增關聯"],
+        type: "contentRelations"
+      },
+      {
+        id: "page-faq",
+        group: "內容結構強化",
+        label: "頁面 FAQ / FAQ Schema",
+        desc: "服務頁與地區頁可掛專屬 FAQ，系統自動輸出 FAQ Schema。",
+        actions: ["新增頁面 FAQ"],
+        type: "pageFaq"
+      },
+      {
+        id: "tracking",
+        group: "追蹤與成效",
+        label: "追蹤碼設定",
+        desc: "管理 GA4、GTM、Meta Pixel、LINE Tag 等追蹤 ID。",
+        actions: ["儲存追蹤碼"],
+        type: "tracking"
+      },
+      {
+        id: "conversion",
+        group: "追蹤與成效",
+        label: "轉換追蹤入口",
+        desc: "追蹤表單送出、電話、LINE、主要 CTA 等重要互動。",
+        actions: ["新增追蹤事件"],
+        type: "conversion"
+      },
+      {
+        id: "utm",
+        group: "追蹤與成效",
+        label: "UTM / 來源記錄",
+        desc: "表單資料可記錄 Google、Facebook、LINE、QR 等來源。",
+        actions: ["匯出來源資料"],
+        type: "utm"
+      },
+      {
+        id: "analytics",
+        group: "追蹤與成效",
+        label: "基礎成效查看",
+        desc: "查看表單來源、熱門頁面、主要 CTA 點擊等基礎成效。",
+        actions: ["切換日期"],
+        type: "analytics"
+      },
+      {
+        id: "completeness",
+        group: "系統引導",
+        label: "內容完整度引導",
+        desc: "引導客戶補齊搜尋標題、摘要、服務地區、FAQ、據點等可理解內容。",
+        actions: ["查看待補項目"],
+        type: "completeness"
+      },
+      {
+        id: "seo-guard",
+        group: "系統引導",
+        label: "搜尋風險保護",
+        desc: "隱藏 Schema、canonical、JSON-LD 等技術欄位，用規則避免客戶填錯。",
+        actions: ["查看規則"],
+        type: "guard"
+      }
+    ];
+
+    const state = {
+      plan: "a",
+      page: "overview"
+    };
+
+    const navList = document.getElementById("navList");
+    const pageTitle = document.getElementById("pageTitle");
+    const pageDesc = document.getElementById("pageDesc");
+    const pageActions = document.getElementById("pageActions");
+    const pageContent = document.getElementById("pageContent");
+
+    function pagesForPlan() {
+      return state.plan === "a" ? basePages : basePages.concat(advancedPages);
+    }
+
+    function currentPage() {
+      return pagesForPlan().find((page) => page.id === state.page) || pagesForPlan()[0];
+    }
+
+    function groupedPages() {
+      return pagesForPlan().reduce((groups, page) => {
+        if (!groups[page.group]) groups[page.group] = [];
+        groups[page.group].push(page);
+        return groups;
+      }, {});
+    }
+
+    function renderNav() {
+      navList.innerHTML = "";
+      const groups = groupedPages();
+      Object.keys(groups).forEach((group) => {
+        const title = document.createElement("div");
+        title.className = "side-section-title";
+        title.textContent = group;
+        navList.appendChild(title);
+
+        groups[group].forEach((page) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "nav-btn" + (page.id === state.page ? " active" : "");
+          btn.innerHTML = `<span>${page.label}</span>${state.plan === "b" && advancedPages.some((p) => p.id === page.id) ? "<small>B</small>" : ""}`;
+          btn.addEventListener("click", () => {
+            state.page = page.id;
+            render();
+          });
+          navList.appendChild(btn);
+        });
+      });
+    }
+
+    function actionButtons(actions) {
+      pageActions.innerHTML = "";
+      (actions || []).forEach((label, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = index === 0 ? "btn primary" : "btn";
+        button.textContent = label;
+        pageActions.appendChild(button);
+      });
+    }
+
+    function badge(value) {
+      const kind = value.includes("未") || value.includes("草稿") || value.includes("待") ? "warn" : value.includes("已") || value.includes("啟用") || value.includes("顯示") ? "ok" : "brand";
+      return `<span class="badge ${kind}">${value}</span>`;
+    }
+
+    function tableHtml(columns, rows) {
+      return `
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <input class="search-input" type="search" placeholder="搜尋資料">
+            <select><option>全部狀態</option><option>已發布</option><option>草稿</option><option>隱藏</option></select>
+          </div>
+          <div class="toolbar-right">
+            <button class="btn" type="button">篩選</button>
+            <button class="btn" type="button">批次操作</button>
+          </div>
+        </div>
+        <div class="plain-card">
+          <table>
+            <thead><tr>${columns.map((c) => `<th>${c}</th>`).join("")}<th>操作</th></tr></thead>
+            <tbody>
+              ${rows.map((row) => `<tr>${row.map((cell, index) => `<td>${index === 2 ? badge(cell) : cell}</td>`).join("")}<td><button class="btn" type="button">編輯</button></td></tr>`).join("")}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function formFields(fields) {
+      return fields.map((item) => {
+        const name = Array.isArray(item) ? item[0] : item;
+        const value = Array.isArray(item) ? item[1] : "";
+        return `
+          <div class="field">
+            <label>${name}</label>
+            <input type="text" value="${value}" placeholder="請輸入${name}">
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderOverview() {
+      const isB = state.plan === "b";
+      return `
+        <div class="grid three">
+          <div class="card metric">
+            <div class="muted">目前方案</div>
+            <div class="metric-value">${isB ? "B 進階版" : "A 基本版"}</div>
+            <div class="hint">${isB ? "SEO / GEO 引導式內容管理" : "品牌官網 + 基本 SEO"}</div>
+          </div>
+          <div class="card metric">
+            <div class="muted">後台頁面</div>
+            <div class="metric-value">${pagesForPlan().length}</div>
+            <div class="hint">${isB ? "含 A 全部功能與進階模組" : "聚焦基本內容維護"}</div>
+          </div>
+          <div class="card metric">
+            <div class="muted">客戶要懂的事</div>
+            <div class="metric-value">${isB ? "內容" : "頁面"}</div>
+            <div class="hint">${isB ? "技術 SEO 由系統自動處理" : "可維護搜尋標題與摘要"}</div>
+          </div>
+        </div>
+        <div class="grid two" style="margin-top:16px;">
+          <section class="card">
+            <h2>A 基本版後台定位</h2>
+            <div class="flow-list">
+              <div class="flow-item"><div class="flow-num">1</div><div><h3>完整品牌官網內容維護</h3><div class="muted">首頁、關於我們、服務介紹、文章、案例、FAQ、聯絡表單。</div></div></div>
+              <div class="flow-item"><div class="flow-num">2</div><div><h3>基本 SEO 搜尋顯示</h3><div class="muted">客戶可調整搜尋標題、搜尋摘要、分享圖片與友善網址。</div></div></div>
+              <div class="flow-item"><div class="flow-num">3</div><div><h3>技術預設不干擾客戶</h3><div class="muted">基本 Sitemap、語意化標題、公開收錄規則由系統預設處理。</div></div></div>
+            </div>
+          </section>
+          <section class="card">
+            <h2>B 進階版新增差異</h2>
+            <div class="flow-list">
+              <div class="flow-item"><div class="flow-num">1</div><div><h3>SEO / GEO 內容架構</h3><div class="muted">地區頁、據點、文章分類、標籤、內容關聯、頁面 FAQ。</div></div></div>
+              <div class="flow-item"><div class="flow-num">2</div><div><h3>Schema / Sitemap 自動化</h3><div class="muted">客戶只填看得懂的資料，系統產生搜尋引擎需要的結構。</div></div></div>
+              <div class="flow-item"><div class="flow-num">3</div><div><h3>轉換與來源追蹤</h3><div class="muted">表單、電話、LINE、CTA、UTM 與基本成效查看。</div></div></div>
+            </div>
+          </section>
+        </div>
+      `;
+    }
+
+    function renderDashboard() {
+      const isB = state.plan === "b";
+      return `
+        <div class="grid three">
+          <div class="card metric"><div class="muted">已發布頁面</div><div class="metric-value">${isB ? 42 : 9}</div><div class="hint">${isB ? "含地區頁與據點頁" : "基本品牌頁面"}</div></div>
+          <div class="card metric"><div class="muted">待處理詢問</div><div class="metric-value">8</div><div class="hint">表單資料待回覆</div></div>
+          <div class="card metric"><div class="muted">內容提醒</div><div class="metric-value">${isB ? 16 : 4}</div><div class="hint">${isB ? "含 SEO/GEO 完整度" : "基本頁面欄位"}</div></div>
+        </div>
+        <div class="grid two" style="margin-top:16px;">
+          <section class="card">
+            <h2>待處理事項</h2>
+            <div class="checklist">
+              <div class="check-item"><div class="check-mark warn">!</div><div><strong>聯絡表單尚有 8 筆未處理</strong><div class="hint">建議今天完成回覆。</div></div>${badge("待處理")}</div>
+              <div class="check-item"><div class="check-mark">✓</div><div><strong>首頁搜尋摘要已完成</strong><div class="hint">A 方案基本 SEO 欄位完整。</div></div>${badge("完成")}</div>
+              ${isB ? '<div class="check-item"><div class="check-mark warn">!</div><div><strong>台中地區頁缺少 FAQ</strong><div class="hint">補上 FAQ 後系統會自動產生 FAQ Schema。</div></div>' + badge("待補") + '</div>' : ""}
+            </div>
+          </section>
+          <section class="card">
+            <h2>最近更新</h2>
+            <ul class="mini-list">
+              <li><span>Joy 更新首頁 Banner</span><span class="muted">10 分鐘前</span></li>
+              <li><span>Editor 發布文章</span><span class="muted">昨天</span></li>
+              <li><span>Joy 編輯 FAQ</span><span class="muted">昨天</span></li>
+              ${isB ? '<li><span>系統重新產生 Sitemap</span><span class="muted">昨天</span></li>' : ""}
+            </ul>
+          </section>
+        </div>
+      `;
+    }
+
+    function renderEditor(page) {
+      return `
+        <div class="grid two">
+          <section class="card">
+            <h2>內容編輯</h2>
+            <div class="form-grid">
+              ${formFields(page.fields)}
+              <div class="field full">
+                <label>區塊說明</label>
+                <textarea>這裡是給客戶維護的頁面內容，欄位以品牌、服務與 CTA 為主，避免暴露技術設定。</textarea>
+              </div>
+            </div>
+          </section>
+          <section class="card">
+            <h2>顯示設定</h2>
+            ${(page.toggles || []).map((label, index) => `
+              <div class="toggle-row">
+                <div><strong>${label}</strong><div class="hint">控制前台是否顯示此區塊。</div></div>
+                <div class="switch ${index === 3 ? "off" : ""}"><div class="knob"></div></div>
+              </div>
+            `).join("")}
+          </section>
+        </div>
+      `;
+    }
+
+    function renderTableForm(page) {
+      return `
+        <div class="grid two">
+          <section class="card">
+            <h2>${page.formTitle}</h2>
+            <div class="form-grid">${formFields(page.fields)}</div>
+          </section>
+          <section class="card">
+            <h2>權限說明</h2>
+            <ul class="mini-list">
+              <li><span>管理員</span><span>可管理設定與帳號</span></li>
+              <li><span>編輯者</span><span>可管理內容與媒體</span></li>
+              <li><span>檢視者</span><span>只能查看資料</span></li>
+            </ul>
+          </section>
+        </div>
+        <div style="margin-top:16px;">${tableHtml(page.columns, page.rows)}</div>
+      `;
+    }
+
+    function renderFaq(page) {
+      return `
+        <div class="grid two">
+          <section class="card">
+            <h2>新增 / 編輯 FAQ</h2>
+            <div class="form-grid">
+              <div class="field full"><label>問題</label><input value="可以自己更新內容嗎？"></div>
+              <div class="field full"><label>答案</label><textarea>可以，後台可維護頁面、文章、案例與 FAQ。</textarea></div>
+              <div class="field"><label>排序</label><input value="2"></div>
+              <div class="field"><label>狀態</label><select><option>顯示</option><option>隱藏</option></select></div>
+            </div>
+          </section>
+          <section class="card">
+            <h2>FAQ 列表</h2>
+            <ul class="mini-list">
+              ${page.rows.map((row) => `<li><span>${row[0]}</span>${badge(row[2])}</li>`).join("")}
+            </ul>
+          </section>
+        </div>
+      `;
+    }
+
+    function renderMedia() {
+      return `
+        <div class="toolbar"><div class="toolbar-left"><input class="search-input" type="search" placeholder="搜尋檔名"><select><option>全部類型</option><option>圖片</option><option>PDF</option></select></div><div class="toolbar-right"><button class="btn">批次刪除</button></div></div>
+        <div class="grid three">
+          ${["brand-logo.png", "home-hero.jpg", "case-01.jpg", "service-clean.jpg", "og-default.jpg", "about-team.jpg"].map((name) => `
+            <div class="plain-card">
+              <div style="height:110px;background:var(--panel-2);border-radius:7px;margin-bottom:10px;display:grid;place-items:center;color:var(--muted);">圖片預覽</div>
+              <strong>${name}</strong>
+              <div class="hint">1200 x 800 / 已使用於網站內容</div>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function renderSeoBasic() {
+      return `
+        <div class="grid two">
+          <section class="card">
+            <h2>搜尋顯示欄位</h2>
+            <div class="form-grid">
+              <div class="field full"><label>頁面</label><select><option>首頁</option><option>關於我們</option><option>服務介紹</option></select></div>
+              <div class="field full"><label>搜尋標題</label><input value="品牌官網解決方案｜Dash Joy"></div>
+              <div class="field full"><label>搜尋摘要</label><textarea>提供品牌官網、內容管理與基本 SEO 設定，讓網站能清楚呈現服務並承接詢問。</textarea></div>
+              <div class="field"><label>友善網址</label><input value="/"></div>
+              <div class="field"><label>分享圖片</label><input value="og-default.jpg"></div>
+            </div>
+          </section>
+          <section class="card">
+            <h2>搜尋結果預覽</h2>
+            <div class="preview-box">
+              <div class="browser-bar">Google 搜尋顯示預覽</div>
+              <div class="serp-title">品牌官網解決方案｜Dash Joy</div>
+              <div class="serp-url">https://example.com/</div>
+              <div class="muted">提供品牌官網、內容管理與基本 SEO 設定，讓網站能清楚呈現服務並承接詢問。</div>
+            </div>
+            <div style="margin-top:14px;" class="hint">A 方案只讓客戶調整看得懂的搜尋顯示內容；Sitemap、語意化標題與公開收錄規則由系統預設。</div>
+          </section>
+        </div>
+      `;
+    }
+
+    function renderSettings() {
+      return `
+        <div class="grid two">
+          <section class="card">
+            <h2>品牌基本資料</h2>
+            <div class="form-grid">
+              ${formFields([["網站名稱", "Dash Joy 品牌官網"], ["Logo", "brand-logo.png"], ["電話", "02-1234-5678"], ["Email", "hello@example.com"], ["LINE", "@dashjoy"], ["地址", "台北市信義區"]])}
+            </div>
+          </section>
+          <section class="card">
+            <h2>Footer 與社群</h2>
+            <div class="form-grid">
+              ${formFields([["Facebook", "https://facebook.com/example"], ["Instagram", "https://instagram.com/example"], ["YouTube", ""], ["隱私權連結", "/privacy"]])}
+            </div>
+          </section>
+        </div>
+      `;
+    }
+
+    function renderLogs() {
+      return tableHtml(["時間", "使用者", "動作", "項目"], [
+        ["2026/07/16 14:22", "Joy", "更新", "首頁 Banner"],
+        ["2026/07/16 11:05", "Editor", "發布", "文章：如何挑選方案"],
+        ["2026/07/15 18:12", "Joy", "修改", "FAQ：網站製作需要多久"],
+        ["2026/07/15 10:30", "System", "產生", "基本 Sitemap"]
+      ]);
+    }
+
+    function renderSeoChecklist() {
+      return `
+        <div class="grid two">
+          <section class="card">
+            <h2>頁面 SEO 檢查</h2>
+            <div class="checklist">
+              <div class="check-item"><div class="check-mark">✓</div><div><strong>搜尋標題完整</strong><div class="hint">使用者填寫搜尋標題，系統輸出 title。</div></div>${badge("完成")}</div>
+              <div class="check-item"><div class="check-mark">✓</div><div><strong>搜尋摘要完整</strong><div class="hint">使用者填寫搜尋摘要，系統輸出 description。</div></div>${badge("完成")}</div>
+              <div class="check-item"><div class="check-mark warn">!</div><div><strong>H2 結構可再補強</strong><div class="hint">建議補上服務流程與常見問題區塊。</div></div>${badge("建議")}</div>
+              <div class="check-item"><div class="check-mark">✓</div><div><strong>Canonical 系統自動處理</strong><div class="hint">不開放給客戶直接修改。</div></div>${badge("自動")}</div>
+            </div>
+          </section>
+          <section class="card">
+            <h2>系統自動處理</h2>
+            <div class="toggle-row"><div><strong>Breadcrumb</strong><div class="hint">前台顯示麵包屑，並輸出結構化資料。</div></div><div class="switch"><div class="knob"></div></div></div>
+            <div class="toggle-row"><div><strong>Canonical</strong><div class="hint">依頁型與網址規則自動產生。</div></div><div class="switch"><div class="knob"></div></div></div>
+            <div class="toggle-row"><div><strong>OG 強化</strong><div class="hint">依頁面內容自動補齊分享資訊。</div></div><div class="switch"><div class="knob"></div></div></div>
+          </section>
+        </div>
+      `;
+    }
+
+    function renderSchema() {
+      return `
+        <div class="grid two">
+          <section class="card">
+            <h2>Schema 類型</h2>
+            <div class="checklist">
+              ${[
+                ["Organization", "依網站基本資料產生"],
+                ["Article", "依文章標題、作者、日期產生"],
+                ["FAQ", "依頁面 FAQ 自動產生"],
+                ["Breadcrumb", "依頁面階層自動產生"],
+                ["LocalBusiness", "依據點與地區資料產生"]
+              ].map((item) => `<div class="check-item"><div class="check-mark">✓</div><div><strong>${item[0]}</strong><div class="hint">${item[1]}</div></div>${badge("自動")}</div>`).join("")}
+            </div>
+          </section>
+          <section class="card">
+            <h2>JSON-LD 預覽</h2>
+            <pre style="white-space:pre-wrap;background:var(--panel-2);padding:14px;border-radius:8px;overflow:auto;"><code>{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "Dash Joy 品牌官網",
+  "areaServed": "台北市",
+  "telephone": "02-1234-5678"
+}</code></pre>
+            <div class="hint">這是系統產生給搜尋引擎看的資料，客戶後台只顯示可理解的品牌、地區、據點欄位。</div>
+          </section>
+        </div>
+      `;
+    }
+
+    function renderSitemap() {
+      return `
+        <div class="grid two">
+          <section class="card">
+            <h2>收錄設定</h2>
+            ${["首頁", "服務介紹", "文章詳細頁", "GEO 地區頁", "據點詳細頁", "草稿頁"].map((name, index) => `
+              <div class="toggle-row">
+                <div><strong>${name}</strong><div class="hint">${index === 5 ? "草稿預設不開放搜尋收錄。" : "已開放搜尋收錄並加入 Sitemap。"}</div></div>
+                <div class="switch ${index === 5 ? "off" : ""}"><div class="knob"></div></div>
+              </div>
+            `).join("")}
+          </section>
+          <section class="card">
+            <h2>Sitemap 狀態</h2>
+            <ul class="mini-list">
+              <li><span>一般頁面</span><span>9 筆</span></li>
+              <li><span>文章</span><span>18 筆</span></li>
+              <li><span>地區頁</span><span>12 筆</span></li>
+              <li><span>據點頁</span><span>5 筆</span></li>
+              <li><span>最後更新</span><span>2026/07/16 14:32</span></li>
+            </ul>
+          </section>
+        </div>
+      `;
+    }
+
+    function renderGeo() {
+      return `
+        <div class="grid two">
+          <section class="card">
+            <h2>地區頁編輯</h2>
+            <div class="form-grid">
+              ${formFields([["縣市", "台北市"], ["行政區", "信義區"], ["頁面標題", "台北信義區品牌官網設計"], ["主要服務", "品牌官網 / SEO 內容架構"]])}
+              <div class="field full"><label>地區頁介紹</label><textarea>針對台北信義區服務需求，提供品牌官網、內容管理與搜尋曝光規劃。</textarea></div>
+            </div>
+          </section>
+          <section class="card">
+            <h2>地區頁列表</h2>
+            ${tableHtml(["地區", "服務", "狀態", "完整度"], [["台北市信義區", "品牌官網", "已發布", "90%"], ["台北市大安區", "品牌官網", "草稿", "65%"], ["新北市板橋區", "SEO 內容", "已發布", "82%"]])}
+          </section>
+        </div>
+      `;
+    }
+
+    function renderRelations() {
+      return `
+        <section class="card">
+          <h2>服務與地區對應</h2>
+          <div class="relation-grid">
+            <div class="relation-box"><h3>服務項目</h3><ul class="mini-list"><li><span>品牌官網</span><span>12 區</span></li><li><span>SEO 內容架構</span><span>8 區</span></li><li><span>多據點官網</span><span>5 區</span></li></ul></div>
+            <div class="relation-box"><h3>服務地區</h3><ul class="mini-list"><li><span>台北市</span><span>8 頁</span></li><li><span>新北市</span><span>6 頁</span></li><li><span>桃園市</span><span>3 頁</span></li></ul></div>
+            <div class="relation-box"><h3>前台輸出</h3><ul class="mini-list"><li><span>地區服務頁</span><span>自動產生</span></li><li><span>內部連結</span><span>自動關聯</span></li><li><span>Sitemap</span><span>自動更新</span></li></ul></div>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderLocations() {
+      return `
+        <div class="grid two">
+          <section class="card">
+            <h2>據點資料</h2>
+            <div class="form-grid">
+              ${formFields([["據點名稱", "台北信義服務處"], ["電話", "02-1234-5678"], ["地址", "台北市信義區"], ["Google Maps 連結", "https://maps.google.com/..."], ["營業時間", "週一至週五 09:00-18:00"], ["狀態", "營業中"]])}
+            </div>
+          </section>
+          <section class="card">
+            <h2>據點列表</h2>
+            ${tableHtml(["據點", "地區", "狀態", "Schema"], [["台北信義服務處", "台北市", "營業中", "已產生"], ["新北板橋服務處", "新北市", "營業中", "已產生"], ["桃園服務處", "桃園市", "即將開幕", "待補"]])}
+          </section>
+        </div>
+      `;
+    }
+
+    function renderTaxonomy() {
+      return `
+        <div class="grid two">
+          <section class="card"><h2>文章分類</h2>${tableHtml(["分類", "文章數", "狀態", "SEO"], [["知識文章", "12", "啟用", "完整"], ["案例分享", "8", "啟用", "完整"], ["活動公告", "4", "啟用", "待補"]])}</section>
+          <section class="card"><h2>標籤管理</h2><div class="form-grid">${formFields([["標籤名稱", "SEO"], ["友善網址", "seo"], ["搜尋標題", "SEO 相關文章"], ["搜尋摘要", "整理 SEO 與網站內容經營文章。"]])}</div></section>
+        </div>
+      `;
+    }
+
+    function renderContentRelations() {
+      return `
+        <section class="card">
+          <h2>內容關聯矩陣</h2>
+          <div class="relation-grid">
+            <div class="relation-box"><h3>文章關聯服務</h3><ul class="mini-list"><li><span>挑選官網方案</span><span>品牌官網</span></li><li><span>SEO 地區頁策略</span><span>SEO/GEO</span></li></ul></div>
+            <div class="relation-box"><h3>案例關聯地區</h3><ul class="mini-list"><li><span>牙醫診所案例</span><span>台北市</span></li><li><span>室內設計案例</span><span>新北市</span></li></ul></div>
+            <div class="relation-box"><h3>FAQ 關聯頁面</h3><ul class="mini-list"><li><span>製作時程</span><span>服務頁</span></li><li><span>地區服務</span><span>地區頁</span></li></ul></div>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderPageFaq() {
+      return `
+        <div class="grid two">
+          <section class="card">
+            <h2>頁面 FAQ 設定</h2>
+            <div class="form-grid">
+              <div class="field full"><label>套用頁面</label><select><option>台北市信義區品牌官網設計</option><option>服務介紹</option></select></div>
+              <div class="field full"><label>問題</label><input value="信義區可以到府討論需求嗎？"></div>
+              <div class="field full"><label>答案</label><textarea>可以，可透過表單或 LINE 預約討論時間。</textarea></div>
+            </div>
+          </section>
+          <section class="card">
+            <h2>FAQ Schema 狀態</h2>
+            <div class="checklist">
+              <div class="check-item"><div class="check-mark">✓</div><div><strong>3 題 FAQ 已掛到地區頁</strong><div class="hint">系統會自動輸出 FAQ Schema。</div></div>${badge("自動")}</div>
+              <div class="check-item"><div class="check-mark warn">!</div><div><strong>服務頁 FAQ 少於 2 題</strong><div class="hint">建議補足常見問題。</div></div>${badge("建議")}</div>
+            </div>
+          </section>
+        </div>
+      `;
+    }
+
+    function renderTracking() {
+      return `
+        <section class="card">
+          <h2>追蹤碼設定</h2>
+          <div class="form-grid">
+            ${formFields([["GA4 Measurement ID", "G-XXXXXXXXXX"], ["Google Tag Manager", "GTM-XXXXXXX"], ["Meta Pixel ID", "1234567890"], ["LINE Tag ID", "LINE-TAG-001"]])}
+          </div>
+          <div style="margin-top:14px;" class="toggle-row"><div><strong>Cookie / 追蹤同意</strong><div class="hint">若有 GA、Pixel、Ads，提供基本同意管理與隱私揭露。</div></div><div class="switch"><div class="knob"></div></div></div>
+        </section>
+      `;
+    }
+
+    function renderConversion() {
+      return tableHtml(["事件名稱", "觸發位置", "追蹤狀態", "說明"], [
+        ["表單送出", "聯絡我們", "啟用", "詢問完成"],
+        ["電話點擊", "Header / Footer", "啟用", "手機撥號"],
+        ["LINE 點擊", "CTA 區塊", "啟用", "LINE 諮詢"],
+        ["主要 CTA", "首頁", "啟用", "立即諮詢"]
+      ]);
+    }
+
+    function renderUtm() {
+      return tableHtml(["送出時間", "姓名", "來源", "活動"], [
+        ["2026/07/16 13:22", "王小姐", "google / cpc", "brand-seo"],
+        ["2026/07/15 17:41", "陳先生", "facebook / paid", "summer-campaign"],
+        ["2026/07/15 10:08", "林小姐", "line / qr", "store-poster"]
+      ]);
+    }
+
+    function renderAnalytics() {
+      return `
+        <div class="grid three">
+          <div class="card metric"><div class="muted">表單詢問</div><div class="metric-value">38</div><div class="hint">本月累計</div></div>
+          <div class="card metric"><div class="muted">CTA 點擊</div><div class="metric-value">214</div><div class="hint">電話、LINE、表單按鈕</div></div>
+          <div class="card metric"><div class="muted">熱門頁</div><div class="metric-value">台北頁</div><div class="hint">最多詢問來源</div></div>
+        </div>
+        <div class="grid two" style="margin-top:16px;">
+          <section class="card"><h2>熱門頁面</h2><ul class="mini-list"><li><span>台北信義區品牌官網設計</span><span>12 詢問</span></li><li><span>服務介紹</span><span>9 詢問</span></li><li><span>首頁</span><span>7 詢問</span></li></ul></section>
+          <section class="card"><h2>來源分布</h2><ul class="mini-list"><li><span>Google</span><span>45%</span></li><li><span>Facebook</span><span>28%</span></li><li><span>LINE / QR</span><span>18%</span></li><li><span>直接流量</span><span>9%</span></li></ul></section>
+        </div>
+      `;
+    }
+
+    function renderCompleteness() {
+      return `
+        <section class="card">
+          <h2>待補內容</h2>
+          <div class="checklist">
+            <div class="check-item"><div class="check-mark warn">!</div><div><strong>台北大安區地區頁缺少服務流程</strong><div class="hint">補上服務流程能讓頁面更完整。</div></div>${badge("待補")}</div>
+            <div class="check-item"><div class="check-mark warn">!</div><div><strong>新北板橋據點缺少營業時間</strong><div class="hint">補上後會同步 LocalBusiness Schema。</div></div>${badge("待補")}</div>
+            <div class="check-item"><div class="check-mark">✓</div><div><strong>首頁搜尋標題與摘要完整</strong><div class="hint">基本 SEO 欄位已完成。</div></div>${badge("完成")}</div>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderGuard() {
+      return `
+        <div class="grid two">
+          <section class="card">
+            <h2>不開放客戶直接編輯</h2>
+            <ul class="mini-list">
+              <li><span>Schema JSON-LD</span><span>系統自動</span></li>
+              <li><span>canonical</span><span>系統自動</span></li>
+              <li><span>Sitemap XML</span><span>系統自動</span></li>
+              <li><span>robots 規則</span><span>用簡單開關控制</span></li>
+            </ul>
+          </section>
+          <section class="card">
+            <h2>客戶看到的白話欄位</h2>
+            <ul class="mini-list">
+              <li><span>搜尋標題</span><span>title</span></li>
+              <li><span>搜尋摘要</span><span>description</span></li>
+              <li><span>是否開放搜尋收錄</span><span>index/noindex</span></li>
+              <li><span>地區、服務、FAQ、據點</span><span>Schema 來源資料</span></li>
+            </ul>
+          </section>
+        </div>
+      `;
+    }
+
+    function inputField(label, value = "", note = "") {
+      return `
+        <div class="field">
+          <label>${label}</label>
+          <input type="text" value="${value}" placeholder="請輸入${label}">
+          ${note ? `<div class="field-note">${note}</div>` : ""}
+        </div>
+      `;
+    }
+
+    function selectField(label, options, note = "") {
+      return `
+        <div class="field">
+          <label>${label}</label>
+          <select>${options.map((option) => `<option>${option}</option>`).join("")}</select>
+          ${note ? `<div class="field-note">${note}</div>` : ""}
+        </div>
+      `;
+    }
+
+    function dateTimeField(label, value = "") {
+      return `
+        <div class="field">
+          <label>${label}</label>
+          <input type="datetime-local" value="${value}">
+          <div class="field-note">可手動輸入，也可用日期時間選擇器。</div>
+        </div>
+      `;
+    }
+
+    function statusPinField() {
+      return `
+        <div class="status-pin-row">
+          <div class="field">
+            <label>發布狀態</label>
+            <select class="status-select">
+              <option>草稿</option>
+              <option>已發布</option>
+              <option>隱藏</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>是否置頂</label>
+            <div class="pin-control disabled">
+              <span>置頂</span>
+              <button class="switch off pin-switch" type="button" aria-pressed="false" aria-disabled="true"><span class="knob"></span></button>
+            </div>
+            <div class="field-note">只有已發布內容可以置頂。</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function textareaField(label, value = "", className = "", note = "") {
+      return `
+        <div class="field full">
+          <label>${label}</label>
+          <textarea class="${className}" placeholder="請輸入${label}">${value}</textarea>
+          ${note ? `<div class="field-note">${note}</div>` : ""}
+        </div>
+      `;
+    }
+
+    const articleTypeConfigs = {
+      "最新消息": {
+        hint: "適合公司動態、服務更新、短訊息公告。細節交給內文自由編輯。",
+        fields: () => ""
+      },
+      "知識文章": {
+        hint: "適合 SEO 文章、教學、觀念整理。外部保留分類與作者，章節內容自由編輯。",
+        fields: () => inputField("文章分類", "網站規劃") + inputField("作者", "Editor")
+      },
+      "活動公告": {
+        hint: "只保留會出現在活動列表或 CTA 的資訊，議程、講者、費用與注意事項可寫在內文。",
+        fields: () => inputField("活動日期", "2026/08/15") + inputField("活動地點", "線上講座") + inputField("報名連結", "https://example.com/event")
+      },
+      "案例": {
+        hint: "只保留前台案例卡片與篩選會用到的資訊，背景、挑戰、解法與見證都寫在內文。",
+        fields: () => inputField("客戶名稱", "牙醫診所品牌官網") + inputField("產業類別", "醫療健康") + inputField("服務項目", "品牌官網 / 內容架構") + inputField("成果摘要", "重整品牌形象與預約動線")
+      }
+    };
+
+    function renderArticleForm(type) {
+      const config = articleTypeConfigs[type];
+      return `
+        <section class="card">
+          <h2>${type}編輯</h2>
+          <div class="hint" style="margin-bottom:14px;">${config.hint}</div>
+          <div class="form-grid">
+            ${inputField("標題", type === "案例" ? "牙醫診所官網改版案例" : "如何挑選適合的品牌官網方案")}
+            ${inputField("SEO 標題", type === "案例" ? "牙醫診所官網改版案例｜品牌網站設計" : "如何挑選適合的品牌官網方案｜網站規劃指南")}
+            ${inputField("友善網址 / slug", type === "案例" ? "dental-clinic-website-case" : "choose-brand-website-plan")}
+            ${inputField("封面圖", type === "案例" ? "case-dental-cover.jpg" : "article-cover.jpg")}
+            ${dateTimeField("發布日期", "2026-07-16T09:00")}
+            ${statusPinField()}
+            ${inputField("排序", "0")}
+            ${config.fields()}
+            ${textareaField("摘要", type === "案例" ? "用一句話整理案例亮點，供列表卡片與搜尋摘要參考。" : "用一小段話整理文章重點，供列表卡片與搜尋摘要參考。", "", "摘要會出現在前台列表、分享預覽或搜尋結果描述。")}
+            ${textareaField("內文編輯器", "這裡放文章主要內容。使用者可以自由編輯段落、圖片、議程、案例背景、解決方案、注意事項或其他補充資訊。", "editor-textarea", "除了會被系統拿來顯示、搜尋、排序、SEO 或產生卡片的資料，其餘內容都建議放在這裡。")}
+          </div>
+        </section>
+      `;
+    }
+
+    function renderArticleManager(page) {
+      const rows = [
+        ["如何挑選適合的品牌官網方案", "知識文章", "已發布", "2026/07/16"],
+        ["夏季服務優惠公告", "最新消息", "草稿", "2026/07/15"],
+        ["七月品牌健檢講座", "活動公告", "已發布", "2026/07/10"],
+        ["牙醫診所官網改版案例", "案例", "已發布", "2026/07/08"]
+      ];
+      const types = ["最新消息", "知識文章", "活動公告", "案例"];
+      return `
+        <div class="content-type-tabs">
+          ${types.map((type, index) => `<button class="tab-btn ${index === 0 ? "active" : ""}" type="button">${type}</button>`).join("")}
+        </div>
+        <div class="grid two">
+          ${renderArticleForm("最新消息")}
+          <section class="card">
+            <h2>欄位原則</h2>
+            <ul class="mini-list">
+              <li><span>外部欄位</span><span>標題、SEO、網址、狀態、封面、摘要</span></li>
+              <li><span>類型欄位</span><span>只放列表、卡片或篩選會用到的資料</span></li>
+              <li><span>內文區塊</span><span>承接詳細內容與自由排版</span></li>
+              <li><span>標籤</span><span>不列為共用欄位</span></li>
+            </ul>
+          </section>
+        </div>
+        <div style="margin-top:16px;">${tableHtml(["標題", "類型", "狀態", "發布日期"], rows)}</div>
+      `;
+    }
+
+    function renderCaseManager(page) {
+      const rows = [
+        ["牙醫診所品牌官網", "醫療健康", "已發布", "2026/07/08"],
+        ["室內設計作品網站", "空間設計", "已發布", "2026/06/28"],
+        ["電商品牌形象頁", "零售電商", "隱藏", "2026/06/12"]
+      ];
+      return `
+        <div class="grid two">
+          ${renderArticleForm("案例")}
+          <section class="card">
+            <h2>案例內容建議</h2>
+            <ul class="mini-list">
+              <li><span>外部欄位</span><span>客戶、產業、服務、成果摘要</span></li>
+              <li><span>內文可寫</span><span>背景、挑戰、解決方案、成效、見證</span></li>
+              <li><span>前台卡片</span><span>優先使用封面圖、標題、產業與成果摘要</span></li>
+              <li><span>匿名案例</span><span>可直接在客戶名稱填寫匿名名稱</span></li>
+            </ul>
+          </section>
+        </div>
+        <div style="margin-top:16px;">${tableHtml(["案例名稱", "產業", "狀態", "發布日期"], rows)}</div>
+      `;
+    }
+
+    function renderContent(page) {
+      switch (page.type) {
+        case "overview": return renderOverview();
+        case "dashboard": return renderDashboard();
+        case "editor": return renderEditor(page);
+        case "tableForm": return renderTableForm(page);
+        case "pageList":
+        case "contentTable":
+          if (page.id === "articles") return renderArticleManager(page);
+          if (page.id === "cases") return renderCaseManager(page);
+          return tableHtml(page.columns, page.rows);
+        case "leads": return tableHtml(page.columns, page.rows);
+        case "faq": return renderFaq(page);
+        case "media": return renderMedia();
+        case "seoBasic": return renderSeoBasic();
+        case "settings": return renderSettings();
+        case "logs": return renderLogs();
+        case "seoChecklist": return renderSeoChecklist();
+        case "schema": return renderSchema();
+        case "sitemap": return renderSitemap();
+        case "geo": return renderGeo();
+        case "relations": return renderRelations();
+        case "locations": return renderLocations();
+        case "taxonomy": return renderTaxonomy();
+        case "contentRelations": return renderContentRelations();
+        case "pageFaq": return renderPageFaq();
+        case "tracking": return renderTracking();
+        case "conversion": return renderConversion();
+        case "utm": return renderUtm();
+        case "analytics": return renderAnalytics();
+        case "completeness": return renderCompleteness();
+        case "guard": return renderGuard();
+        default: return "<div class='card'>尚未建立頁面。</div>";
+      }
+    }
+
+    function initializeArticleControls() {
+      pageContent.querySelectorAll(".status-pin-row").forEach((row) => {
+        const status = row.querySelector(".status-select");
+        const pinControl = row.querySelector(".pin-control");
+        const pinSwitch = row.querySelector(".pin-switch");
+        if (!status || !pinControl || !pinSwitch) return;
+
+        const syncPinState = () => {
+          const canPin = status.value === "已發布";
+          pinControl.classList.toggle("disabled", !canPin);
+          pinSwitch.setAttribute("aria-disabled", String(!canPin));
+          if (!canPin) {
+            pinSwitch.classList.add("off");
+            pinSwitch.setAttribute("aria-pressed", "false");
+          }
+        };
+
+        status.addEventListener("change", syncPinState);
+        pinSwitch.addEventListener("click", () => {
+          if (status.value !== "已發布") return;
+          const isPressed = pinSwitch.getAttribute("aria-pressed") === "true";
+          pinSwitch.classList.toggle("off", isPressed);
+          pinSwitch.setAttribute("aria-pressed", String(!isPressed));
+        });
+        syncPinState();
+      });
+    }
+
+    function render() {
+      const pages = pagesForPlan();
+      if (!pages.some((page) => page.id === state.page)) state.page = "overview";
+      const page = currentPage();
+      document.querySelectorAll(".tab-btn").forEach((button) => {
+        button.classList.toggle("active", button.dataset.plan === state.plan);
+      });
+      renderNav();
+      pageTitle.textContent = page.label;
+      pageDesc.textContent = page.id === "articles"
+        ? "以大內文編輯區為主，外部只保留標題、SEO、網址、封面、摘要與少量類型欄位。"
+        : page.id === "cases"
+          ? "案例也以大內文為主，外部只填客戶、產業、服務與成果摘要等前台卡片會用到的資訊。"
+          : page.desc;
+      actionButtons(page.actions);
+      pageContent.innerHTML = renderContent(page);
+      initializeArticleControls();
+    }
+
+    document.querySelectorAll(".tab-btn").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.plan = button.dataset.plan;
+        state.page = "overview";
+        render();
+      });
+    });
+
+    render();
+  </script>
+</body>
+</html>

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+
+<html lang="zh-Hant"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LuxeTech Data Highlights</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary": "#ffffff",
+                        "surface-bright": "#faf8ff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f3f2ff",
+                        "tertiary-fixed": "#ffdbd1",
+                        "inverse-on-surface": "#f0f0fd",
+                        "on-surface-variant": "#434656",
+                        "tertiary": "#972500",
+                        "surface-container-highest": "#e1e1ef",
+                        "on-primary": "#ffffff",
+                        "secondary": "#5d5f5f",
+                        "primary-container": "#0055ff",
+                        "on-primary-fixed": "#001551",
+                        "surface": "#faf8ff",
+                        "on-surface": "#191b25",
+                        "on-tertiary-container": "#ffe1d9",
+                        "background": "#faf8ff",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "error": "#ba1a1a",
+                        "secondary-container": "#dfe0e0",
+                        "tertiary-container": "#c13301",
+                        "inverse-primary": "#b6c4ff",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "surface-variant": "#e1e1ef",
+                        "primary-fixed": "#dce1ff",
+                        "on-secondary-fixed-variant": "#454747",
+                        "primary": "#0041c8",
+                        "outline": "#737688",
+                        "inverse-surface": "#2e303a",
+                        "on-primary-container": "#e3e6ff",
+                        "surface-container": "#ededfb",
+                        "secondary-fixed": "#e2e2e2",
+                        "outline-variant": "#c3c5d9",
+                        "on-tertiary-fixed-variant": "#872100",
+                        "surface-dim": "#d9d9e6",
+                        "surface-container-high": "#e7e7f5",
+                        "tertiary-fixed-dim": "#ffb5a0",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed-dim": "#b6c4ff",
+                        "on-secondary-container": "#616363",
+                        "on-error-container": "#93000a",
+                        "on-background": "#191b25",
+                        "on-error": "#ffffff",
+                        "surface-tint": "#004dea",
+                        "on-primary-fixed-variant": "#0039b3",
+                        "on-tertiary-fixed": "#3b0900"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "sm": "12px",
+                        "md": "24px",
+                        "base": "8px",
+                        "xl": "80px",
+                        "lg": "48px",
+                        "xs": "4px",
+                        "margin-desktop": "64px",
+                        "margin-mobile": "20px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Geist"],
+                        "display": ["Geist"],
+                        "label-sm": ["Geist"],
+                        "headline-lg": ["Geist"],
+                        "body-md": ["Inter"],
+                        "label-md": ["Geist"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Geist"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "display": ["72px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "1", "fontWeight": "600" }],
+                        "headline-lg": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-md": ["32px", { "lineHeight": "1.3", "fontWeight": "600" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .data-point-reveal {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .data-point-reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .data-point-reveal {
+                transition: none;
+                opacity: 1;
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased">
+<!-- Section Title (Screen Reader Only) -->
+<h1 class="sr-only">版型 A｜極簡橫向數據</h1>
+<main class="min-h-screen flex items-center justify-center py-xl px-margin-mobile md:px-margin-desktop">
+<section class="w-full max-w-[1440px] mx-auto border-t border-b border-outline-variant/30 py-lg md:py-xl"><div class="flex flex-col items-center text-center mb-xl">
+<span class="font-label-md text-label-md text-primary tracking-[0.2em] uppercase mb-base">About LIMEIJIA</span>
+<h2 class="font-display text-headline-md md:text-headline-lg font-bold text-on-surface mb-md max-w-4xl">
+    把好水做成社區公共服務　讓安心走進日常
+  </h2>
+<p class="font-body-md text-on-surface-variant max-w-3xl mb-lg leading-relaxed">
+    利每家以智慧富氫水站進入社區生活圈，結合可生飲水質、24 小時取水與公開檢測報告，並以巡檢維護與社區共益模式，把科技與服務落成每一戶都能感受的日常便利。
+  </p>
+<a class="inline-flex items-center gap-x-md bg-on-primary-fixed text-on-primary px-lg py-md rounded-DEFAULT hover:opacity-90 transition-opacity" href="#">
+<span class="font-label-md">了解更多</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-y-lg md:gap-y-0 relative mt-xl">
+<!-- Data Point 1 -->
+<div class="flex flex-col items-start md:px-md data-point-reveal group" data-delay="0">
+<div class="flex items-baseline mb-base">
+<span class="font-display text-[48px] md:text-[64px] font-bold text-primary-container leading-none tabular-nums" data-value="24">0</span>
+<span class="font-display text-headline-md font-medium text-primary-container ml-xs">H</span>
+</div>
+<p class="font-label-md text-label-md text-on-surface-variant tracking-wider">全天候智慧服務</p>
+<div class="hidden md:block absolute right-3/4 top-0 bottom-0 w-[1px] bg-outline-variant/20"></div>
+</div>
+<!-- Data Point 2 -->
+<div class="flex flex-col items-start md:px-md data-point-reveal" data-delay="100">
+<div class="flex items-baseline mb-base">
+<span class="font-display text-[48px] md:text-[64px] font-bold text-primary-container leading-none tabular-nums" data-value="3000">0</span>
+<span class="font-display text-headline-md font-medium text-primary-container ml-xs">+</span>
+</div>
+<p class="font-label-md text-label-md text-on-surface-variant tracking-wider">累積服務使用次數</p>
+<div class="hidden md:block absolute right-2/4 top-0 bottom-0 w-[1px] bg-outline-variant/20"></div>
+<div class="block md:hidden w-full h-[1px] bg-outline-variant/20 my-base -mt-lg"></div>
+</div>
+<!-- Data Point 3 -->
+<div class="flex flex-col items-start md:px-md data-point-reveal" data-delay="200">
+<div class="flex items-baseline mb-base">
+<span class="font-display text-[48px] md:text-[64px] font-bold text-primary-container leading-none tabular-nums" data-value="100">0</span>
+<span class="font-display text-headline-md font-medium text-primary-container ml-xs">%</span>
+</div>
+<p class="font-label-md text-label-md text-on-surface-variant tracking-wider">品質管理與定期檢查</p>
+<div class="hidden md:block absolute right-1/4 top-0 bottom-0 w-[1px] bg-outline-variant/20"></div>
+<div class="block md:hidden w-full h-[1px] bg-outline-variant/20 my-base -mt-lg"></div>
+</div>
+<!-- Data Point 4 -->
+<div class="flex flex-col items-start md:px-md data-point-reveal" data-delay="300">
+<div class="flex items-baseline mb-base">
+<span class="font-display text-[48px] md:text-[64px] font-bold text-primary-container leading-none tabular-nums" data-value="12">0</span>
+<span class="font-display text-headline-md font-medium text-primary-container ml-xs">處</span>
+</div>
+<p class="font-label-md text-label-md text-on-surface-variant tracking-wider">合作與服務據點</p>
+<div class="block md:hidden w-full h-[1px] bg-outline-variant/20 my-base -mt-lg"></div>
+</div>
+</div>
+</section>
+</main>
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const observerOptions = {
+                threshold: 0.2,
+                rootMargin: '0px'
+            };
+
+            const animateValue = (obj, start, end, duration) => {
+                let startTimestamp = null;
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                    obj.innerHTML = Math.floor(progress * (end - start) + start);
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    } else {
+                        obj.innerHTML = end;
+                    }
+                };
+                window.requestAnimationFrame(step);
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        const target = entry.target;
+                        const delay = parseInt(target.getAttribute('data-delay')) || 0;
+                        
+                        setTimeout(() => {
+                            target.classList.add('visible');
+                            const numberEl = target.querySelector('[data-value]');
+                            if (numberEl) {
+                                const endValue = parseInt(numberEl.getAttribute('data-value'));
+                                // Respect prefers-reduced-motion
+                                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                                    numberEl.innerHTML = endValue;
+                                } else {
+                                    animateValue(numberEl, 0, endValue, 1500);
+                                }
+                            }
+                        }, delay);
+                        
+                        observer.unobserve(target);
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.data-point-reveal').forEach(el => {
+                observer.observe(el);
+            });
+        });
+    </script>
+<script id="stats-preview-bridge">
+(() => {
+  const params = new URLSearchParams(window.location.search);
+  const pick = (key, fallback = "") => params.get(key) || fallback;
+  const setText = (selector, value) => {
+    if (!value) return;
+    const node = document.querySelector(selector);
+    if (node) node.textContent = value;
+  };
+  const applyPalette = () => {
+    const palette = {
+      primary: pick("primary"),
+      accent: pick("accent"),
+      bg: pick("bg"),
+      surface: pick("surface"),
+      text: pick("text"),
+      muted: pick("muted")
+    };
+    if (!palette.primary) return;
+    const contrastColor = (hex, fallback) => {
+      const raw = String(hex || "").replace("#", "");
+      if (raw.length !== 6) return fallback;
+      const r = parseInt(raw.slice(0, 2), 16);
+      const g = parseInt(raw.slice(2, 4), 16);
+      const b = parseInt(raw.slice(4, 6), 16);
+      const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+      return luminance > 0.62 ? fallback : hex;
+    };
+    const numberColor = contrastColor(palette.primary, palette.text);
+    document.body.style.background = palette.bg;
+    document.body.style.color = palette.text;
+    document.querySelector("main")?.style.setProperty("background", palette.bg);
+    document.querySelector("section")?.style.setProperty("background", palette.surface);
+    document.querySelector("section")?.style.setProperty("border-color", palette.muted);
+    document.querySelectorAll(".text-primary").forEach((el) => { el.style.color = palette.primary; });
+    document.querySelectorAll(".text-primary-container").forEach((el) => { el.style.color = numberColor; });
+    document.querySelectorAll(".text-on-surface").forEach((el) => { el.style.color = palette.text; });
+    document.querySelectorAll(".text-on-surface-variant").forEach((el) => { el.style.color = palette.muted; });
+    document.querySelectorAll(".border-outline-variant\\/30").forEach((el) => {
+      el.style.borderColor = palette.muted;
+    });
+    document.querySelectorAll(".bg-outline-variant\\/20").forEach((el) => {
+      el.style.background = palette.muted;
+      el.style.opacity = "0.22";
+    });
+  };
+  const applyStats = () => {
+    const numberNodes = document.querySelectorAll("[data-value]");
+    numberNodes.forEach((node, index) => {
+      const order = index + 1;
+      const value = pick(`stat${order}Value`);
+      const unit = pick(`stat${order}Unit`);
+      const label = pick(`stat${order}Label`);
+      if (value) {
+        node.dataset.value = value.replace(/,/g, "");
+        node.textContent = value;
+      }
+      const unitNode = node.nextElementSibling;
+      if (unitNode && unit) unitNode.textContent = unit;
+      const labelNode = node.closest(".data-point-reveal")?.querySelector("p");
+      if (labelNode && label) labelNode.textContent = label;
+    });
+  };
+
+  applyPalette();
+  setText("section h2", pick("title"));
+  setText("section h2 + p", pick("subtitle"));
+  document.querySelector("section a")?.remove();
+  applyStats();
+})();
+</script>
+<script>
+(() => {
+  const reportHeight = () => parent.postMessage({ type: "front-preview-height", height: Math.max(document.body.scrollHeight, document.documentElement.scrollHeight) }, "*");
+  window.addEventListener("load", reportHeight); window.addEventListener("resize", reportHeight);
+  new ResizeObserver(reportHeight).observe(document.documentElement);
+  document.querySelectorAll("img").forEach((image) => image.addEventListener("load", reportHeight)); reportHeight();
+})();
+</script>
+</body></html>

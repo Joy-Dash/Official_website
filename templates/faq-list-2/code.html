@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+
+<html lang="zh-Hant"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-tint": "#004dea",
+                    "surface-container-highest": "#e1e1ef",
+                    "on-surface-variant": "#434656",
+                    "secondary-fixed": "#e2e2e2",
+                    "inverse-on-surface": "#f0f0fd",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-surface": "#2e303a",
+                    "on-tertiary-fixed": "#3b0900",
+                    "on-secondary-fixed-variant": "#454747",
+                    "inverse-primary": "#b6c4ff",
+                    "surface-dim": "#d9d9e6",
+                    "on-primary": "#ffffff",
+                    "surface-container-low": "#f3f2ff",
+                    "surface-container-high": "#e7e7f5",
+                    "surface-variant": "#e1e1ef",
+                    "on-error": "#ffffff",
+                    "secondary": "#5d5f5f",
+                    "on-background": "#191b25",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed-dim": "#ffb5a0",
+                    "tertiary": "#972500",
+                    "on-secondary-fixed": "#1a1c1c",
+                    "on-surface": "#191b25",
+                    "surface": "#faf8ff",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-container": "#616363",
+                    "primary-fixed": "#dce1ff",
+                    "primary-fixed-dim": "#b6c4ff",
+                    "on-primary-fixed": "#001551",
+                    "on-error-container": "#93000a",
+                    "background": "#faf8ff",
+                    "tertiary-container": "#c13301",
+                    "tertiary-fixed": "#ffdbd1",
+                    "outline": "#737688",
+                    "surface-container": "#ededfb",
+                    "secondary-fixed-dim": "#c6c6c7",
+                    "surface-bright": "#faf8ff",
+                    "on-tertiary-container": "#ffe1d9",
+                    "error": "#ba1a1a",
+                    "primary-container": "#0055ff",
+                    "on-tertiary-fixed-variant": "#872100",
+                    "primary": "#0041c8",
+                    "on-primary-fixed-variant": "#0039b3",
+                    "on-secondary": "#ffffff",
+                    "secondary-container": "#dfe0e0",
+                    "outline-variant": "#c3c5d9",
+                    "on-primary-container": "#e3e6ff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-desktop": "64px",
+                    "xs": "4px",
+                    "xl": "80px",
+                    "base": "8px",
+                    "margin-mobile": "20px",
+                    "sm": "12px",
+                    "lg": "48px",
+                    "md": "24px",
+                    "gutter": "24px"
+            },
+            "fontFamily": {
+                    "label-sm": ["Geist"],
+                    "headline-lg-mobile": ["Geist"],
+                    "display": ["Geist"],
+                    "body-md": ["Inter"],
+                    "label-md": ["Geist"],
+                    "headline-md": ["Geist"],
+                    "headline-lg": ["Geist"],
+                    "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "label-sm": ["12px", {"lineHeight": "1", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "display": ["72px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "headline-md": ["32px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "headline-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #faf8ff;
+            color: #191b25;
+            -webkit-font-smoothing: antialiased;
+        }
+        .faq-transition {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, opacity 0.3s ease-in;
+            opacity: 0;
+        }
+        .accordion-item.active .accordion-content {
+            max-height: 500px;
+            opacity: 1;
+            padding-bottom: 24px;
+        }
+        .accordion-item.active .icon-toggle {
+            transform: rotate(45deg);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-margin-mobile md:p-margin-desktop">
+<main class="w-full max-w-[1440px] mx-auto flex flex-col md:flex-row gap-xl">
+<!-- Left Side: Category Navigation -->
+<aside class="w-full md:w-[28%] flex flex-col">
+<div class="mb-lg">
+<span class="font-label-sm text-label-sm text-primary tracking-widest uppercase mb-base block">Support</span>
+<h1 class="font-headline-md text-headline-md text-on-surface">常見問題</h1>
+</div>
+<nav class="flex flex-col gap-xs">
+<!-- Active Category -->
+<button class="group flex items-center justify-between py-md px-base border-l-2 border-primary bg-primary/5 text-primary faq-transition text-left">
+<span class="font-label-md text-label-md">全部問題</span>
+<span class="font-label-sm text-label-sm opacity-60">(12)</span>
+</button>
+<!-- Inactive Categories -->
+<button class="group flex items-center justify-between py-md px-base border-l-2 border-transparent text-on-surface-variant hover:text-primary hover:bg-surface-container-low faq-transition text-left">
+<span class="font-label-md text-label-md">產品相關</span>
+<span class="font-label-sm text-label-sm opacity-40 group-hover:opacity-60">(4)</span>
+</button>
+<button class="group flex items-center justify-between py-md px-base border-l-2 border-transparent text-on-surface-variant hover:text-primary hover:bg-surface-container-low faq-transition text-left">
+<span class="font-label-md text-label-md">使用方式</span>
+<span class="font-label-sm text-label-sm opacity-40 group-hover:opacity-60">(3)</span>
+</button>
+<button class="group flex items-center justify-between py-md px-base border-l-2 border-transparent text-on-surface-variant hover:text-primary hover:bg-surface-container-low faq-transition text-left">
+<span class="font-label-md text-label-md">合作服務</span>
+<span class="font-label-sm text-label-sm opacity-40 group-hover:opacity-60">(3)</span>
+</button>
+<button class="group flex items-center justify-between py-md px-base border-l-2 border-transparent text-on-surface-variant hover:text-primary hover:bg-surface-container-low faq-transition text-left">
+<span class="font-label-md text-label-md">維護支援</span>
+<span class="font-label-sm text-label-sm opacity-40 group-hover:opacity-60">(2)</span>
+</button>
+</nav>
+</aside>
+<!-- Right Side: FAQ Accordion List -->
+<section class="w-full md:w-[72%]">
+<header class="mb-lg pb-base border-b border-outline-variant/30">
+<h2 class="font-headline-md text-headline-md text-on-surface">全部問題</h2>
+</header>
+<div class="flex flex-col">
+<!-- Accordion Item 1 (Expanded) -->
+<div class="accordion-item active border-b border-outline-variant/30 group">
+<button class="w-full flex items-center justify-between py-lg text-left focus:outline-none" onclick="toggleAccordion(this)">
+<span class="font-body-lg text-body-lg text-on-surface font-medium pr-md">產品適合哪些使用情境？</span>
+<span class="material-symbols-outlined icon-toggle text-on-surface-variant faq-transition">add</span>
+</button>
+<div class="accordion-content">
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed max-w-[90%]">
+                            可依照不同空間、使用需求與服務模式進行規劃。我們的產品旨在提供高度的靈活性，無論是商業空間的高頻率使用，或是個人居家環境的精緻美感，皆能透過模組化調整達到最佳適配度。
+                        </p>
+</div>
+</div>
+<!-- Accordion Item 2 -->
+<div class="accordion-item border-b border-outline-variant/30 group">
+<button class="w-full flex items-center justify-between py-lg text-left focus:outline-none" onclick="toggleAccordion(this)">
+<span class="font-body-lg text-body-lg text-on-surface font-medium pr-md">如何提出合作或服務申請？</span>
+<span class="material-symbols-outlined icon-toggle text-on-surface-variant faq-transition">add</span>
+</button>
+<div class="accordion-content">
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed max-w-[90%]">
+                            可透過網站聯絡表單提供基本需求與聯繫資訊，我們的專案顧問將於 24 小時內與您聯繫，並針對您的具體場景提供初步評估與報價方案。
+                        </p>
+</div>
+</div>
+<!-- Accordion Item 3 -->
+<div class="accordion-item border-b border-outline-variant/30 group">
+<button class="w-full flex items-center justify-between py-lg text-left focus:outline-none" onclick="toggleAccordion(this)">
+<span class="font-body-lg text-body-lg text-on-surface font-medium pr-md">是否提供後續維護服務？</span>
+<span class="material-symbols-outlined icon-toggle text-on-surface-variant faq-transition">add</span>
+</button>
+<div class="accordion-content">
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed max-w-[90%]">
+                            是的，我們提供完整的一年全球有限保固，並針對企業客戶提供專屬的維護合約（SLA）。若遇到任何技術問題，可透過全天候線上支援中心獲取即時協助。
+                        </p>
+</div>
+</div>
+<!-- Accordion Item 4 -->
+<div class="accordion-item border-b border-outline-variant/30 group">
+<button class="w-full flex items-center justify-between py-lg text-left focus:outline-none" onclick="toggleAccordion(this)">
+<span class="font-body-lg text-body-lg text-on-surface font-medium pr-md">如何取得最新消息？</span>
+<span class="material-symbols-outlined icon-toggle text-on-surface-variant faq-transition">add</span>
+</button>
+<div class="accordion-content">
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed max-w-[90%]">
+                            歡迎訂閱我們的 TechLifestyle 電子報，或在官方社群平台追蹤我們。我們定期發布產品更新、產業趨勢報告以及僅限會員參與的體驗活動資訊。
+                        </p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<script>
+        function toggleAccordion(button) {
+            const currentItem = button.closest('.accordion-item');
+            const isActive = currentItem.classList.contains('active');
+            
+            // Optional: Close other items if desired
+            // document.querySelectorAll('.accordion-item').forEach(item => {
+            //     item.classList.remove('active');
+            // });
+
+            if (!isActive) {
+                currentItem.classList.add('active');
+            } else {
+                currentItem.classList.remove('active');
+            }
+        }
+    </script>
+<script id="faq-preview-bridge">
+(() => {
+  const params = new URLSearchParams(window.location.search);
+  const pick = (key, fallback = "") => params.get(key) || fallback;
+  const setTextFor = (node, value) => {
+    if (node && value) node.textContent = value;
+  };
+  const applyPalette = () => {
+    const palette = {
+      primary: pick("primary"),
+      bg: pick("bg"),
+      surface: pick("surface"),
+      text: pick("text"),
+      muted: pick("muted")
+    };
+    if (!palette.primary) return;
+    document.body.style.background = palette.bg;
+    document.body.style.color = palette.text;
+    document.querySelector("main")?.style.setProperty("background", palette.bg);
+    document.querySelectorAll(".text-primary").forEach((el) => { el.style.color = palette.primary; });
+    document.querySelectorAll(".text-on-surface").forEach((el) => { el.style.color = palette.text; });
+    document.querySelectorAll(".text-on-surface-variant").forEach((el) => { el.style.color = palette.muted; });
+    document.querySelectorAll(".border-primary").forEach((el) => { el.style.borderColor = palette.primary; });
+    document.querySelectorAll(".border-outline-variant\\/30").forEach((el) => { el.style.borderColor = palette.muted; });
+    document.querySelectorAll(".bg-primary\\/5").forEach((el) => { el.style.background = `${palette.primary}14`; });
+  };
+  const applyFaq = () => {
+    document.querySelectorAll(".accordion-item").forEach((item, index) => {
+      const order = index + 1;
+      setTextFor(item.querySelector("button > span:first-child"), pick(`item${order}`));
+      setTextFor(item.querySelector("p"), pick(`item${order}Subtitle`));
+    });
+  };
+
+  applyPalette();
+  setTextFor(document.querySelector("aside span"), pick("category", "Support"));
+  setTextFor(document.querySelector("aside h1"), pick("title"));
+  setTextFor(document.querySelector("section header h2"), pick("category", "全部問題"));
+  const activeCategory = document.querySelector("nav button span");
+  setTextFor(activeCategory, pick("category", "全部問題"));
+  applyFaq();
+})();
+</script>
+<script>
+(() => {
+  const reportHeight = () => parent.postMessage({ type: "front-preview-height", height: Math.max(document.body.scrollHeight, document.documentElement.scrollHeight) }, "*");
+  window.addEventListener("load", reportHeight); window.addEventListener("resize", reportHeight);
+  new ResizeObserver(reportHeight).observe(document.documentElement);
+  document.querySelectorAll("img").forEach((image) => image.addEventListener("load", reportHeight)); reportHeight();
+})();
+</script>
+</body></html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+
+<html lang="zh-TW"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LuxeTech | Smarter Living</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-highest": "#e1e1ef",
+                    "secondary-container": "#dfe0e0",
+                    "outline-variant": "#c3c5d9",
+                    "on-background": "#191b25",
+                    "surface": "#faf8ff",
+                    "on-error": "#ffffff",
+                    "on-tertiary-fixed": "#3b0900",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-fixed": "#ffdbd1",
+                    "background": "#faf8ff",
+                    "surface-dim": "#d9d9e6",
+                    "on-tertiary-fixed-variant": "#872100",
+                    "on-secondary-fixed-variant": "#454747",
+                    "inverse-surface": "#2e303a",
+                    "on-surface-variant": "#434656",
+                    "surface-container-low": "#f3f2ff",
+                    "primary-container": "#0055ff",
+                    "on-tertiary-container": "#ffe1d9",
+                    "secondary-fixed": "#e2e2e2",
+                    "surface-tint": "#004dea",
+                    "on-secondary-fixed": "#1a1c1c",
+                    "secondary-fixed-dim": "#c6c6c7",
+                    "inverse-on-surface": "#f0f0fd",
+                    "on-primary-fixed-variant": "#0039b3",
+                    "error": "#ba1a1a",
+                    "on-primary-fixed": "#001551",
+                    "on-secondary": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "tertiary": "#972500",
+                    "primary-fixed": "#dce1ff",
+                    "primary": "#0041c8",
+                    "surface-bright": "#faf8ff",
+                    "surface-container-high": "#e7e7f5",
+                    "error-container": "#ffdad6",
+                    "outline": "#737688",
+                    "primary-fixed-dim": "#b6c4ff",
+                    "surface-container": "#ededfb",
+                    "on-surface": "#191b25",
+                    "on-error-container": "#93000a",
+                    "tertiary-fixed-dim": "#ffb5a0",
+                    "on-primary-container": "#e3e6ff",
+                    "surface-variant": "#e1e1ef",
+                    "inverse-primary": "#b6c4ff",
+                    "tertiary-container": "#c13301",
+                    "on-secondary-container": "#616363",
+                    "secondary": "#5d5f5f"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "sm": "12px",
+                    "gutter": "24px",
+                    "xs": "4px",
+                    "base": "8px",
+                    "xl": "80px",
+                    "md": "24px",
+                    "margin-desktop": "64px",
+                    "margin-mobile": "20px",
+                    "lg": "48px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-md": ["Geist"],
+                    "headline-lg": ["Geist"],
+                    "label-sm": ["Geist"],
+                    "headline-lg-mobile": ["Geist"],
+                    "label-md": ["Geist"],
+                    "display": ["Geist"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-md": ["32px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "headline-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "1", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "label-md": ["14px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "display": ["72px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .blur-backdrop {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .wave-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            overflow: hidden;
+            line-height: 0;
+        }
+
+        .wave-bottom svg {
+            position: relative;
+            display: block;
+            width: calc(100% + 1.3px);
+            height: 80px;
+        }
+
+        .wave-bottom .shape-fill {
+            fill: #FFFFFF;
+        }
+
+        .s-curve-mask {
+            clip-path: url(#s-curve-clip);
+        }
+    </style>
+</head>
+<body class="bg-white text-on-surface font-body-md">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 left-0 w-full z-50 transition-all duration-300">
+<nav class="flex justify-between items-center w-full px-margin-desktop py-md max-w-[1440px] mx-auto">
+<div class="text-body-lg font-display font-bold tracking-tight text-on-surface">LuxeTech</div>
+<div class="hidden md:flex items-center gap-lg">
+<a class="font-label-md text-label-md text-primary border-b-2 border-primary pb-1" href="#">Brand</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" href="#">Product</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" href="#">Scenarios</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" href="#">News</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" href="#">Contact</a>
+</div>
+<button class="bg-primary-container text-on-primary px-6 py-2.5 rounded-full font-label-md text-label-md hover:opacity-90 transition-all active:scale-95 duration-200 shadow-sm">
+            Get Started
+        </button>
+</nav>
+</header>
+<!-- Redesigned Hero Section -->
+<main class="relative h-screen w-full overflow-hidden flex flex-col md:flex-row bg-white">
+<!-- Left Content (40%) -->
+<section class="w-full md:w-[40%] h-full flex items-center px-margin-desktop z-20 bg-white">
+<div class="max-w-xl space-y-md">
+<span class="block font-label-md text-label-md tracking-widest text-primary uppercase">
+                SMARTER LIVING, BETTER FUTURE
+            </span>
+<h1 class="font-headline-lg text-headline-lg text-on-background leading-tight">
+                「讓創新科技，<br/>自然融入每一天」
+            </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-[90%]">
+                「結合智慧技術、產品設計與生活體驗，打造更便利、更安心的日常服務。」
+            </p>
+<div class="flex items-center gap-md pt-base">
+<button class="bg-primary-container text-on-primary px-10 py-4 rounded-full font-label-md text-label-md hover:shadow-lg hover:-translate-y-0.5 transition-all active:scale-95">
+                    探索產品
+                </button>
+<button class="border border-outline-variant text-on-surface px-10 py-4 rounded-full font-label-md text-label-md hover:bg-surface-container-low transition-all flex items-center gap-xs">
+<span class="material-symbols-outlined text-[20px]">play_circle</span>
+                    觀看影片
+                </button>
+</div>
+</div>
+</section>
+<!-- Right Visual Content (60%) -->
+<section class="relative w-full md:w-[60%] h-full z-10 overflow-hidden">
+<!-- Integrated Scene Background -->
+<img alt="Lifestyle Background" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6fguCXyo_10fgxQVsSrbQMvz9gVQ0mQ3mxk9ixSBJR7VVwGlW8KD4lYnAZNZYbzWZ8PKAGcBN68zkWHeLURp3Iw4znxZcwqAkqeSsmjbzXtZHL9DQ-o4nuk9Od2zA4ML0BhAzC1lt8Bj3iXayWfXMUqcEqo6xhXOsFiTp3bf9SGc7x0Gd__myoTbcFUwnXE2sfoJVfrQUgA8u8uB6vu_V44EHerIg7KkSQJwn2t9ZUc1qlfresBs4SMID0YF9HI2Ne1UjLSSsmFE"/>
+<!-- Video Controls Overlay -->
+<div class="absolute bottom-margin-desktop right-margin-desktop flex items-center gap-sm bg-white/20 blur-backdrop p-sm rounded-full border border-white/30 z-40">
+<button class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors group">
+<span class="material-symbols-outlined text-on-surface group-active:scale-90">play_arrow</span>
+</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors group">
+<span class="material-symbols-outlined text-on-surface group-active:scale-90">volume_up</span>
+</button>
+</div>
+</section>
+<!-- Soft Wave Curve Transition Bottom -->
+<div class="wave-bottom z-50">
+<svg data-name="Layer 1" preserveaspectratio="none" viewbox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg">
+<path class="shape-fill" d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C58,70,147.2,109.12,232,109.12,258.11,109.12,291.6,96.67,321.39,56.44Z"></path>
+</svg>
+</div>
+</main>
+<script id="hero-preview-bridge">
+(() => {
+  const params = new URLSearchParams(window.location.search);
+  const pick = (key, fallback = "") => params.get(key) || fallback;
+  const linkEnabled = params.get("linkEnabled") === "1";
+  const setText = (selector, value) => {
+    if (!value) return;
+    const el = document.querySelector(selector);
+    if (el) el.textContent = value;
+  };
+  const setButton = (btn, value) => {
+    if (!btn) return;
+    const icon = btn.querySelector(".material-symbols-outlined");
+    btn.textContent = value;
+    if (icon) btn.prepend(icon);
+  };
+  const applyPalette = () => {
+    const palette = {
+      primary: pick("primary"),
+      accent: pick("accent"),
+      bg: pick("bg"),
+      surface: pick("surface"),
+      text: pick("text"),
+      muted: pick("muted")
+    };
+    if (!palette.primary) return;
+    document.body.style.background = palette.bg;
+    document.body.style.color = palette.text;
+    document.querySelectorAll(".text-primary").forEach((el) => { el.style.color = palette.primary; });
+    document.querySelectorAll(".text-on-surface").forEach((el) => { el.style.color = palette.text; });
+    document.querySelectorAll(".text-on-surface-variant").forEach((el) => { el.style.color = palette.muted; });
+    document.querySelectorAll(".bg-primary-container, .bg-primary").forEach((el) => {
+      el.style.background = palette.primary;
+      el.style.color = "#fff";
+    });
+    document.querySelectorAll(".border-primary").forEach((el) => { el.style.borderColor = palette.primary; });
+    document.querySelectorAll(".bg-white, .bg-surface, .bg-surface-bright").forEach((el) => { el.style.background = palette.surface; });
+    document.querySelectorAll(".bg-surface-container-low").forEach((el) => { el.style.background = palette.bg; });
+  };
+  applyPalette();
+  document.querySelector("header")?.remove();
+  document.querySelectorAll("button").forEach((btn) => { btn.style.display = "none"; });
+  setText("h1", pick("title"));
+  setText("section span.font-label-md", pick("subtitle"));
+  document.querySelector("section p.font-body-lg")?.remove();
+  let imageUrl = pick("imageUrl");
+  const imageKey = pick("imageKey");
+  if (!imageUrl && imageKey) {
+    try {
+      imageUrl = sessionStorage.getItem(imageKey) || "";
+    } catch (error) {}
+  }
+  if (imageUrl) {
+    const image = document.querySelector("section.relative.w-full img");
+    if (image) image.src = imageUrl;
+  }
+  window.addEventListener("message", (event) => {
+    if (event.data?.type !== "hero-preview-image" || !event.data.imageUrl) return;
+    const image = document.querySelector("section.relative.w-full img");
+    if (image) image.src = event.data.imageUrl;
+  });
+  const primaryButton = document.querySelector("main section button.bg-primary-container");
+  if (linkEnabled) {
+    setButton(primaryButton, pick("cta", "查看更多"));
+    if (primaryButton) primaryButton.style.display = "inline-flex";
+  }
+})();
+</script>
+<script>
+    // Scroll effect for Navbar
+    window.addEventListener('scroll', () => {
+        const nav = document.querySelector('header');
+        if (window.scrollY > 50) {
+            nav.classList.add('bg-white/80', 'blur-backdrop', 'shadow-sm');
+        } else {
+            nav.classList.remove('bg-white/80', 'blur-backdrop', 'shadow-sm');
+        }
+    });
+</script>
+<script>
+(() => {
+  const reportHeight = () => parent.postMessage({ type: "front-preview-height", height: Math.max(document.body.scrollHeight, document.documentElement.scrollHeight) }, "*");
+  window.addEventListener("load", reportHeight); window.addEventListener("resize", reportHeight);
+  new ResizeObserver(reportHeight).observe(document.documentElement);
+  document.querySelectorAll("img").forEach((image) => image.addEventListener("load", reportHeight)); reportHeight();
+})();
+</script>
+</body></html>

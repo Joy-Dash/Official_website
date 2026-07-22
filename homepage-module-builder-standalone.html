@@ -1,0 +1,3227 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>前台首頁與後台模塊設定原型</title>
+  <style>
+    :root {
+      --bg: #f3f7f8;
+      --panel: #ffffff;
+      --soft: #eef5f6;
+      --soft-2: #e6f8f5;
+      --text: #0b1f2a;
+      --muted: #64747b;
+      --line: rgba(11, 31, 42, 0.12);
+      --brand: #0e6a8c;
+      --brand-dark: #04384c;
+      --accent: #3ee0c4;
+      --green: #1f6b4a;
+      --shadow: 0 1px 2px rgba(11, 31, 42, 0.04), 0 10px 28px rgba(11, 31, 42, 0.06);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top left, #ffffff 0, var(--bg) 360px);
+      color: var(--text);
+      font-family: Arial, "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      line-height: 1.5;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .topbar {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 260px;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(145deg, var(--brand), var(--brand-dark));
+      color: #fff;
+      font-weight: 700;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24);
+    }
+
+    .brand-title {
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .brand-subtitle {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .view-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn,
+    .btn {
+      min-height: 34px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--text);
+      padding: 7px 12px;
+      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .tab-btn:hover,
+    .btn:hover {
+      border-color: #c8d2df;
+      background: #fbfcfe;
+    }
+
+    .btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.38;
+      background: #f8fafc;
+    }
+
+    .tab-btn.active,
+    .btn.primary {
+      background: var(--brand);
+      border-color: var(--brand);
+      color: #fff;
+      box-shadow: 0 6px 16px rgba(37, 87, 214, 0.22);
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) 460px;
+      gap: 16px;
+      padding: 16px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      line-height: 1.25;
+    }
+
+    h1 {
+      font-size: 20px;
+    }
+
+    h2 {
+      font-size: 16px;
+    }
+
+    h3 {
+      font-size: 14px;
+    }
+
+    .desc,
+    .hint {
+      color: var(--muted);
+    }
+
+    .desc {
+      margin-top: 5px;
+    }
+
+    .hint {
+      font-size: 13px;
+    }
+
+    .preview-frame {
+      background: #fff;
+      overflow: hidden;
+      border-radius: 0 0 var(--radius) var(--radius);
+    }
+
+    .site-header {
+      min-height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 34px;
+      border-bottom: 1px solid #e8edf4;
+      background: #fff;
+    }
+
+    .site-logo {
+      font-weight: 700;
+      color: var(--brand-dark);
+      font-size: 20px;
+    }
+
+    .site-nav {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      color: #475569;
+      font-size: 14px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .site-nav button {
+      border: 0;
+      background: transparent;
+      color: #475569;
+      padding: 6px 0;
+      border-bottom: 2px solid transparent;
+    }
+
+    .site-nav button.active {
+      color: var(--brand);
+      border-bottom-color: var(--brand);
+      font-weight: 700;
+    }
+
+    .home-section {
+      padding: 54px 34px;
+      border-bottom: 1px solid #edf1f6;
+    }
+
+    .home-section:last-child {
+      border-bottom: 0;
+    }
+
+    .banner {
+      min-height: 390px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 0.75fr);
+      gap: 34px;
+      align-items: center;
+      background: linear-gradient(135deg, #f8fbff 0%, #eef5ff 100%);
+    }
+
+    .eyebrow {
+      color: var(--brand);
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .banner h2 {
+      font-size: 44px;
+      margin-bottom: 14px;
+      color: #111827;
+    }
+
+    .banner p {
+      color: #475569;
+      font-size: 17px;
+      margin: 0 0 22px;
+      max-width: 620px;
+    }
+
+    .hero-visual {
+      min-height: 260px;
+      border-radius: 12px;
+      background:
+        linear-gradient(160deg, rgba(31, 95, 209, 0.92), rgba(18, 60, 134, 0.96)),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.25'%3E%3Cpath d='M80 120h280v160H80zM430 90h240v120H430zM420 280h300v190H420zM100 350h210v120H100z'/%3E%3Cpath d='M125 160h190M125 198h140M455 132h170M455 166h100M455 330h210M455 370h170M455 410h120M130 392h130M130 428h95'/%3E%3C/g%3E%3C/svg%3E");
+      background-size: cover;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      text-align: center;
+      padding: 24px;
+    }
+
+    .hero-visual strong {
+      font-size: 24px;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .primary-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 10px 18px;
+      border-radius: 7px;
+      background: var(--brand);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .secondary-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 10px 18px;
+      border-radius: 7px;
+      border: 1px solid #cfd8e6;
+      color: var(--brand-dark);
+      background: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      margin-left: 8px;
+    }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: end;
+      margin-bottom: 24px;
+    }
+
+    .section-title p {
+      margin: 7px 0 0;
+      color: #64748b;
+      max-width: 640px;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      gap: 24px;
+      align-items: center;
+    }
+
+    .about-photo {
+      min-height: 230px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #dbeafe, #fef3c7);
+      display: grid;
+      place-items: center;
+      color: #334155;
+      font-weight: 700;
+    }
+
+    .service-grid,
+    .news-grid,
+    .case-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .service-card,
+    .news-card,
+    .case-card,
+    .faq-item {
+      border: 1px solid #dfe7f1;
+      border-radius: 8px;
+      padding: 16px;
+      background: #fff;
+    }
+
+    .service-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: var(--brand);
+      color: #fff;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    .case-thumb,
+    .news-thumb {
+      height: 120px;
+      border-radius: 7px;
+      background: var(--soft);
+      margin-bottom: 12px;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .faq-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .contact-band {
+      background: var(--brand-dark);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .contact-band p {
+      color: #dbeafe;
+      margin: 8px 0 0;
+    }
+
+    .subpage-hero {
+      padding: 58px 34px;
+      background: linear-gradient(135deg, #f8fbff 0%, #eef5ff 100%);
+      border-bottom: 1px solid #edf1f6;
+    }
+
+    .subpage-hero h2 {
+      font-size: 38px;
+      margin-bottom: 12px;
+    }
+
+    .subpage-hero p {
+      color: #475569;
+      max-width: 760px;
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .content-split {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 0.75fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .info-block {
+      border: 1px solid #dfe7f1;
+      border-radius: 8px;
+      padding: 18px;
+      background: #fff;
+    }
+
+    .info-list {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .info-list li {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #edf1f6;
+    }
+
+    .info-list li:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .contact-form {
+      display: grid;
+      gap: 10px;
+    }
+
+    .admin-panel {
+      position: sticky;
+      top: 86px;
+      max-height: calc(100vh - 104px);
+      overflow: auto;
+    }
+
+    .admin-body {
+      padding: 0;
+      display: grid;
+      gap: 0;
+    }
+
+    .admin-console {
+      display: grid;
+      grid-template-columns: 144px minmax(0, 1fr);
+      gap: 0;
+      align-items: start;
+    }
+
+    .backend-nav {
+      display: grid;
+      gap: 2px;
+      position: sticky;
+      top: 104px;
+      padding: 12px 10px;
+      background: #f8fafc;
+      border-right: 1px solid var(--line);
+      min-height: calc(100vh - 180px);
+    }
+
+    .backend-nav button {
+      width: 100%;
+      text-align: left;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted);
+      padding: 8px 9px;
+      font-size: 13px;
+    }
+
+    .backend-nav button.active,
+    .backend-nav button:hover {
+      background: #ffffff;
+      color: var(--brand);
+      font-weight: 700;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+    }
+
+    .admin-work {
+      display: grid;
+      gap: 14px;
+      min-width: 0;
+      padding: 14px;
+    }
+
+    .manager-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .manager-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .admin-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .stat-box {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 11px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .stat-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--brand-dark);
+    }
+
+    .page-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .page-editor-layout {
+      display: grid;
+      grid-template-columns: minmax(240px, 0.42fr) minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .page-list {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+      display: grid;
+    }
+
+    .page-list button {
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+      text-align: left;
+      padding: 13px 14px;
+      color: var(--text);
+    }
+
+    .page-list button:last-child {
+      border-bottom: 0;
+    }
+
+    .page-list button.active {
+      background: #f7fbfc;
+      box-shadow: inset 3px 0 0 var(--brand);
+      color: var(--brand-dark);
+      font-weight: 700;
+    }
+
+    .page-list-name {
+      display: block;
+      font-size: 14px;
+    }
+
+    .page-list-meta {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 3px;
+      font-weight: 400;
+    }
+
+    .page-list-head {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .page-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .page-row:last-child {
+      border-bottom: 0;
+    }
+
+    .page-row > button:first-child {
+      border-bottom: 0;
+    }
+
+    .page-delete {
+      border: 0;
+      border-left: 1px solid var(--line);
+      background: #fff;
+      color: var(--muted);
+      padding: 0 12px;
+      font-size: 13px;
+    }
+
+    .page-delete:hover {
+      color: #b42318;
+      background: #fff8f7;
+    }
+
+    .page-editor-panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .page-editor-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 15px 16px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcfd;
+    }
+
+    .page-editor-section {
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      gap: 12px;
+    }
+
+    .page-editor-section:last-child {
+      border-bottom: 0;
+    }
+
+    .page-editor-section .settings-card {
+      border: 1px solid var(--line);
+      box-shadow: none;
+      padding: 12px;
+      background: #fbfcfd;
+    }
+
+    .inline-status {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .switch-line {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .switch-line input {
+      width: 16px;
+      min-height: 16px;
+    }
+
+    .element-workspace {
+      display: grid;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .element-library {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .element-option {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 8px;
+      padding: 12px;
+      border-right: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .element-option:last-child {
+      border-right: 0;
+    }
+
+    .element-option.is-selected {
+      background: #f7fbfc;
+      box-shadow: inset 3px 0 0 var(--brand);
+    }
+
+    .element-option input {
+      width: 16px;
+      height: 16px;
+      margin-top: 2px;
+    }
+
+    .element-name {
+      display: block;
+      font-weight: 700;
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .element-desc {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 3px;
+      line-height: 1.45;
+    }
+
+    .selected-elements {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .selected-element {
+      padding: 14px;
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      gap: 12px;
+    }
+
+    .selected-element:last-child {
+      border-bottom: 0;
+    }
+
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .template-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 14px;
+      display: grid;
+      gap: 8px;
+      text-align: left;
+      color: var(--text);
+    }
+
+    .template-card:hover {
+      border-color: rgba(14, 106, 140, 0.45);
+      background: #f7fbfc;
+    }
+
+    .template-card strong {
+      color: var(--brand-dark);
+    }
+
+    .template-preview {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfd;
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .template-preview-line {
+      height: 8px;
+      border-radius: 999px;
+      background: #d9e2e7;
+    }
+
+    .template-preview-line.short {
+      width: 58%;
+    }
+
+    .element-heading {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .element-heading h4 {
+      margin: 0 0 3px;
+      font-size: 14px;
+    }
+
+    .module-list {
+      display: grid;
+      gap: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .module-row {
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      padding: 12px 12px;
+      background: #fff;
+      display: grid;
+      gap: 7px;
+      transition: background 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .module-row:last-child {
+      border-bottom: 0;
+    }
+
+    .module-row:has(.btn.primary) {
+      background: #f7fbfc;
+      box-shadow: inset 3px 0 0 var(--brand);
+    }
+
+    .module-row:hover {
+      background: #fbfcfd;
+    }
+
+    .module-row[draggable="true"] {
+      cursor: grab;
+    }
+
+    .module-row.is-dragging {
+      opacity: 0.5;
+      background: #eef8f8;
+    }
+
+    .module-main {
+      display: grid;
+      grid-template-columns: 22px 22px minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .drag-handle {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1;
+      user-select: none;
+    }
+
+    .module-main input {
+      width: 16px;
+      height: 16px;
+      margin-top: 2px;
+    }
+
+    .module-meta {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+      padding-left: 52px;
+    }
+
+    .home-summary {
+      display: grid;
+      gap: 8px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 12px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .summary-row strong {
+      color: var(--brand-dark);
+    }
+
+    .module-row h3 {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 1px;
+    }
+
+    .module-row .btn {
+      min-height: 31px;
+      padding: 5px 10px;
+      box-shadow: none;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 20px;
+      border-radius: 999px;
+      padding: 2px 7px;
+      background: var(--soft);
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .home-editor-layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.48fr) minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .home-side,
+    .home-detail {
+      display: grid;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    #homeModuleSection .home-side > .settings-card {
+      border: 0;
+      border-radius: 0;
+      padding: 0;
+      background: transparent;
+      gap: 4px;
+    }
+
+    #homeModuleSection .home-detail {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    #homeModuleSection .home-detail > h2 {
+      padding: 14px 16px 0;
+    }
+
+    #homeModuleSection #moduleSettings {
+      display: grid;
+    }
+
+    .compact-summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .compact-summary .stat-box {
+      border: 0;
+      border-right: 1px solid var(--line);
+      border-radius: 0;
+      box-shadow: none;
+      padding: 10px 14px;
+      background: #fbfcfd;
+    }
+
+    .compact-summary .stat-box:last-child {
+      border-right: 0;
+    }
+
+    .compact-summary .stat-value {
+      font-size: 16px;
+      line-height: 1.2;
+    }
+
+    #homeModuleSection .home-detail .settings-card {
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      padding: 15px 16px;
+      box-shadow: none;
+    }
+
+    #homeModuleSection .home-detail .settings-card:last-child {
+      border-bottom: 0;
+    }
+
+    .secondary-stack {
+      display: grid;
+      gap: 10px;
+    }
+
+    .pill.green {
+      background: #e7f6ef;
+      color: var(--green);
+    }
+
+    .btn.danger {
+      color: #b42318;
+      border-color: rgba(180, 35, 24, 0.26);
+      background: #fff8f7;
+      box-shadow: none;
+    }
+
+    .btn.danger:hover {
+      border-color: rgba(180, 35, 24, 0.45);
+      background: #fff1ef;
+    }
+
+    .banner.variant-b {
+      grid-template-columns: minmax(300px, 0.8fr) minmax(0, 1fr);
+      background: linear-gradient(135deg, #e8fbf7 0%, #f8fbff 100%);
+    }
+
+    .banner.variant-b .hero-visual {
+      order: -1;
+      background: linear-gradient(160deg, rgba(14, 106, 140, 0.92), rgba(4, 56, 76, 0.96));
+    }
+
+    .preview-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .preview-list-item {
+      border: 1px solid #dfe7f1;
+      border-radius: 8px;
+      padding: 14px 16px;
+      background: #fff;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .variant-marker {
+      display: inline-flex;
+      margin-left: 8px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: #e7f6ef;
+      color: var(--green);
+      font-size: 11px;
+      vertical-align: middle;
+    }
+
+    .upload-placeholder {
+      min-height: 86px;
+      border: 1px dashed rgba(14, 106, 140, 0.38);
+      border-radius: 8px;
+      background: #f7fbfc;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      padding: 14px;
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .settings-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 13px;
+      display: grid;
+      gap: 11px;
+      background: #fff;
+    }
+
+    .backend-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .feature-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfe;
+      padding: 11px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .feature-card strong {
+      font-size: 14px;
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+      padding: 10px 0;
+    }
+
+    .status-row:last-child {
+      border-bottom: 0;
+    }
+
+    .mini-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .mini-table th,
+    .mini-table td {
+      border-bottom: 1px solid var(--line);
+      padding: 9px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .mini-table th {
+      color: var(--muted);
+      font-weight: 700;
+      background: #f8fafc;
+    }
+
+    .mini-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px 12px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #263642;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      min-height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfdff;
+      padding: 8px 10px;
+      color: var(--text);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: #9bb5ff;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(37, 87, 214, 0.12);
+    }
+
+    textarea {
+      min-height: 78px;
+      resize: vertical;
+    }
+
+    .empty-state {
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      padding: 20px;
+      color: var(--muted);
+      background: #fff;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 1180px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .admin-panel {
+        position: static;
+        max-height: none;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .topbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .workspace {
+        padding: 12px;
+      }
+
+      .admin-console,
+      .home-editor-layout,
+      .admin-stats {
+        grid-template-columns: 1fr;
+      }
+
+      .backend-nav {
+        position: static;
+      }
+
+      .site-header,
+      .home-section {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      .banner,
+      .about-grid,
+      .service-grid,
+      .news-grid,
+      .case-grid,
+      .backend-grid,
+      .field-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .banner h2 {
+        font-size: 32px;
+      }
+
+      .site-header,
+      .section-title {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .secondary-link {
+        margin-left: 0;
+        margin-top: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">CMS</div>
+        <div>
+          <div class="brand-title">首頁模塊拼裝原型</div>
+          <div class="brand-subtitle">先選模塊類型，再選版型 A / B</div>
+        </div>
+      </div>
+      <div class="view-tabs" aria-label="快速檢視">
+        <button class="tab-btn active" type="button" data-focus="both">前台 + 後台</button>
+        <button class="tab-btn" type="button" data-focus="preview">只看前台</button>
+        <button class="tab-btn" type="button" data-focus="admin">只看後台</button>
+      </div>
+    </header>
+
+    <div class="workspace" id="workspace">
+      <section class="panel preview-panel" id="previewPanel">
+        <div class="panel-head">
+          <div>
+            <h1>前台首頁預覽</h1>
+            <div class="desc">這裡顯示目前選用的首頁模塊，依後台排序、類型、版型與頁面連結設定即時預覽。</div>
+          </div>
+        </div>
+        <div class="preview-frame">
+          <header class="site-header">
+            <div class="site-logo">LIMEIJIA 利每家</div>
+            <nav class="site-nav" id="previewNav" aria-label="前台主選單"></nav>
+          </header>
+          <div id="homepagePreview"></div>
+        </div>
+      </section>
+
+      <aside class="panel admin-panel" id="adminPanel">
+        <div class="panel-head">
+          <div>
+            <h1>後台：首頁模塊設定</h1>
+            <div class="desc">每個首頁模塊先選類型，再選版型 A / B，並設定文字、圖片、頁面連結與排序。</div>
+          </div>
+        </div>
+        <div class="admin-body">
+          <div class="admin-console">
+            <nav class="backend-nav" id="backendNav" aria-label="後台主選單"></nav>
+            <div class="admin-work">
+              <section id="managerIntro"></section>
+
+              <section id="pageTabsSection">
+                <h2>選擇要設定的頁面</h2>
+                <div class="hint">首頁是模塊拼裝；其他頁面是各自的前台頁面與後台內容設定。</div>
+                <div class="page-tabs" id="adminPageTabs"></div>
+              </section>
+
+              <section id="homeModuleSection">
+                <div class="home-editor-layout">
+                  <div class="home-side">
+                    <div class="settings-card">
+                      <h2>首頁模塊</h2>
+                      <div class="hint">三種方式管理首頁：新增模塊、刪除模塊、已新增但不顯示。模塊名稱可自定義，前台樣式依照模塊類型與版型決定。</div>
+                      <button type="button" class="btn primary" id="addHomeModule">新增模塊</button>
+                    </div>
+                    <div id="homeSummary"></div>
+                    <div class="module-list" id="moduleList"></div>
+                  </div>
+                  <div class="home-detail">
+                    <h2 id="settingsTitle">模塊設定</h2>
+                    <div id="moduleSettings"></div>
+                  </div>
+                </div>
+              </section>
+
+              <section id="generalSettingsSection">
+                <h2 id="generalSettingsTitle">管理內容</h2>
+                <div id="generalSettings"></div>
+              </section>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    const moduleTypes = [
+      {
+        id: "hero",
+        name: "首屏主視覺",
+        description: "適合首頁第一屏、活動主視覺或產品重點曝光。",
+        fields: ["主標題", "副標題", "說明文字", "背景圖 / 主圖"],
+        variants: [
+          { id: "A", name: "大背景圖版", description: "文字覆蓋在主視覺上，適合強品牌形象。" },
+          { id: "B", name: "左文右圖版", description: "左側文字、右側產品圖，適合產品介紹。" }
+        ]
+      },
+      {
+        id: "intro",
+        name: "圖文介紹",
+        description: "適合品牌理念、產品說明、核心訊息與 Message 區。",
+        fields: ["標題", "段落文字", "圖片", "重點文字"],
+        variants: [
+          { id: "A", name: "左圖右文", description: "圖片與文字並排，適合中段品牌說明。" },
+          { id: "B", name: "上文下圖", description: "文字置頂、圖片滿版，適合敘事型內容。" }
+        ]
+      },
+      {
+        id: "stats",
+        name: "數據亮點",
+        description: "適合 24H、3000+、SGS 等數字與信任指標。",
+        fields: ["標題", "說明", "數據項目"],
+        variants: [
+          { id: "A", name: "置中數據版", description: "標題置中，數據橫向排列。" },
+          { id: "B", name: "圖文數據版", description: "左側說明，右側數據群組。" }
+        ]
+      },
+      {
+        id: "cards",
+        name: "卡片列表",
+        description: "適合使用場景、服務入口、承諾、優勢與分類入口。",
+        fields: ["區塊標題", "卡片標題", "卡片圖片 / Icon", "卡片說明"],
+        variants: [
+          { id: "A", name: "橫向大圖卡", description: "多張大圖並列，適合場景與案例入口。" },
+          { id: "B", name: "四欄網格卡", description: "資訊密度較高，適合優勢與服務項目。" }
+        ]
+      },
+      {
+        id: "news",
+        name: "新聞列表",
+        description: "適合最新消息、活動公告、文章或知識內容。",
+        fields: ["標題", "分類", "顯示數量", "文章來源"],
+        variants: [
+          { id: "A", name: "左標題右新聞", description: "左側放標題與按鈕，右側放新聞列表。" },
+          { id: "B", name: "三欄新聞卡", description: "三張新聞卡並列，適合首頁資訊流。" }
+        ]
+      },
+      {
+        id: "steps",
+        name: "流程步驟",
+        description: "適合服務流程、合作流程、安裝流程或申請流程。",
+        fields: ["流程標題", "步驟名稱", "步驟說明"],
+        variants: [
+          { id: "A", name: "橫向三步驟", description: "步驟水平排列，適合短流程。" },
+          { id: "B", name: "垂直時間軸", description: "步驟垂直排列，適合較完整流程。" }
+        ]
+      },
+      {
+        id: "faq",
+        name: "FAQ 問答",
+        description: "適合常見問題、產品規格、合作問答或知識摘要。",
+        fields: ["區塊標題", "問題", "答案", "分類"],
+        variants: [
+          { id: "A", name: "手風琴問答", description: "一題一列，可展開答案。" },
+          { id: "B", name: "分類表格式", description: "用分類欄位呈現多組問答。" }
+        ]
+      },
+      {
+        id: "cta",
+        name: "CTA 行動區",
+        description: "適合聯絡我們、LINE 導流、合作洽詢與頁面收尾。",
+        fields: ["標題", "說明", "按鈕文字", "背景圖"],
+        variants: [
+          { id: "A", name: "深色橫幅", description: "強烈收尾，適合導流與聯絡。" },
+          { id: "B", name: "圖文 CTA", description: "搭配圖片，適合合作或活動入口。" }
+        ]
+      }
+    ];
+
+    const modules = [
+      {
+        id: "banner",
+        name: "首頁首屏",
+        description: "首頁全幅主視覺，承接品牌定位、主張與主要轉換入口。",
+        type: "hero",
+        required: true,
+        supportsPageLink: true
+      },
+      {
+        id: "news",
+        name: "最新消息",
+        description: "顯示活動、公告或最新文章，讓首頁保持更新感。",
+        type: "news",
+        supportsPageLink: true
+      },
+      {
+        id: "about",
+        name: "品牌訊息",
+        description: "用一段核心訊息說明利每家的品牌主張與服務價值。",
+        type: "intro",
+        supportsPageLink: true
+      },
+      {
+        id: "services",
+        name: "服務入口",
+        description: "介紹智慧富氫水站、產品特色與使用情境。",
+        type: "cards",
+        supportsPageLink: true
+      },
+      {
+        id: "promise",
+        name: "品牌承諾",
+        description: "四格呈現透明、安全、維運、減塑等品牌承諾。",
+        type: "cards",
+        supportsPageLink: false
+      },
+      {
+        id: "reasons",
+        name: "選擇理由",
+        description: "用編號大字呈現三個選擇利每家的理由。",
+        type: "steps",
+        supportsPageLink: false
+      },
+      {
+        id: "cases",
+        name: "案例證明",
+        description: "呈現合作案例、水站成果或社區導入證明。",
+        type: "cards",
+        supportsPageLink: true
+      },
+      {
+        id: "menu",
+        name: "入口矩陣",
+        description: "提供找水站、合作、ROI、SGS、知識、加盟等入口。",
+        type: "cards",
+        supportsPageLink: true
+      },
+      {
+        id: "faq",
+        name: "知識問答",
+        description: "顯示富氫水、SGS、ESG、社區共享等知識內容。",
+        type: "faq",
+        supportsPageLink: true
+      },
+      {
+        id: "contact",
+        name: "聯絡 CTA",
+        description: "固定在首頁底部，包含 LINE、合作洽詢、找水站與 Footer。",
+        type: "cta",
+        required: true,
+        supportsPageLink: true
+      }
+    ];
+
+    const pages = [
+      { id: "home", name: "首頁", template: "home" },
+      { id: "about", name: "品牌故事", template: "content" },
+      { id: "services", name: "找水站", template: "service" },
+      { id: "cases", name: "合作案例", template: "case" },
+      { id: "news", name: "知識中心", template: "article" },
+      { id: "contact", name: "LINE 諮詢", template: "contact" }
+    ];
+
+    const pageTemplates = [
+      { id: "content", name: "一般內容頁", defaultName: "關於頁面", desc: "適合品牌故事、公司介紹、理念說明。", fields: ["頁面標題", "頁面簡介", "主要段落", "補充重點 1", "補充重點 2"] },
+      { id: "service", name: "服務列表頁", defaultName: "服務項目", desc: "適合服務項目、方案介紹、流程說明。", fields: ["頁面標題", "頁面簡介", "服務項目 1", "服務項目 2", "服務項目 3"] },
+      { id: "article", name: "文章列表頁", defaultName: "最新消息", desc: "適合最新消息、知識中心、文章分類。", fields: ["頁面標題", "頁面簡介", "顯示分類", "顯示筆數"] },
+      { id: "case", name: "案例列表頁", defaultName: "成功案例", desc: "適合作品、成功案例、客戶成果。", fields: ["頁面標題", "頁面簡介", "案例分類", "顯示筆數"] },
+      { id: "contact", name: "聯絡表單頁", defaultName: "聯絡我們", desc: "適合聯絡資訊、LINE 諮詢、表單詢問。", fields: ["頁面標題", "頁面簡介", "電話", "Email", "LINE"] },
+      { id: "faq", name: "FAQ 頁", defaultName: "常見問題", desc: "適合常見問題、購買說明、服務問答。", fields: ["頁面標題", "頁面簡介", "問題分類", "顯示筆數"] }
+    ];
+
+    const backendSections = [
+      { id: "dashboard", name: "儀表板" },
+      { id: "home", name: "首頁管理" },
+      { id: "pages", name: "前台頁面" },
+      { id: "articles", name: "知識內容" },
+      { id: "cases", name: "案例證明" },
+      { id: "faq", name: "GEO 站點" },
+      { id: "forms", name: "Lead 管理" },
+      { id: "media", name: "媒體庫" },
+      { id: "seo", name: "Banner / Meta" },
+      { id: "tracking", name: "追蹤設定" },
+      { id: "site", name: "網站設定" },
+      { id: "logs", name: "操作紀錄" }
+    ];
+
+    const state = {
+      focus: "both",
+      previewPage: "home",
+      adminPage: "home",
+      adminSection: "dashboard",
+      activeSettings: "banner",
+      isChoosingTemplate: false,
+      customPageCount: 0,
+      customModuleCount: 0,
+      moduleOrder: ["news", "about", "services", "promise", "reasons", "cases", "menu", "faq"],
+      enabled: {
+        banner: true,
+        about: true,
+        services: true,
+        promise: true,
+        reasons: true,
+        cases: true,
+        news: true,
+        menu: true,
+        faq: false,
+        contact: true
+      },
+      moduleConfig: {
+        banner: { customName: "首頁首屏", type: "hero", variant: "A", linkEnabled: true, linkText: "加入 LINE 諮詢", linkTarget: "/go/line" },
+        news: { customName: "最新消息", type: "news", variant: "A", linkEnabled: true, linkText: "查看全部消息", linkTarget: "/news" },
+        about: { customName: "品牌訊息", type: "intro", variant: "A", linkEnabled: false, linkText: "了解品牌故事", linkTarget: "/about" },
+        services: { customName: "服務入口", type: "cards", variant: "A", linkEnabled: true, linkText: "找附近水站", linkTarget: "/stations" },
+        promise: { customName: "品牌承諾", type: "cards", variant: "B", linkEnabled: false, linkText: "查看更多", linkTarget: "/promise" },
+        reasons: { customName: "選擇理由", type: "steps", variant: "B", linkEnabled: false, linkText: "了解合作模式", linkTarget: "/cooperate" },
+        cases: { customName: "案例證明", type: "cards", variant: "A", linkEnabled: true, linkText: "查看合作案例", linkTarget: "/cases" },
+        menu: { customName: "入口矩陣", type: "cards", variant: "B", linkEnabled: false, linkText: "查看服務", linkTarget: "/services" },
+        faq: { customName: "知識問答", type: "faq", variant: "A", linkEnabled: true, linkText: "更多常見問題", linkTarget: "/faq" },
+        contact: { customName: "聯絡 CTA", type: "cta", variant: "A", linkEnabled: true, linkText: "加入 LINE", linkTarget: "/go/line" }
+      },
+      content: {
+        bannerTitle: "把可生飲的富氫活水，帶進每一個社區家庭",
+        bannerIntro: "利每家以智慧富氫水站、SGS 透明數據與社區共享模式，讓居民更方便取得安心飲水。",
+        bannerImageLabel: "智慧富氫水站主視覺",
+        bannerButtonText: "加入 LINE 諮詢",
+        bannerButtonTarget: "/go/line",
+        aboutTitle: "社區共享型智慧健康飲水",
+        aboutText: "利每家結合高濃度氫、SGS 透明、社區分潤與 ESG 減塑，讓飲水服務更接近家庭日常。",
+        servicesTitle: "找水站與服務入口",
+        promiseTitle: "利每家的四個承諾",
+        reasonsTitle: "選擇利每家的三個理由",
+        advantagesTitle: "為什麼選擇利每家",
+        casesTitle: "合作案例與社區證明",
+        menuTitle: "快速找到你需要的服務",
+        newsTitle: "最新消息",
+        faqTitle: "富氫水知識",
+        contactTitle: "想了解社區設站或合作模式？",
+        contactText: "可先加入 LINE，或留下社區與需求資訊，後續由專人協助評估。",
+        contactButtonText: "加入 LINE",
+        contactButtonTarget: "/go/line",
+        aboutPageTitle: "品牌故事",
+        aboutPageIntro: "利每家相信，好的飲水服務應該透明、可靠、有溫度，並且能回到社區生活裡。",
+        aboutPageStory: "我們以智慧水站為核心，把水質數據、設備維運、社區共享與永續減塑整合成可持續營運的服務。",
+        aboutPageValue1: "高濃度氫與透明檢測",
+        aboutPageValue2: "社區共享與分潤回饋",
+        aboutPageValue3: "ESG 減塑與長期維運",
+        servicesPageTitle: "找水站",
+        servicesPageIntro: "讓居民快速找到附近水站、營業資訊、水質報告與 LINE 導流入口。",
+        serviceItem1: "附近水站查詢",
+        serviceItem2: "水質報告透明公開",
+        serviceItem3: "社區合作設站評估",
+        casesPageTitle: "合作案例",
+        casesPageIntro: "展示社區導入成果、營運數字、減塑效益與合作模式。",
+        caseItem1: "桃園社區智慧水站",
+        caseItem2: "管委會合作導入",
+        caseItem3: "ESG 減塑成果案例",
+        newsPageTitle: "知識中心",
+        newsPageIntro: "整理富氫水、SGS、社區共享、ESG 減塑與水站營運相關內容。",
+        newsItem1: "富氫水與一般飲水差在哪？",
+        newsItem2: "社區水站如何評估設置？",
+        newsItem3: "SGS 水質報告要看哪些指標？",
+        contactPageTitle: "LINE 諮詢",
+        contactPageIntro: "加入 LINE 或留下資料，讓利每家協助評估社區設站、合作與試喝需求。",
+        contactPhone: "0968-104-098",
+        contactEmail: "hello@limeijia.example",
+        contactLine: "@limeijia"
+      }
+    };
+
+    const moduleList = document.getElementById("moduleList");
+    const moduleSettings = document.getElementById("moduleSettings");
+    const homeSummary = document.getElementById("homeSummary");
+    const generalSettings = document.getElementById("generalSettings");
+    const generalSettingsSection = document.getElementById("generalSettingsSection");
+    const generalSettingsTitle = document.getElementById("generalSettingsTitle");
+    const homepagePreview = document.getElementById("homepagePreview");
+    const backendNav = document.getElementById("backendNav");
+    const previewNav = document.getElementById("previewNav");
+    const managerIntro = document.getElementById("managerIntro");
+    const adminPageTabs = document.getElementById("adminPageTabs");
+    const pageTabsSection = document.getElementById("pageTabsSection");
+    const homeModuleSection = document.getElementById("homeModuleSection");
+    const settingsTitle = document.getElementById("settingsTitle");
+    const workspace = document.getElementById("workspace");
+    const previewPanel = document.getElementById("previewPanel");
+    const adminPanel = document.getElementById("adminPanel");
+
+    function esc(value) {
+      return String(value).replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      })[char]);
+    }
+
+    function renderBackendNav() {
+      backendNav.innerHTML = backendSections.map((section) => `
+        <button type="button" class="${state.adminSection === section.id ? "active" : ""}" data-admin-section="${section.id}">${section.name}</button>
+      `).join("");
+
+      backendNav.querySelectorAll("[data-admin-section]").forEach((button) => {
+        button.addEventListener("click", () => {
+          state.adminSection = button.dataset.adminSection;
+          if (state.adminSection === "home") {
+            state.adminPage = "home";
+            state.previewPage = "home";
+          }
+          if (state.adminSection === "pages" && state.adminPage === "home") {
+            state.adminPage = "about";
+            state.previewPage = "about";
+          }
+          render();
+        });
+      });
+    }
+
+    function renderPageTabs() {
+      if (!pages.some((page) => page.id === state.previewPage)) {
+        state.previewPage = "home";
+      }
+      if (!pages.some((page) => page.id === state.adminPage)) {
+        state.adminPage = pages.find((page) => page.id !== "home")?.id || "home";
+      }
+
+      previewNav.innerHTML = pages.map((page) => `
+        <button type="button" data-preview-page="${page.id}">${page.name}</button>
+      `).join("");
+
+      adminPageTabs.innerHTML = pages.map((page) => `
+        <button type="button" class="tab-btn ${state.adminPage === page.id ? "active" : ""}" data-admin-page="${page.id}">${page.name}</button>
+      `).join("");
+
+      adminPageTabs.querySelectorAll("[data-admin-page]").forEach((button) => {
+        button.addEventListener("click", () => {
+          state.adminPage = button.dataset.adminPage;
+          state.previewPage = button.dataset.adminPage;
+          render();
+        });
+      });
+
+      document.querySelectorAll("[data-preview-page]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.previewPage === state.previewPage);
+        button.onclick = () => {
+          state.previewPage = button.dataset.previewPage;
+          state.adminPage = button.dataset.previewPage;
+          render();
+        };
+      });
+    }
+
+    function getModuleConfig(moduleId) {
+      const module = modules.find((item) => item.id === moduleId);
+      if (!state.moduleConfig[moduleId]) {
+        state.moduleConfig[moduleId] = {
+          customName: module?.name || "自訂模塊",
+          type: module?.type || "cards",
+          variant: "A",
+          linkEnabled: false,
+          linkText: "查看更多",
+          linkTarget: "/"
+        };
+      }
+      return state.moduleConfig[moduleId];
+    }
+
+    function getModuleType(typeId) {
+      return moduleTypes.find((type) => type.id === typeId) || moduleTypes[0];
+    }
+
+    function getModuleVariant(moduleId) {
+      const config = getModuleConfig(moduleId);
+      const type = getModuleType(config.type);
+      return type.variants.find((variant) => variant.id === config.variant) || type.variants[0];
+    }
+
+    function addHomeModule() {
+      state.customModuleCount += 1;
+      const id = `customModule${state.customModuleCount}`;
+      const name = `自訂模塊 ${state.customModuleCount}`;
+      modules.push({
+        id,
+        name,
+        description: "使用者新增的首頁模塊，可自行選擇類型、版型、內容與頁面連結。",
+        type: "cards",
+        supportsPageLink: true
+      });
+      state.moduleOrder.push(id);
+      state.enabled[id] = true;
+      state.moduleConfig[id] = {
+        customName: name,
+        type: "cards",
+        variant: "A",
+        linkEnabled: false,
+        linkText: "查看更多",
+        linkTarget: "/"
+      };
+      state.activeSettings = id;
+    }
+
+    function deleteHomeModule(moduleId) {
+      const module = modules.find((item) => item.id === moduleId);
+      if (!module || module.required) return;
+      const index = modules.findIndex((item) => item.id === moduleId);
+      if (index >= 0) modules.splice(index, 1);
+      state.moduleOrder = state.moduleOrder.filter((id) => id !== moduleId);
+      delete state.enabled[moduleId];
+      delete state.moduleConfig[moduleId];
+      if (state.activeSettings === moduleId) {
+        state.activeSettings = state.moduleOrder[0] || "banner";
+      }
+    }
+
+    function getOrderedModules() {
+      const byId = Object.fromEntries(modules.map((module) => [module.id, module]));
+      return [byId.banner, ...state.moduleOrder.map((id) => byId[id]).filter(Boolean), byId.contact].filter(Boolean);
+    }
+
+    function moveModule(moduleId, direction) {
+      const index = state.moduleOrder.indexOf(moduleId);
+      if (index < 0) return;
+      const target = direction === "up" ? index - 1 : index + 1;
+      if (target < 0 || target >= state.moduleOrder.length) return;
+      const next = [...state.moduleOrder];
+      [next[index], next[target]] = [next[target], next[index]];
+      state.moduleOrder = next;
+    }
+
+    function reorderModule(fromId, toId) {
+      if (!fromId || !toId || fromId === toId) return;
+      const fromIndex = state.moduleOrder.indexOf(fromId);
+      const toIndex = state.moduleOrder.indexOf(toId);
+      if (fromIndex < 0 || toIndex < 0) return;
+      const next = [...state.moduleOrder];
+      const [moved] = next.splice(fromIndex, 1);
+      next.splice(toIndex, 0, moved);
+      state.moduleOrder = next;
+    }
+
+    function renderHomeSummary() {
+      const orderedModules = getOrderedModules();
+      const enabledCount = orderedModules.filter((module) => state.enabled[module.id]).length;
+      const hiddenCount = orderedModules.length - enabledCount;
+      const linkedCount = orderedModules.filter((module) => state.enabled[module.id] && getModuleConfig(module.id).linkEnabled).length;
+      homeSummary.innerHTML = `
+        <div class="home-summary">
+          <div class="summary-row"><span>首頁狀態</span><strong>已發布</strong></div>
+          <div class="summary-row"><span>全部模塊</span><strong>${orderedModules.length}</strong></div>
+          <div class="summary-row"><span>啟用模塊</span><strong>${enabledCount}</strong></div>
+          <div class="summary-row"><span>暫不顯示</span><strong>${hiddenCount}</strong></div>
+          <div class="summary-row"><span>含頁面連結</span><strong>${linkedCount}</strong></div>
+          <div class="summary-row"><span>排序規則</span><strong>Hero / Footer 固定</strong></div>
+        </div>
+      `;
+    }
+
+    function renderModuleList() {
+      const orderedModules = getOrderedModules();
+      moduleList.innerHTML = orderedModules.map((module) => {
+        const config = getModuleConfig(module.id);
+        const type = getModuleType(config.type);
+        const variant = getModuleVariant(module.id);
+        const checked = state.enabled[module.id] ? "checked" : "";
+        const required = module.required ? "disabled" : "";
+        const active = state.activeSettings === module.id ? "primary" : "";
+        const fixed = module.id === "banner" || module.id === "contact";
+        return `
+          <div class="module-row" ${fixed ? "" : 'draggable="true"'} data-module-row="${module.id}">
+            <div class="module-main">
+              <input type="checkbox" ${checked} ${required} data-toggle-module="${module.id}" aria-label="啟用${module.name}">
+              <span class="drag-handle" aria-hidden="true">${fixed ? "鎖" : "⋮⋮"}</span>
+              <div>
+                <h3>${esc(config.customName)}</h3>
+                <div class="hint">${state.enabled[module.id] ? "顯示中" : "暫不顯示"}｜${type.name}｜版型 ${variant.id}：${variant.name}</div>
+              </div>
+              <div class="manager-actions">
+                <button type="button" class="btn ${active}" data-open-settings="${module.id}">設定</button>
+                ${fixed ? "" : `<button type="button" class="btn danger" data-delete-module="${module.id}">刪除</button>`}
+              </div>
+            </div>
+            <div class="module-meta">
+              ${fixed ? '<span class="pill green">固定位置</span>' : ""}
+              ${state.enabled[module.id] ? '<span class="pill green">前台顯示</span>' : '<span class="pill">暫不顯示</span>'}
+              <span class="pill">${type.name}</span>
+              <span class="pill">版型 ${variant.id}</span>
+              ${config.linkEnabled ? '<span class="pill green">有頁面連結</span>' : '<span class="pill">無頁面連結</span>'}
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      moduleList.querySelectorAll("[data-toggle-module]").forEach((input) => {
+        input.addEventListener("change", () => {
+          state.enabled[input.dataset.toggleModule] = input.checked;
+          render();
+        });
+      });
+
+      moduleList.querySelectorAll("[data-open-settings]").forEach((button) => {
+        button.addEventListener("click", () => {
+          state.activeSettings = button.dataset.openSettings;
+          render();
+        });
+      });
+
+      moduleList.querySelectorAll("[data-delete-module]").forEach((button) => {
+        button.addEventListener("click", () => {
+          deleteHomeModule(button.dataset.deleteModule);
+          render();
+        });
+      });
+
+      document.getElementById("addHomeModule").onclick = () => {
+        addHomeModule();
+        render();
+      };
+
+      moduleList.querySelectorAll('[draggable="true"]').forEach((row) => {
+        row.addEventListener("dragstart", (event) => {
+          row.classList.add("is-dragging");
+          event.dataTransfer.setData("text/plain", row.dataset.moduleRow);
+          event.dataTransfer.effectAllowed = "move";
+        });
+        row.addEventListener("dragend", () => {
+          row.classList.remove("is-dragging");
+        });
+        row.addEventListener("dragover", (event) => {
+          event.preventDefault();
+          event.dataTransfer.dropEffect = "move";
+        });
+        row.addEventListener("drop", (event) => {
+          event.preventDefault();
+          const fromId = event.dataTransfer.getData("text/plain");
+          reorderModule(fromId, row.dataset.moduleRow);
+          render();
+        });
+      });
+    }
+
+    function field(name, key, type = "text") {
+      const value = esc(state.content[key] || "");
+      if (type === "textarea") {
+        return `<div class="field full"><label>${name}</label><textarea data-content="${key}">${value}</textarea></div>`;
+      }
+      return `<div class="field"><label>${name}</label><input type="text" value="${value}" data-content="${key}"></div>`;
+    }
+
+    function moduleNameAndTypeSettings(module) {
+      const config = getModuleConfig(module.id);
+      const type = getModuleType(config.type);
+      return `
+        <div class="settings-card">
+          <h3>模塊基本設定</h3>
+          <label style="display:flex;align-items:center;gap:8px;font-weight:400;">
+            <input style="width:18px;min-height:18px;" type="checkbox" ${state.enabled[module.id] ? "checked" : ""} ${module.required ? "disabled" : ""} data-toggle-module-detail="${module.id}">
+            前台顯示這個模塊
+          </label>
+          <div class="field-grid">
+            <div class="field">
+              <label>後台自定義模塊名稱</label>
+              <input type="text" value="${esc(config.customName)}" data-module-config="${module.id}" data-config-key="customName">
+            </div>
+            <div class="field">
+              <label>模塊類型</label>
+              <select data-module-config="${module.id}" data-config-key="type">
+                ${moduleTypes.map((item) => `<option value="${item.id}" ${config.type === item.id ? "selected" : ""}>${item.name}｜${item.description}</option>`).join("")}
+              </select>
+            </div>
+          </div>
+          <div class="hint">模塊名稱只給後台辨識；下拉選項會顯示每個類型的用途，前台實際欄位與版面由「模塊類型」和「版型」決定。</div>
+        </div>
+      `;
+    }
+
+    function variantSettings(moduleId) {
+      const config = getModuleConfig(moduleId);
+      const type = getModuleType(config.type);
+      return `
+        <div class="settings-card">
+          <h3>選擇 ${type.name} 版型</h3>
+          <div class="field">
+            <label>版型</label>
+            <select data-module-config="${moduleId}" data-config-key="variant">
+              ${type.variants.map((variant) => `<option value="${variant.id}" ${config.variant === variant.id ? "selected" : ""}>版型 ${variant.id}：${variant.name}｜${variant.description}</option>`).join("")}
+            </select>
+          </div>
+          <div class="hint">版型選項放在下拉選單中，之後可擴充更多版型；切換後前台預覽會同步改變排列方式。</div>
+        </div>
+      `;
+    }
+
+    function moduleFieldGuide(moduleId) {
+      const type = getModuleType(getModuleConfig(moduleId).type);
+      return `
+        <div class="settings-card">
+          <h3>這個類型需要填寫的內容</h3>
+          <div class="backend-grid">
+            ${type.fields.map((item) => `
+              <div class="feature-card">
+                <strong>${item}</strong>
+                <div class="hint">依目前版型顯示在前台對應位置。</div>
+              </div>
+            `).join("")}
+          </div>
+          <div class="upload-placeholder">圖片欄位示意：可上傳底圖、主圖或卡片圖，實作時串接媒體庫。</div>
+        </div>
+      `;
+    }
+
+    function linkSettings(moduleId) {
+      const config = getModuleConfig(moduleId);
+      return `
+        <div class="settings-card">
+          <h3>頁面連結設定</h3>
+          <label style="display:flex;align-items:center;gap:8px;font-weight:400;">
+            <input style="width:18px;min-height:18px;" type="checkbox" ${config.linkEnabled ? "checked" : ""} data-module-config="${moduleId}" data-config-key="linkEnabled">
+            這個模塊需要放頁面連結
+          </label>
+          ${config.linkEnabled ? `
+            <div class="field-grid">
+              <div class="field">
+                <label>連結顯示文字</label>
+                <input type="text" value="${esc(config.linkText)}" data-module-config="${moduleId}" data-config-key="linkText">
+              </div>
+              <div class="field">
+                <label>連結目標頁面</label>
+                <select data-module-config="${moduleId}" data-config-key="linkTarget">
+                  ${["/about", "/stations", "/cooperate", "/cases", "/news", "/faq", "/contact", "/go/line", "外部連結"].map((option) => `<option value="${option}" ${config.linkTarget === option ? "selected" : ""}>${option}</option>`).join("")}
+                </select>
+              </div>
+            </div>
+            <div class="hint">連結可對應站內頁、LINE 導流或外部連結；不同版型會決定它顯示成按鈕、文字連結或卡片入口。</div>
+          ` : '<div class="hint">目前此模塊不顯示頁面連結，因此前台只呈現內容本身。</div>'}
+        </div>
+      `;
+    }
+
+    function backendFeatureCards(items) {
+      return `
+        <div class="settings-card">
+          <h3>這個頁面的後台功能</h3>
+          <div class="backend-grid">
+            ${items.map((item) => `
+              <div class="feature-card">
+                <strong>${item[0]}</strong>
+                <div class="hint">${item[1]}</div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    function pageStatusCard(pageName) {
+      return `
+        <div class="settings-card">
+          <h3>頁面狀態與顯示</h3>
+          <div class="status-row">
+            <div><strong>頁面狀態</strong><div class="hint">控制 ${pageName} 是否出現在前台。</div></div>
+            <select style="max-width:130px;"><option>已發布</option><option>草稿</option><option>隱藏</option></select>
+          </div>
+          <div class="status-row">
+            <div><strong>顯示在前台主選單</strong><div class="hint">控制頁面是否出現在網站上方選單。</div></div>
+            <select style="max-width:130px;"><option>顯示</option><option>隱藏</option></select>
+          </div>
+          <div class="status-row">
+            <div><strong>顯示在 Footer</strong><div class="hint">控制頁面是否出現在網站底部連結。</div></div>
+            <select style="max-width:130px;"><option>顯示</option><option>隱藏</option></select>
+          </div>
+        </div>
+      `;
+    }
+
+    function seoMetaCard(pageName) {
+      return `
+        <div class="settings-card">
+          <h3>搜尋顯示設定</h3>
+          <div class="hint">A 方案提供基本 SEO，只讓客戶調整看得懂的搜尋標題、搜尋摘要與分享圖片。</div>
+          <div class="field-grid">
+            <div class="field full">
+              <label>${pageName}的搜尋標題</label>
+              <input type="text" value="${pageName}｜利每家 LIMEIJIA">
+            </div>
+            <div class="field full">
+              <label>${pageName}的搜尋摘要</label>
+              <textarea>簡短描述這個頁面的內容，讓搜尋結果與社群分享更清楚。</textarea>
+            </div>
+            <div class="field">
+              <label>分享圖片</label>
+              <input type="text" value="og-${pageName}.jpg">
+            </div>
+            <div class="field">
+              <label>是否開放搜尋收錄</label>
+              <select><option>開放收錄</option><option>不開放收錄</option></select>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function mediaCard() {
+      return `
+        <div class="settings-card">
+          <h3>圖片與媒體</h3>
+          <div class="field-grid">
+            <div class="field">
+              <label>頁面主圖</label>
+              <input type="text" value="page-cover.jpg">
+            </div>
+            <div class="field">
+              <label>圖片替代文字</label>
+              <input type="text" value="頁面主視覺圖片">
+            </div>
+          </div>
+          <div class="hint">圖片實際會由媒體庫管理，頁面只選擇要套用哪一張。</div>
+        </div>
+      `;
+    }
+
+    function operationLogCard() {
+      return `
+        <div class="settings-card">
+          <h3>最近操作紀錄</h3>
+          <table class="mini-table">
+            <thead><tr><th>時間</th><th>使用者</th><th>動作</th></tr></thead>
+            <tbody>
+              <tr><td>2026/07/16 15:42</td><td>Joy</td><td>更新頁面內容</td></tr>
+              <tr><td>2026/07/16 15:21</td><td>Joy</td><td>調整 SEO 摘要</td></tr>
+              <tr><td>2026/07/15 18:03</td><td>Editor</td><td>上傳頁面圖片</td></tr>
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function managerHeader(title, desc, actions = []) {
+      return `
+        <div class="settings-card">
+          <div class="manager-head">
+            <div>
+              <h3>${title}</h3>
+              <div class="hint">${desc}</div>
+            </div>
+            <div class="manager-actions">
+              ${actions.map((action, index) => `<button type="button" class="btn ${index === 0 ? "primary" : ""}">${action}</button>`).join("")}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function managerTable(headers, rows) {
+      return `
+        <div class="settings-card">
+          <div class="manager-head">
+            <div class="field" style="min-width:180px;">
+              <input type="search" placeholder="搜尋">
+            </div>
+            <div class="manager-actions">
+              <select style="max-width:130px;"><option>全部狀態</option><option>已發布</option><option>草稿</option><option>隱藏</option></select>
+              <button type="button" class="btn">批次操作</button>
+            </div>
+          </div>
+          <table class="mini-table">
+            <thead><tr>${headers.map((header) => `<th>${header}</th>`).join("")}<th>操作</th></tr></thead>
+            <tbody>
+              ${rows.map((row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join("")}<td><button type="button" class="btn">編輯</button></td></tr>`).join("")}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderManagerSection() {
+      const content = {
+        dashboard: `
+          ${managerHeader("Admin Console 儀表板", "集中查看 GEO 站點、Lead、內容、Banner/Meta 與追蹤待辦。", ["查看前台"])}
+          <div class="admin-stats">
+            <div class="stat-box"><span class="hint">GEO 站點</span><span class="stat-value">12</span><span class="hint">縣市／行政區／社區頁</span></div>
+            <div class="stat-box"><span class="hint">未處理 Lead</span><span class="stat-value">8</span><span class="hint">LINE、合作、找水站來源</span></div>
+            <div class="stat-box"><span class="hint">Banner / Meta 待補</span><span class="stat-value">3</span><span class="hint">摘要、OG 或收錄狀態</span></div>
+          </div>
+          <div class="settings-card">
+            <h3>待處理事項</h3>
+            <table class="mini-table">
+              <thead><tr><th>項目</th><th>類型</th><th>狀態</th></tr></thead>
+              <tbody>
+                <tr><td>LINE 與合作 Lead 尚未分派</td><td>Lead 管理</td><td>待處理</td></tr>
+                <tr><td>桃園示範站缺少水質報告檔</td><td>GEO 站點</td><td>待補</td></tr>
+                <tr><td>首頁 Hero Banner 已更新</td><td>Banner / Meta</td><td>完成</td></tr>
+              </tbody>
+            </table>
+          </div>
+        `,
+        articles: `
+          ${managerHeader("知識內容管理", "管理富氫水、SGS、社區合作、ESG 與最新消息內容。", ["新增內容", "匯出列表"])}
+          ${managerTable(["標題", "分類", "狀態", "更新時間"], [["富氫水與一般飲水差在哪？", "知識文章", "已發布", "2026/07/16"], ["社區水站如何評估設置？", "合作指南", "草稿", "2026/07/15"], ["SGS 水質報告要看哪些指標？", "SGS", "已發布", "2026/07/14"]])}
+        `,
+        cases: `
+          ${managerHeader("案例證明管理", "管理社區導入案例、水站成果、ESG 減塑與合作證明。", ["新增案例"])}
+          ${managerTable(["案例名稱", "類型", "狀態", "排序"], [["桃園社區智慧水站", "社區導入", "已發布", "1"], ["管委會合作導入", "B2B 合作", "已發布", "2"], ["ESG 減塑成果案例", "ESG", "隱藏", "3"]])}
+        `,
+        faq: `
+          ${managerHeader("GEO 站點管理", "管理縣市、行政區、社區水站、水質報告與本地頁 SEO。", ["新增站點", "匯入報告"])}
+          ${managerTable(["站點", "地區", "報告", "狀態"], [["桃園中埔二街站", "桃園市", "已上傳", "已發布"], ["台北信義示範站", "台北市", "待補", "草稿"], ["新北板橋合作站", "新北市", "已上傳", "已發布"]])}
+        `,
+        forms: `
+          ${managerHeader("Lead 管理", "記錄 LINE、合作、找水站、ROI 與 QR/UTM 來源，標記處理狀態。", ["匯出 CSV", "分派業務"])}
+          ${managerTable(["姓名", "需求", "來源", "狀態"], [["王小姐", "社區設站評估", "cooperate / form", "未處理"], ["陳先生", "找附近水站", "qr / line", "已處理"], ["林小姐", "ROI 試算與合作", "google / cpc", "未處理"]])}
+        `,
+        media: `
+          ${managerHeader("媒體庫", "上傳圖片、Logo、檔案，供頁面、文章、案例引用。", ["上傳圖片", "新增資料夾"])}
+          <div class="backend-grid">
+            ${["brand-logo.png", "home-banner.jpg", "about-cover.jpg", "case-01.jpg", "news-cover.jpg", "og-default.jpg"].map((name) => `<div class="feature-card"><div style="height:86px;background:var(--soft);border-radius:7px;display:grid;place-items:center;color:var(--muted);">圖片</div><strong>${name}</strong><div class="hint">已加入媒體庫</div></div>`).join("")}
+          </div>
+        `,
+        seo: `
+          ${managerHeader("Banner / Meta 管理", "依文件 A48/A49 管理 Banner、title、description、OG、canonical 與收錄狀態。", ["儲存 Meta"])}
+          ${managerTable(["頁面", "搜尋標題", "摘要狀態", "收錄"], [["首頁", "利每家｜智慧富氫水站", "完整", "開放"], ["找水站", "附近水站｜利每家", "完整", "開放"], ["知識中心", "富氫水知識｜利每家", "待補", "開放"], ["合作案例", "社區合作案例｜利每家", "完整", "開放"]])}
+        `,
+        tracking: `
+          ${managerHeader("追蹤設定", "依追蹤文件管理 GA4、GTM、Meta Pixel、LINE Tag、UTM 與 Consent。", ["儲存追蹤碼"])}
+          ${managerTable(["工具", "用途", "狀態", "Phase"], [["GA4", "全站事件與轉換漏斗", "已設定", "P0"], ["GTM", "統一埋碼容器", "已設定", "P0"], ["LINE Tag", "LINE 導流成效", "待設定", "P1"], ["UTM 隱藏欄位", "Lead 來源歸因", "已啟用", "P0"]])}
+        `,
+        site: `
+          ${managerHeader("網站基本設定", "管理 Logo、公開網址、LINE 入口、聯絡資訊、預設 OG 圖與維護模式。", ["儲存設定"])}
+          <div class="settings-card">
+            <div class="field-grid">
+              ${field("網站名稱", "bannerImageLabel")}
+              <div class="field"><label>電話</label><input value="${esc(state.content.contactPhone)}"></div>
+              <div class="field"><label>Email</label><input value="${esc(state.content.contactEmail)}"></div>
+              <div class="field"><label>LINE</label><input value="${esc(state.content.contactLine)}"></div>
+              <div class="field full"><label>Footer 文字</label><textarea>公司資訊、服務連結、社群、隱私權與聯絡方式。</textarea></div>
+            </div>
+          </div>
+        `,
+        logs: `
+          ${managerHeader("操作紀錄", "記錄誰修改了內容，方便追查。", ["篩選紀錄"])}
+          ${managerTable(["時間", "使用者", "動作", "項目"], [["2026/07/16 16:05", "Joy", "更新", "首頁模塊"], ["2026/07/16 15:42", "Joy", "更新", "關於我們頁"], ["2026/07/15 18:03", "Editor", "上傳", "媒體庫圖片"]])}
+        `
+      };
+
+      return content[state.adminSection] || "";
+    }
+
+    function relatedDataCard(type) {
+      const rows = {
+        services: [
+          ["品牌官網規劃", "已發布", "1"],
+          ["內容管理後台", "已發布", "2"],
+          ["SEO 基礎設定", "已發布", "3"]
+        ],
+        cases: [
+          ["室內設計品牌站", "已發布", "1"],
+          ["診所形象官網", "已發布", "2"],
+          ["顧問服務網站", "隱藏", "3"]
+        ],
+        news: [
+          ["官網首頁應該有哪些區塊？", "已發布", "知識文章"],
+          ["如何規劃可維護的內容後台", "草稿", "後台規劃"],
+          ["基本 SEO 後台該給客戶什麼", "已發布", "SEO 設定"]
+        ],
+        contact: [
+          ["王小姐", "想了解進階版", "未處理"],
+          ["陳先生", "詢問品牌官網", "已處理"],
+          ["林小姐", "需要多據點頁面", "未處理"]
+        ]
+      };
+
+      const titles = {
+        services: "服務資料管理",
+        cases: "案例資料管理",
+        news: "文章 / 最新消息管理",
+        contact: "表單資料管理"
+      };
+
+      const headers = type === "contact" ? ["姓名", "需求", "狀態"] : type === "news" ? ["標題", "狀態", "分類"] : ["名稱", "狀態", "排序"];
+      const data = rows[type] || [];
+
+      return `
+        <div class="settings-card">
+          <h3>${titles[type]}</h3>
+          <div class="hint">這裡對應 PDF 中的${titles[type]}，頁面前台會從這些資料帶出內容。</div>
+          <table class="mini-table">
+            <thead><tr>${headers.map((header) => `<th>${header}</th>`).join("")}</tr></thead>
+            <tbody>${data.map((row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join("")}</tr>`).join("")}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function getPageTemplate(pageId) {
+      const pageInfo = pages.find((page) => page.id === pageId);
+      return pageTemplates.find((template) => template.id === pageInfo?.template) || pageTemplates[0];
+    }
+
+    function addCustomPage(templateId) {
+      const template = pageTemplates.find((item) => item.id === templateId) || pageTemplates[0];
+      const count = state.customPageCount + 1;
+      const id = `custom${Date.now()}`;
+      const name = `${template.defaultName} ${count}`;
+      state.customPageCount = count;
+      pages.push({ id, name, template: template.id });
+      state.content[`${id}PageTitle`] = name;
+      state.content[`${id}PageIntro`] = `請輸入${template.name}的簡短介紹。`;
+      state.content[`${id}PageBody`] = "請輸入這個頁面的主要內容。";
+      template.fields.slice(2).forEach((label, index) => {
+        state.content[`${id}Field${index + 1}`] = label;
+      });
+      state.adminPage = id;
+      state.previewPage = id;
+      state.isChoosingTemplate = false;
+    }
+
+    function deletePage(pageId) {
+      if (pageId === "home") return;
+      const index = pages.findIndex((page) => page.id === pageId);
+      if (index < 0) return;
+      pages.splice(index, 1);
+      const nextPage = pages.find((page) => page.id !== "home");
+      state.adminPage = nextPage?.id || "home";
+      state.previewPage = state.adminPage;
+    }
+
+    function renderPageSettings() {
+      const pageMap = {
+        about: {
+          title: "關於我們頁設定",
+          fields: [
+            ["頁面標題", "aboutPageTitle"],
+            ["頁面簡介", "aboutPageIntro", "textarea"],
+            ["品牌故事", "aboutPageStory", "textarea"],
+            ["核心價值 1", "aboutPageValue1"],
+            ["核心價值 2", "aboutPageValue2"],
+            ["核心價值 3", "aboutPageValue3"]
+          ],
+          note: "這頁通常用來建立信任感，重點是品牌定位、理念、經驗與服務態度。",
+          features: [
+            ["頁面內容管理", "維護品牌故事、公司理念、團隊或服務精神。"],
+            ["媒體庫引用", "從媒體庫選擇品牌照片、團隊照片或形象圖。"],
+            ["搜尋顯示設定", "設定搜尋標題、搜尋摘要與分享圖片。"],
+            ["頁面狀態管理", "控制草稿、發布、隱藏與主選單顯示。"]
+          ]
+        },
+        services: {
+          title: "服務項目頁設定",
+          fields: [
+            ["頁面標題", "servicesPageTitle"],
+            ["頁面簡介", "servicesPageIntro", "textarea"],
+            ["服務項目 1", "serviceItem1"],
+            ["服務項目 2", "serviceItem2"],
+            ["服務項目 3", "serviceItem3"]
+          ],
+          note: "這頁先做服務列表與服務介紹，之後可以再延伸成服務詳細頁。",
+          relatedType: "services",
+          features: [
+            ["服務 / 產品介紹管理", "新增服務項目、特色、流程與適合對象。"],
+            ["服務排序", "控制服務卡片在前台顯示順序。"],
+            ["頁面內容管理", "維護服務頁標題、簡介與區塊內容。"],
+            ["搜尋顯示設定", "設定此頁的基本 SEO 顯示內容。"]
+          ]
+        },
+        cases: {
+          title: "成功案例頁設定",
+          fields: [
+            ["頁面標題", "casesPageTitle"],
+            ["頁面簡介", "casesPageIntro", "textarea"],
+            ["案例 1", "caseItem1"],
+            ["案例 2", "caseItem2"],
+            ["案例 3", "caseItem3"]
+          ],
+          note: "這頁前台展示案例卡片；後台之後可接案例管理資料。",
+          relatedType: "cases",
+          features: [
+            ["案例管理", "新增案例圖片、標題、內容、成果說明與顯示狀態。"],
+            ["案例排序", "控制前台案例列表順序。"],
+            ["媒體庫引用", "案例圖片從媒體庫選擇或上傳。"],
+            ["搜尋顯示設定", "設定案例列表頁的搜尋標題與摘要。"]
+          ]
+        },
+        news: {
+          title: "最新消息頁設定",
+          fields: [
+            ["頁面標題", "newsPageTitle"],
+            ["頁面簡介", "newsPageIntro", "textarea"],
+            ["文章 1", "newsItem1"],
+            ["文章 2", "newsItem2"],
+            ["文章 3", "newsItem3"]
+          ],
+          note: "這頁前台展示文章列表；後台之後可接文章分類、標籤與發布狀態。",
+          relatedType: "news",
+          features: [
+            ["文章管理", "新增、編輯、刪除、發布文章或最新消息。"],
+            ["文章狀態管理", "草稿、發布、隱藏，避免未完成文章曝光。"],
+            ["文章分類", "A 方案可先簡化為基本分類；B 方案再延伸標籤與內容關聯。"],
+            ["搜尋顯示設定", "設定文章列表頁的搜尋標題與摘要。"]
+          ]
+        },
+        contact: {
+          title: "聯絡我們頁設定",
+          fields: [
+            ["頁面標題", "contactPageTitle"],
+            ["頁面簡介", "contactPageIntro", "textarea"],
+            ["電話", "contactPhone"],
+            ["Email", "contactEmail"],
+            ["LINE", "contactLine"]
+          ],
+          note: "這頁應包含聯絡資訊與詢問表單，讓訪客能完成詢問。",
+          relatedType: "contact",
+          features: [
+            ["聯絡資訊管理", "維護電話、Email、LINE、地址與社群連結。"],
+            ["表單欄位設定", "設定詢問表單需要收集哪些資料。"],
+            ["表單資料管理", "查看詢問資料，標記已處理或未處理。"],
+            ["基本通知", "表單送出後通知指定信箱。"]
+          ]
+        }
+      };
+
+      const pageInfo = pages.find((item) => item.id === state.adminPage);
+      const customTitleKey = `${state.adminPage}PageTitle`;
+      const customIntroKey = `${state.adminPage}PageIntro`;
+      const customBodyKey = `${state.adminPage}PageBody`;
+      const currentTemplate = getPageTemplate(state.adminPage);
+      const page = pageMap[state.adminPage] || {
+        title: `${pageInfo?.name || "自訂頁面"}頁設定`,
+        fields: [
+          ["頁面標題", customTitleKey],
+          ["頁面簡介", customIntroKey, "textarea"],
+          ...currentTemplate.fields.slice(2).map((label, index) => [label, `${state.adminPage}Field${index + 1}`, currentTemplate.id === "content" ? "textarea" : "text"]),
+          ["主要內容", customBodyKey, "textarea"]
+        ],
+        note: `這個頁面使用「${currentTemplate.name}」模板，版面與排版由系統固定。`
+      };
+      if (!page) return "";
+
+      const templateChooser = `
+        <div class="page-editor-panel">
+          <div class="page-editor-header">
+            <div>
+              <h3>選擇頁面模板</h3>
+              <div class="hint">先選擇這個頁面要使用的版型，系統會自動建立固定排版與需要填寫的欄位。</div>
+            </div>
+            <button type="button" class="btn" data-cancel-add-page>取消</button>
+          </div>
+          <div class="page-editor-section">
+            <div class="template-grid">
+              ${pageTemplates.map((template) => `
+                <button type="button" class="template-card" data-template-choice="${template.id}">
+                  <div class="template-preview" aria-hidden="true">
+                    <div class="template-preview-line short"></div>
+                    <div class="template-preview-line"></div>
+                    <div class="template-preview-line"></div>
+                  </div>
+                  <strong>${template.name}</strong>
+                  <span class="hint">${template.desc}</span>
+                  <span class="pill">${template.fields.length} 個主要欄位</span>
+                </button>
+              `).join("")}
+            </div>
+          </div>
+        </div>
+      `;
+
+      return `
+        <div class="page-editor-layout">
+          <aside>
+            <div class="page-list-head">
+              <div>
+                <strong>前台頁面</strong>
+                <div class="hint">新增頁面時先選模板，再填內容。</div>
+              </div>
+              <button type="button" class="btn primary" data-add-page>${state.isChoosingTemplate ? "選擇中" : "新增頁面"}</button>
+            </div>
+            <div class="page-list">
+              ${pages.filter((item) => item.id !== "home").map((item) => `
+                <div class="page-row">
+                  <button type="button" class="${state.adminPage === item.id ? "active" : ""}" data-admin-page="${item.id}">
+                    <span class="page-list-name">${item.name}</span>
+                    <span class="page-list-meta">${item.id === "services" || item.id === "news" ? "已發布 / 可顯示下拉" : "已發布 / 主選單顯示"}</span>
+                  </button>
+                  <button type="button" class="page-delete" data-delete-page="${item.id}" aria-label="刪除${item.name}">刪除</button>
+                </div>
+              `).join("")}
+            </div>
+          </aside>
+          ${state.isChoosingTemplate ? templateChooser : `
+          <div class="page-editor-panel">
+            <div class="page-editor-header">
+              <div>
+                <h3>${page.title.replace("設定", "")}</h3>
+                <div class="hint">${page.note}</div>
+              </div>
+              <div class="inline-status">
+                <span class="pill green">已發布</span>
+                <span class="pill">主選單顯示</span>
+                <span class="pill">版型：${currentTemplate.name}</span>
+                <span class="pill">基本 SEO</span>
+              </div>
+            </div>
+            <div class="page-editor-section">
+              <h3>頁面內容</h3>
+              <div class="field-grid">
+                <div class="field">
+                  <label>畫面名稱</label>
+                  <input type="text" value="${page.title.replace("頁設定", "")}">
+                </div>
+                <div class="field">
+                  <label>主選單顯示文字</label>
+                  <input type="text" value="${pageInfo?.name || ""}">
+                </div>
+                ${page.fields.map(([label, key, type]) => field(label, key, type)).join("")}
+              </div>
+            </div>
+            <div class="page-editor-section">
+              <h3>主視覺圖片</h3>
+              <div class="hint">此圖片會套用在「${currentTemplate.name}」的固定主視覺區，客戶只需要選圖與基本顯示方式。</div>
+              <div class="field-grid">
+                <div class="field">
+                  <label>主視覺背景圖</label>
+                  <input type="text" value="${state.adminPage}-hero.jpg" placeholder="從媒體庫選擇圖片">
+                </div>
+                <div class="field">
+                  <label>圖片替代文字</label>
+                  <input type="text" value="${page.title.replace("設定", "")}主視覺圖片">
+                </div>
+                <div class="field">
+                  <label>圖片焦點位置</label>
+                  <select>
+                    <option>置中</option>
+                    <option>偏左</option>
+                    <option>偏右</option>
+                    <option>偏上</option>
+                    <option>偏下</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>遮罩強度</label>
+                  <select>
+                    <option>標準</option>
+                    <option>淡色</option>
+                    <option>深色</option>
+                    <option>不使用</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="page-editor-section">
+              <h3>搜尋顯示</h3>
+              <div class="field-grid">
+                <div class="field">
+                  <label>頁面狀態</label>
+                  <select><option>已發布</option><option>草稿</option><option>隱藏</option></select>
+                </div>
+                <div class="field">
+                  <label>主選單顯示</label>
+                  <select><option>顯示</option><option>隱藏</option></select>
+                </div>
+                <div class="field full">
+                  <label>搜尋標題</label>
+                  <input type="text" value="${page.title.replace("設定", "")}｜利每家 LIMEIJIA">
+                </div>
+                <div class="field full">
+                  <label>搜尋摘要</label>
+                  <textarea>簡短描述這個頁面的內容，讓搜尋結果與社群分享更清楚。</textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+          `}
+        </div>
+      `;
+    }
+
+    function renderSettings() {
+      const isHomeManager = state.adminSection === "home";
+      const isPageManager = state.adminSection === "pages";
+
+      pageTabsSection.classList.toggle("hidden", true);
+      homeModuleSection.classList.toggle("hidden", !isHomeManager);
+      generalSettingsSection.classList.toggle("hidden", isHomeManager);
+
+      if (!isHomeManager && !isPageManager) {
+        generalSettingsTitle.textContent = "管理內容";
+        generalSettings.innerHTML = renderManagerSection();
+        return;
+      }
+
+      if (isHomeManager) {
+        state.adminPage = "home";
+        state.previewPage = "home";
+      }
+
+      settingsTitle.textContent = isHomeManager ? "首頁總覽與模塊設定" : "頁面內容設定";
+
+      if (isPageManager) {
+        generalSettingsTitle.textContent = "頁面內容設定";
+        generalSettings.innerHTML = renderPageSettings();
+        generalSettings.querySelector("[data-add-page]")?.addEventListener("click", () => {
+          state.isChoosingTemplate = true;
+          render();
+        });
+        generalSettings.querySelector("[data-cancel-add-page]")?.addEventListener("click", () => {
+          state.isChoosingTemplate = false;
+          render();
+        });
+        generalSettings.querySelectorAll("[data-template-choice]").forEach((button) => {
+          button.addEventListener("click", () => {
+            addCustomPage(button.dataset.templateChoice);
+            render();
+          });
+        });
+        generalSettings.querySelectorAll("[data-admin-page]").forEach((button) => {
+          button.addEventListener("click", () => {
+            state.adminPage = button.dataset.adminPage;
+            state.previewPage = button.dataset.adminPage;
+            state.isChoosingTemplate = false;
+            render();
+          });
+        });
+        generalSettings.querySelectorAll("[data-delete-page]").forEach((button) => {
+          button.addEventListener("click", (event) => {
+            event.stopPropagation();
+            deletePage(button.dataset.deletePage);
+            state.isChoosingTemplate = false;
+            render();
+          });
+        });
+        generalSettings.querySelectorAll("[data-content]").forEach((input) => {
+          input.addEventListener("input", () => {
+            state.content[input.dataset.content] = input.value;
+            renderPreview();
+          });
+          input.addEventListener("change", () => {
+            state.content[input.dataset.content] = input.value;
+            renderPreview();
+          });
+        });
+        return;
+      }
+
+      const module = modules.find((item) => item.id === state.activeSettings);
+      if (!module) {
+        moduleSettings.innerHTML = `<div class="empty-state">請先新增或選擇一個首頁模塊。</div>`;
+        return;
+      }
+
+      const config = getModuleConfig(module.id);
+      const type = getModuleType(config.type);
+      const variant = getModuleVariant(module.id);
+      const sharedIntro = `
+        <div class="settings-card">
+          <h3>${esc(config.customName)}｜${type.name}｜版型 ${variant.id}</h3>
+          <div class="hint">${state.enabled[module.id] ? "目前會顯示在前台。" : "目前暫不顯示在前台，但仍可保留內容並繼續設定。"}${module.description}</div>
+        </div>
+      `;
+      const map = {
+        banner: `
+          ${sharedIntro}
+          <div class="settings-card">
+            <h3>Banner 內容</h3>
+            <div class="field-grid">
+              ${field("大標題", "bannerTitle", "textarea")}
+              ${field("簡短介紹", "bannerIntro", "textarea")}
+              ${field("主視覺圖片說明", "bannerImageLabel")}
+            </div>
+          </div>
+        `,
+        about: `
+          ${sharedIntro}
+          <div class="settings-card">
+            <div class="field-grid">
+              ${field("區塊標題", "aboutTitle")}
+              ${field("關於我們文字", "aboutText", "textarea")}
+            </div>
+          </div>
+        `,
+        services: `
+          ${sharedIntro}
+          <div class="settings-card">
+            <div class="field-grid">
+              ${field("區塊標題", "servicesTitle")}
+              <div class="field full">
+                <label>顯示哪些服務</label>
+                <select><option>自動顯示前 3 筆服務</option><option>手動挑選服務</option></select>
+              </div>
+            </div>
+          </div>
+        `,
+        promise: `
+          ${sharedIntro}
+          <div class="settings-card">
+            <div class="field-grid">
+              ${field("區塊標題", "promiseTitle")}
+              <div class="field full">
+                <label>承諾項目</label>
+                <textarea>透明檢測、安全飲水、長期維運、ESG 減塑</textarea>
+              </div>
+            </div>
+          </div>
+        `,
+        reasons: `
+          ${sharedIntro}
+          <div class="settings-card">
+            <div class="field-grid">
+              ${field("區塊標題", "reasonsTitle")}
+              <div class="field full">
+                <label>Reason 01-03</label>
+                <textarea>01 高濃度氫與 SGS 透明數據
+02 社區共享、分潤與導入彈性
+03 智慧水站維運與減塑效益</textarea>
+              </div>
+            </div>
+          </div>
+        `,
+        menu: `
+          ${sharedIntro}
+          <div class="settings-card">
+            <div class="field-grid">
+              ${field("區塊標題", "menuTitle")}
+              <div class="field full">
+                <label>入口項目</label>
+                <textarea>找水站 / 社區合作 / ROI 試算 / SGS 中心 / 知識中心 / 加盟合作</textarea>
+              </div>
+            </div>
+          </div>
+        `,
+        cases: `
+          ${sharedIntro}
+          <div class="settings-card">
+            <div class="field-grid">
+              ${field("區塊標題", "casesTitle")}
+              <div class="field"><label>顯示數量</label><select><option>3 筆</option><option>6 筆</option></select></div>
+              <div class="field full"><label>案例來源</label><select><option>自動顯示精選案例</option><option>手動選擇案例</option></select></div>
+            </div>
+          </div>
+        `,
+        news: `
+          ${sharedIntro}
+          <div class="settings-card">
+            <div class="field-grid">
+              ${field("區塊標題", "newsTitle")}
+              <div class="field"><label>顯示分類</label><select><option>全部文章</option><option>最新消息</option><option>知識文章</option></select></div>
+              <div class="field"><label>顯示數量</label><select><option>3 筆</option><option>6 筆</option></select></div>
+            </div>
+          </div>
+        `,
+        faq: `
+          ${sharedIntro}
+          <div class="settings-card">
+            <div class="field-grid">
+              ${field("區塊標題", "faqTitle")}
+              <div class="field full"><label>FAQ 來源</label><select><option>自動顯示首頁 FAQ</option><option>手動挑選 FAQ</option></select></div>
+            </div>
+          </div>
+        `,
+        contact: `
+          ${sharedIntro}
+          <div class="settings-card">
+            <h3>聯絡區內容</h3>
+            <div class="field-grid">
+              ${field("區塊標題", "contactTitle", "textarea")}
+              ${field("簡短說明", "contactText", "textarea")}
+            </div>
+          </div>
+        `
+      };
+
+      moduleSettings.innerHTML = `
+        ${moduleNameAndTypeSettings(module)}
+        ${variantSettings(module.id)}
+        ${map[module.id] || sharedIntro}
+        ${moduleFieldGuide(module.id)}
+        ${linkSettings(module.id)}
+      `;
+
+      moduleSettings.querySelectorAll("[data-content]").forEach((input) => {
+        input.addEventListener("input", () => {
+          state.content[input.dataset.content] = input.value;
+          renderPreview();
+        });
+        input.addEventListener("change", () => {
+          state.content[input.dataset.content] = input.value;
+          renderPreview();
+        });
+      });
+
+      moduleSettings.querySelectorAll("[data-module-config]").forEach((input) => {
+        input.addEventListener("input", () => {
+          const config = getModuleConfig(input.dataset.moduleConfig);
+          const key = input.dataset.configKey;
+          config[key] = input.type === "checkbox" ? input.checked : input.value;
+          if (key === "type") config.variant = "A";
+          render();
+        });
+        input.addEventListener("change", () => {
+          const config = getModuleConfig(input.dataset.moduleConfig);
+          const key = input.dataset.configKey;
+          config[key] = input.type === "checkbox" ? input.checked : input.value;
+          if (key === "type") config.variant = "A";
+          render();
+        });
+      });
+
+      moduleSettings.querySelectorAll("[data-toggle-module-detail]").forEach((input) => {
+        input.addEventListener("change", () => {
+          state.enabled[input.dataset.toggleModuleDetail] = input.checked;
+          render();
+        });
+      });
+
+    }
+
+    function renderSubPagePreview(pageId) {
+      const c = state.content;
+      const pageHtml = {
+        about: `
+          <section class="subpage-hero">
+            <div class="eyebrow">About</div>
+            <h2>${esc(c.aboutPageTitle)}</h2>
+            <p>${esc(c.aboutPageIntro)}</p>
+          </section>
+          <section class="home-section">
+            <div class="content-split">
+              <div>
+                <h2>品牌故事</h2>
+                <p class="desc">${esc(c.aboutPageStory)}</p>
+              </div>
+              <div class="info-block">
+                <h3>我們重視的事</h3>
+                <ul class="info-list">
+                  <li><span>${esc(c.aboutPageValue1)}</span><span>01</span></li>
+                  <li><span>${esc(c.aboutPageValue2)}</span><span>02</span></li>
+                  <li><span>${esc(c.aboutPageValue3)}</span><span>03</span></li>
+                </ul>
+              </div>
+            </div>
+          </section>
+        `,
+        services: `
+          <section class="subpage-hero">
+            <div class="eyebrow">Services</div>
+            <h2>${esc(c.servicesPageTitle)}</h2>
+            <p>${esc(c.servicesPageIntro)}</p>
+          </section>
+          <section class="home-section">
+            <div class="service-grid">
+              <article class="service-card"><div class="service-icon">1</div><h3>${esc(c.serviceItem1)}</h3><p class="hint">說明服務內容、適合對象與服務流程。</p></article>
+              <article class="service-card"><div class="service-icon">2</div><h3>${esc(c.serviceItem2)}</h3><p class="hint">讓客戶能自行維護頁面、文章與案例。</p></article>
+              <article class="service-card"><div class="service-icon">3</div><h3>${esc(c.serviceItem3)}</h3><p class="hint">提供搜尋標題、摘要與分享圖片等基本設定。</p></article>
+            </div>
+          </section>
+        `,
+        cases: `
+          <section class="subpage-hero">
+            <div class="eyebrow">Works</div>
+            <h2>${esc(c.casesPageTitle)}</h2>
+            <p>${esc(c.casesPageIntro)}</p>
+          </section>
+          <section class="home-section">
+            <div class="case-grid">
+              <article class="case-card"><div class="case-thumb">案例圖片</div><h3>${esc(c.caseItem1)}</h3><p class="hint">可放成果摘要、服務內容與前後差異。</p></article>
+              <article class="case-card"><div class="case-thumb">案例圖片</div><h3>${esc(c.caseItem2)}</h3><p class="hint">可放產業、需求與解決方式。</p></article>
+              <article class="case-card"><div class="case-thumb">案例圖片</div><h3>${esc(c.caseItem3)}</h3><p class="hint">可放客戶成果與導向詢問。</p></article>
+            </div>
+          </section>
+        `,
+        news: `
+          <section class="subpage-hero">
+            <div class="eyebrow">News</div>
+            <h2>${esc(c.newsPageTitle)}</h2>
+            <p>${esc(c.newsPageIntro)}</p>
+          </section>
+          <section class="home-section">
+            <div class="news-grid">
+              <article class="news-card"><div class="news-thumb">文章封面</div><h3>${esc(c.newsItem1)}</h3><p class="hint">知識文章 / 2026.07.16</p></article>
+              <article class="news-card"><div class="news-thumb">文章封面</div><h3>${esc(c.newsItem2)}</h3><p class="hint">後台規劃 / 2026.07.15</p></article>
+              <article class="news-card"><div class="news-thumb">文章封面</div><h3>${esc(c.newsItem3)}</h3><p class="hint">SEO 設定 / 2026.07.14</p></article>
+            </div>
+          </section>
+        `,
+        contact: `
+          <section class="subpage-hero">
+            <div class="eyebrow">Contact</div>
+            <h2>${esc(c.contactPageTitle)}</h2>
+            <p>${esc(c.contactPageIntro)}</p>
+          </section>
+          <section class="home-section">
+            <div class="content-split">
+              <div class="info-block">
+                <h3>聯絡資訊</h3>
+                <ul class="info-list">
+                  <li><span>電話</span><span>${esc(c.contactPhone)}</span></li>
+                  <li><span>Email</span><span>${esc(c.contactEmail)}</span></li>
+                  <li><span>LINE</span><span>${esc(c.contactLine)}</span></li>
+                </ul>
+              </div>
+              <div class="info-block">
+                <h3>詢問表單</h3>
+                <div class="contact-form">
+                  <input type="text" placeholder="姓名">
+                  <input type="text" placeholder="Email 或電話">
+                  <textarea placeholder="請簡單描述你的需求"></textarea>
+                  <button type="button" class="btn primary">送出詢問</button>
+                </div>
+              </div>
+            </div>
+          </section>
+        `
+      };
+
+      const pageInfo = pages.find((page) => page.id === pageId);
+      const genericTitle = c[`${pageId}PageTitle`] || pageInfo?.name || "自訂頁面";
+      const genericIntro = c[`${pageId}PageIntro`] || "這裡會顯示此頁面的簡短介紹。";
+      const genericBody = c[`${pageId}PageBody`] || "這裡會顯示此頁面的主要內容。";
+
+      homepagePreview.innerHTML = pageHtml[pageId] || `
+        <section class="subpage-hero">
+          <div class="eyebrow">Custom Page</div>
+          <h2>${esc(genericTitle)}</h2>
+          <p>${esc(genericIntro)}</p>
+        </section>
+        <section class="home-section">
+          <div class="content-split">
+            <div>
+              <h2>${esc(genericTitle)}</h2>
+              <p class="desc">${esc(genericBody)}</p>
+            </div>
+            <div class="info-block">
+              <h3>頁面內容</h3>
+              <p class="hint">這是使用者自行新增的前台頁面，後台可選擇內容、圖片、按鈕與搜尋顯示。</p>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function previewLink(moduleId, className = "primary-link") {
+      const config = getModuleConfig(moduleId);
+      if (!config.linkEnabled) return "";
+      return `<a class="${className}" href="#">${esc(config.linkText)}</a><span class="hint" style="margin-left:10px;">前往：${esc(config.linkTarget)}</span>`;
+    }
+
+    function previewVariantLabel(moduleId) {
+      const variant = getModuleVariant(moduleId);
+      return `<span class="variant-marker">版型 ${variant.id}</span>`;
+    }
+
+    function renderGenericHomeModule(module) {
+      const config = getModuleConfig(module.id);
+      const type = getModuleType(config.type);
+      const variant = getModuleVariant(module.id);
+      const title = esc(config.customName);
+      const intro = `${type.description} 目前使用版型 ${variant.id}：${variant.name}。`;
+      const isB = variant.id === "B";
+
+      if (config.type === "hero") {
+        return `
+          <section class="home-section banner ${isB ? "variant-b" : ""}">
+            <div>
+              <div class="eyebrow">${esc(type.name)} ${previewVariantLabel(module.id)}</div>
+              <h2>${title}</h2>
+              <p>${esc(intro)}</p>
+              ${previewLink(module.id)}
+            </div>
+            <div class="hero-visual"><div><strong>${isB ? "左側產品圖" : "大背景主視覺"}</strong><span>上傳主圖 / 底圖</span></div></div>
+          </section>
+        `;
+      }
+
+      if (config.type === "intro") {
+        return `
+          <section class="home-section">
+            <div class="about-grid">
+              <div>
+                <div class="eyebrow">${esc(type.name)} ${previewVariantLabel(module.id)}</div>
+                <h2>${title}</h2>
+                <p class="desc">${esc(intro)}</p>
+              </div>
+              <div class="about-photo">${isB ? "滿版形象圖" : "上傳圖片 / 底圖"}</div>
+            </div>
+          </section>
+        `;
+      }
+
+      if (config.type === "faq") {
+        if (isB) {
+          return `
+            <section class="home-section">
+              <div class="section-title"><div><div class="eyebrow">${esc(type.name)} ${previewVariantLabel(module.id)}</div><h2>${title}</h2><p>${esc(intro)}</p></div></div>
+              <table class="mini-table">
+                <tbody>
+                  <tr><th>產品規格</th><td>問題標題 1</td><td>後台可填入問題與答案。</td></tr>
+                  <tr><th>合作問答</th><td>問題標題 2</td><td>依分類表格式呈現多組問答。</td></tr>
+                </tbody>
+              </table>
+            </section>
+          `;
+        }
+        return `
+          <section class="home-section">
+            <div class="section-title"><div><div class="eyebrow">${esc(type.name)} ${previewVariantLabel(module.id)}</div><h2>${title}</h2><p>${esc(intro)}</p></div></div>
+            <div class="faq-list">
+              <article class="faq-item"><h3>問題標題 1</h3><p class="hint">後台可填入問題與答案。</p></article>
+              <article class="faq-item"><h3>問題標題 2</h3><p class="hint">可依版型呈現手風琴或分類表格。</p></article>
+            </div>
+          </section>
+        `;
+      }
+
+      if (config.type === "cta") {
+        return `
+          <section class="home-section ${isB ? "" : "contact-band"}">
+            ${isB ? `<div class="about-grid"><div><div class="eyebrow">${esc(type.name)} ${previewVariantLabel(module.id)}</div><h2>${title}</h2><p class="desc">${esc(intro)}</p>${previewLink(module.id)}</div><div class="about-photo">CTA 圖片</div></div>` : `
+            <div>
+              <h2>${title} ${previewVariantLabel(module.id)}</h2>
+              <p>${esc(intro)}</p>
+            </div>
+            ${previewLink(module.id, "secondary-link")}
+            `}
+          </section>
+        `;
+      }
+
+      if (config.type === "news") {
+        return `
+          <section class="home-section">
+            <div class="section-title"><div><div class="eyebrow">${esc(type.name)} ${previewVariantLabel(module.id)}</div><h2>${title}</h2><p>${esc(intro)}</p></div></div>
+            ${isB ? `
+              <div class="news-grid">
+                <article class="news-card"><div class="news-thumb">新聞圖</div><h3>最新消息標題 1</h3><p class="hint">三欄新聞卡</p></article>
+                <article class="news-card"><div class="news-thumb">新聞圖</div><h3>最新消息標題 2</h3><p class="hint">三欄新聞卡</p></article>
+                <article class="news-card"><div class="news-thumb">新聞圖</div><h3>最新消息標題 3</h3><p class="hint">三欄新聞卡</p></article>
+              </div>
+            ` : `
+              <div class="preview-list">
+                <article class="preview-list-item"><strong>最新消息標題 1</strong><span class="hint">左標題右新聞</span></article>
+                <article class="preview-list-item"><strong>最新消息標題 2</strong><span class="hint">左標題右新聞</span></article>
+                <article class="preview-list-item"><strong>最新消息標題 3</strong><span class="hint">左標題右新聞</span></article>
+              </div>
+            `}
+          </section>
+        `;
+      }
+
+      if (config.type === "steps") {
+        return `
+          <section class="home-section">
+            <div class="section-title"><div><div class="eyebrow">${esc(type.name)} ${previewVariantLabel(module.id)}</div><h2>${title}</h2><p>${esc(intro)}</p></div></div>
+            ${isB ? `
+              <div class="preview-list">
+                <article class="preview-list-item"><strong>01 評估需求</strong><span class="hint">垂直時間軸</span></article>
+                <article class="preview-list-item"><strong>02 安裝導入</strong><span class="hint">垂直時間軸</span></article>
+                <article class="preview-list-item"><strong>03 持續維運</strong><span class="hint">垂直時間軸</span></article>
+              </div>
+            ` : `
+              <div class="service-grid">
+                <article class="service-card"><h3>01 評估需求</h3><p class="hint">橫向三步驟。</p></article>
+                <article class="service-card"><h3>02 安裝導入</h3><p class="hint">橫向三步驟。</p></article>
+                <article class="service-card"><h3>03 持續維運</h3><p class="hint">橫向三步驟。</p></article>
+              </div>
+            `}
+          </section>
+        `;
+      }
+
+      return `
+        <section class="home-section">
+          <div class="section-title"><div><div class="eyebrow">${esc(type.name)} ${previewVariantLabel(module.id)}</div><h2>${title}</h2><p>${esc(intro)}</p></div></div>
+          <div class="${isB ? "preview-list" : "service-grid"}">
+            <article class="service-card"><div class="service-icon">1</div><h3>內容項目 1</h3><p class="hint">可填文字、上傳圖片或設定卡片內容。</p></article>
+            <article class="service-card"><div class="service-icon">2</div><h3>內容項目 2</h3><p class="hint">依模塊類型決定前台欄位。</p></article>
+            <article class="service-card"><div class="service-icon">3</div><h3>內容項目 3</h3><p class="hint">依版型 A / B 決定排列方式。</p></article>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderPreview() {
+      document.querySelectorAll("[data-preview-page]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.previewPage === state.previewPage);
+      });
+
+      if (state.previewPage !== "home") {
+        renderSubPagePreview(state.previewPage);
+        return;
+      }
+
+      const c = state.content;
+      const sections = [];
+      const renderHomeModule = {
+        banner: () => `
+          <section class="home-section banner">
+            <div>
+              <div class="eyebrow">LIMEIJIA SMART WATER STATION</div>
+              <h2>${esc(c.bannerTitle)}</h2>
+              <p>${esc(c.bannerIntro)}</p>
+              ${previewLink("banner")}
+            </div>
+            <div class="hero-visual"><div><strong>${esc(c.bannerImageLabel)}</strong><span>首頁主視覺區</span></div></div>
+          </section>
+        `,
+        news: () => `
+          <section class="home-section">
+            <div class="section-title"><div><div class="eyebrow">News</div><h2>${esc(c.newsTitle)}</h2><p>顯示公告、活動或指定分類內容。</p></div></div>
+            <div class="news-grid">
+              <article class="news-card"><div class="news-thumb">公告封面</div><h3>桃園示範水站開放試喝</h3><p class="hint">最新消息</p></article>
+              <article class="news-card"><div class="news-thumb">文章封面</div><h3>社區水站導入流程</h3><p class="hint">合作指南</p></article>
+              <article class="news-card"><div class="news-thumb">文章封面</div><h3>SGS 報告如何閱讀</h3><p class="hint">知識文章</p></article>
+            </div>
+          </section>
+        `,
+        about: () => `
+          <section class="home-section">
+            <div class="about-grid">
+              <div class="about-photo">品牌照片 / 公司形象</div>
+              <div>
+                <div class="eyebrow">Message</div>
+                <h2>${esc(c.aboutTitle)}</h2>
+                <p class="desc">${esc(c.aboutText)}</p>
+              </div>
+            </div>
+          </section>
+        `,
+        services: () => `
+          <section class="home-section">
+            <div class="section-title"><div><div class="eyebrow">Stations</div><h2>${esc(c.servicesTitle)}</h2><p>對應文件中的找水站、營業資訊與水質報告入口。</p></div></div>
+            <div class="service-grid">
+              <article class="service-card"><div class="service-icon">1</div><h3>附近水站</h3><p class="hint">依縣市、行政區與社區查詢服務據點。</p></article>
+              <article class="service-card"><div class="service-icon">2</div><h3>水質報告</h3><p class="hint">公開 SGS 與水站檢測資訊，建立透明信任。</p></article>
+              <article class="service-card"><div class="service-icon">3</div><h3>社區合作</h3><p class="hint">提供管委會設站評估、分潤與導入流程。</p></article>
+            </div>
+          </section>
+        `,
+        promise: () => `
+          <section class="home-section">
+            <div class="section-title"><div><div class="eyebrow">Promise</div><h2>${esc(c.promiseTitle)}</h2><p>對應首頁 UX 文件中的 Promise 四格，讓承諾清楚可掃描。</p></div></div>
+            <div class="service-grid">
+              <article class="service-card"><h3>透明檢測</h3><p class="hint">水質報告與關鍵數據公開可查。</p></article>
+              <article class="service-card"><h3>安全飲水</h3><p class="hint">以家庭日常飲用為核心，不做誇大醫療宣稱。</p></article>
+              <article class="service-card"><h3>長期維運</h3><p class="hint">設備、濾芯與服務狀態能持續管理。</p></article>
+            </div>
+          </section>
+        `,
+        reasons: () => `
+          <section class="home-section">
+            <div class="section-title"><div><div class="eyebrow">Reason</div><h2>${esc(c.reasonsTitle)}</h2><p>用文件指定的 01-03 編號節奏，強化品牌說服力。</p></div></div>
+            <div class="service-grid">
+              <article class="service-card"><h3>01 高濃度氫</h3><p class="hint">以產品差異建立飲水升級理由。</p></article>
+              <article class="service-card"><h3>02 社區共享</h3><p class="hint">居民、管委會與營運方都能理解合作價值。</p></article>
+              <article class="service-card"><h3>03 ESG 減塑</h3><p class="hint">把日常取水轉成可溝通的永續成果。</p></article>
+            </div>
+          </section>
+        `,
+        cases: () => `
+          <section class="home-section">
+            <div class="section-title"><div><div class="eyebrow">Evidence</div><h2>${esc(c.casesTitle)}</h2><p>從案例證明、社區成果與水站資料中挑選前台展示內容。</p></div></div>
+            <div class="case-grid">
+              <article class="case-card"><div class="case-thumb">水站照片</div><h3>桃園社區智慧水站</h3><p class="hint">社區導入與居民取水情境。</p></article>
+              <article class="case-card"><div class="case-thumb">合作紀錄</div><h3>管委會合作導入</h3><p class="hint">合作流程、分潤與維運說明。</p></article>
+              <article class="case-card"><div class="case-thumb">數據摘要</div><h3>ESG 減塑成果</h3><p class="hint">減少瓶裝水與累積取水數據。</p></article>
+            </div>
+          </section>
+        `,
+        menu: () => `
+          <section class="home-section">
+            <div class="section-title"><div><div class="eyebrow">Menu</div><h2>${esc(c.menuTitle)}</h2><p>對應首頁 UX 文件中的入口矩陣，讓不同對象快速分流。</p></div></div>
+            <div class="service-grid">
+              <article class="service-card"><h3>找水站</h3><p class="hint">/stations</p></article>
+              <article class="service-card"><h3>社區合作</h3><p class="hint">/cooperate</p></article>
+              <article class="service-card"><h3>ROI 試算</h3><p class="hint">/roi</p></article>
+            </div>
+          </section>
+        `,
+        faq: () => `
+          <section class="home-section">
+            <div class="section-title"><div><div class="eyebrow">Knowledge</div><h2>${esc(c.faqTitle)}</h2><p>首頁可選擇是否放富氫水、SGS、ESG 與社區共享知識。</p></div></div>
+            <div class="faq-list">
+              <article class="faq-item"><h3>富氫水與一般飲水差在哪？</h3><p class="hint">用白話內容降低理解門檻。</p></article>
+              <article class="faq-item"><h3>SGS 水質報告要看哪些指標？</h3><p class="hint">建立透明與可信任的資訊入口。</p></article>
+            </div>
+          </section>
+        `,
+        contact: () => `
+          <section class="home-section contact-band">
+            <div>
+              <h2>${esc(c.contactTitle)}</h2>
+              <p>${esc(c.contactText)}</p>
+            </div>
+            ${previewLink("contact", "secondary-link")}
+          </section>
+        `
+      };
+
+      getOrderedModules().forEach((module) => {
+        if (state.enabled[module.id]) {
+          const config = getModuleConfig(module.id);
+          const shouldUseTypedPreview = !renderHomeModule[module.id] || config.variant !== "A" || config.type !== module.type;
+          const baseHtml = shouldUseTypedPreview ? renderGenericHomeModule(module) : renderHomeModule[module.id]();
+          const linkHtml = module.id === "banner" || module.id === "contact" ? "" : previewLink(module.id, "secondary-link");
+          sections.push(linkHtml ? baseHtml.replace("</section>", `<div style="margin-top:18px;">${linkHtml}</div></section>`) : baseHtml);
+        }
+      });
+      homepagePreview.innerHTML = sections.join("") || `<section class="home-section"><div class="empty-state">目前尚未選用任何首頁模塊。</div></section>`;
+    }
+
+    function renderFocus() {
+      document.querySelectorAll("[data-focus]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.focus === state.focus);
+      });
+
+      if (state.focus === "preview") {
+        workspace.style.gridTemplateColumns = "1fr";
+        previewPanel.classList.remove("hidden");
+        adminPanel.classList.add("hidden");
+      } else if (state.focus === "admin") {
+        workspace.style.gridTemplateColumns = "1fr";
+        previewPanel.classList.add("hidden");
+        adminPanel.classList.remove("hidden");
+      } else {
+        workspace.style.gridTemplateColumns = "";
+        previewPanel.classList.remove("hidden");
+        adminPanel.classList.remove("hidden");
+      }
+    }
+
+    function render() {
+      renderBackendNav();
+      renderPageTabs();
+      renderFocus();
+      renderHomeSummary();
+      renderModuleList();
+      renderSettings();
+      renderPreview();
+    }
+
+    document.querySelectorAll("[data-focus]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.focus = button.dataset.focus;
+        render();
+      });
+    });
+
+    render();
+  </script>
+</body>
+</html>

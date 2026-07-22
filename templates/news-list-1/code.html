@@ -1,0 +1,260 @@
+<!DOCTYPE html><html lang="zh-TW" style=""><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist.min.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap"><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">try{
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "error-container": "#ffdad6",
+                    "primary-fixed-dim": "#b6c4ff",
+                    "outline": "#737688",
+                    "surface-container-highest": "#e1e1ef",
+                    "surface": "#faf8ff",
+                    "on-primary": "#ffffff",
+                    "on-secondary-container": "#616363",
+                    "secondary-container": "#dfe0e0",
+                    "surface-tint": "#004dea",
+                    "primary-fixed": "#dce1ff",
+                    "on-primary-container": "#e3e6ff",
+                    "surface-bright": "#faf8ff",
+                    "tertiary-fixed": "#ffdbd1",
+                    "on-secondary": "#ffffff",
+                    "tertiary-container": "#c13301",
+                    "tertiary": "#972500",
+                    "on-surface-variant": "#434656",
+                    "on-error": "#ffffff",
+                    "secondary-fixed": "#e2e2e2",
+                    "inverse-primary": "#b6c4ff",
+                    "on-tertiary-container": "#ffe1d9",
+                    "on-surface": "#191b25",
+                    "tertiary-fixed-dim": "#ffb5a0",
+                    "on-primary-fixed-variant": "#0039b3",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container": "#ededfb",
+                    "on-tertiary-fixed": "#3b0900",
+                    "on-error-container": "#93000a",
+                    "surface-container-high": "#e7e7f5",
+                    "error": "#ba1a1a",
+                    "secondary": "#5d5f5f",
+                    "on-tertiary": "#ffffff",
+                    "secondary-fixed-dim": "#c6c6c7",
+                    "outline-variant": "#c3c5d9",
+                    "on-secondary-fixed": "#1a1c1c",
+                    "inverse-surface": "#2e303a",
+                    "primary-container": "#0055ff",
+                    "inverse-on-surface": "#f0f0fd",
+                    "primary": "#0041c8",
+                    "on-tertiary-fixed-variant": "#872100",
+                    "surface-container-low": "#f3f2ff",
+                    "on-background": "#191b25",
+                    "surface-dim": "#d9d9e6",
+                    "on-secondary-fixed-variant": "#454747",
+                    "on-primary-fixed": "#001551",
+                    "background": "#faf8ff",
+                    "surface-variant": "#e1e1ef"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "base": "8px",
+                    "lg": "48px",
+                    "md": "24px",
+                    "margin-mobile": "20px",
+                    "xl": "80px",
+                    "gutter": "24px",
+                    "sm": "12px",
+                    "xs": "4px",
+                    "margin-desktop": "64px"
+            },
+            "fontFamily": {
+                    "label-md": ["Geist"],
+                    "headline-md": ["Geist"],
+                    "headline-lg": ["Geist"],
+                    "display": ["Geist"],
+                    "body-md": ["Inter"],
+                    "headline-lg-mobile": ["Geist"],
+                    "body-lg": ["Inter"],
+                    "label-sm": ["Geist"]
+            },
+            "fontSize": {
+                    "label-md": ["14px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "headline-md": ["32px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "headline-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "display": ["72px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "1", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    }catch(_e){}</script></head><body class="font-body-md bg-surface">
+
+    <!-- Top Navigation Anchor (from Shared Components JSON) -->
+    
+
+    <main class="bg-surface-container-low min-h-screen">
+        <!-- 版型 A｜標題側欄新聞列 -->
+        <section class="max-w-[1440px] mx-auto px-margin-desktop pt-xl">
+            <div class="flex flex-col lg:flex-row gap-xl lg:gap-[5%] items-start">
+                
+                <!-- 左側側欄 (30%) -->
+                <aside class="w-full lg:w-[30%] sticky top-[120px]">
+                    <div class="space-y-sm">
+                        <span class="font-label-sm text-label-sm text-primary tracking-widest block uppercase">LATEST NEWS</span>
+                        <h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">最新消息</h2>
+                        <p class="font-body-md text-body-md text-on-surface-variant max-w-[320px]">
+                            持續關注 Lumina 的創新進程與社群動態。
+                        </p>
+                    </div>
+                    
+                    <a href="#" class="group inline-flex items-center gap-xs font-label-md text-label-md text-on-surface hover:text-primary transition-colors duration-300">
+                        查看全部消息 
+                        <span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                    </a>
+                </aside>
+
+                <!-- 右側新聞列表 (70%) -->
+                <div class="w-full lg:w-[65%]">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter lg:gap-lg">
+                        
+                        <!-- 新聞 1 -->
+                        <article class="news-card flex flex-col cursor-pointer group">
+                            <div class="news-image-container rounded-[4px] mb-md bg-surface-variant">
+                                <img src="https://lh3.googleusercontent.com/aida/AP1WRLsJNJnmA5P5iAPt8-WiIJyOWuZmM9rNZuoE7RkFnCC9UpgHSn-CZUoEwpI5Qh-t0_Rc3RhmY4ei2L-797_Bl-6ph6xBGICbji7WA0JypBUgTw6PFxDIpjma0NaRsofArD2_DG-9yKiRFvMXOWSiZ2B--fxzOo_NZFOwZNNr1hpdsqtHjOk5qpAdVEaMBBJ3p9AEWduBLeea86BaPldjW_nOX8ypvJ5oFD43DfkFD0WAQuXVaX3jZCx0Qbs" class="w-full h-full object-cover" alt="Community Service news image">
+                            </div>
+                            <div class="space-y-sm">
+                                <time class="font-label-sm text-label-sm text-primary">2024.05.20</time>
+                                <h3 class="news-title font-headline-md text-[20px] leading-tight text-on-surface transition-colors line-clamp-2">社區智慧水站正式進駐，提升公共飲水品質</h3>
+                                <p class="font-body-md text-label-md text-outline leading-relaxed line-clamp-3">
+                                    Lumina 與多個社區合作，透過物聯網技術確保每一滴水的純淨與安全。
+                                </p>
+                            </div>
+                        </article>
+
+                        <!-- 新聞 2 -->
+                        <article class="news-card flex flex-col cursor-pointer group">
+                            <div class="news-image-container rounded-[4px] mb-md bg-surface-variant">
+                                <img src="https://lh3.googleusercontent.com/aida/AP1WRLvh4i_Yqk8I95nq1uLyIGvQM1WCMUPawp2n4X2_7itBaocfwu1XO3DYh_D0wO2QAn7xqbfe0SeaB8d33-LuKXr2-LQRQxCGtz3cWZGzCO1PI9Sr7Gl2-aJX09-5fVK2aXFFSU7EEu9R6yQu4l8swHsv3dywYW7ZSxBzbPoO_0QfEkGDifqqp_mdi7NHn-IlEQ6gxj_Dnz2t0PryQA56PyW6LA7oV8UVjyXAyi2SDSJTJenHZIAgvPV9oQo" class="w-full h-full object-cover" alt="Daily Use news image">
+                            </div>
+                            <div class="space-y-sm">
+                                <time class="font-label-sm text-label-sm text-primary">2024.05.15</time>
+                                <h3 class="news-title font-headline-md text-[20px] leading-tight text-on-surface transition-colors line-clamp-2">智能家庭核心升級：更懂你的生活節奏</h3>
+                                <p class="font-body-md text-label-md text-outline leading-relaxed line-clamp-3">
+                                    全新的韌體更新帶來了更精準的情境感知能力，讓科技隱形於無感服務之中。
+                                </p>
+                            </div>
+                        </article>
+
+                        <!-- 新聞 3 -->
+                        <article class="news-card flex flex-col cursor-pointer group">
+                            <div class="news-image-container rounded-[4px] mb-md bg-surface-variant">
+                                <img src="https://lh3.googleusercontent.com/aida/AP1WRLtkSG6giIIvSd1qz4GmDOXx_3AWvkmUXt-OdUZRfdlTuCej4pYjnKxSWXNc4o5DERtqp5wKssDkXFNbShmaCbyXEQbJBsLcAITUffEH8Z0qzHcJcck99GuzXFJzFgJLrbuqij5BRdM3K8jVADG41C6tWQWEA6fXUEhap8b_Ras8-E_n5Vncufyjw6EsYJVZS7GaF_1fmj3wzBGQ4uV61iJOSOIbOq_gbxDUO1b5_Mr0j_fydW1Q9ap4GBM" class="w-full h-full object-cover" alt="Sports Life news image">
+                            </div>
+                            <div class="space-y-sm">
+                                <time class="font-label-sm text-label-sm text-primary">2024.05.10</time>
+                                <h3 class="news-title font-headline-md text-[20px] leading-tight text-on-surface transition-colors line-clamp-2">運動健康數據追蹤，精準紀錄每一分努力</h3>
+                                <p class="font-body-md text-label-md text-outline leading-relaxed line-clamp-3">
+                                    我們優化了穿戴裝置的感測算法，為您的運動生活提供更可靠的數據支撐。
+                                </p>
+                            </div>
+                        </article>
+
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer (from Shared Components JSON) -->
+    
+
+    <script class="">
+        // Micro-interaction for smooth scrolling or hover effects
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add a subtle reveal animation on scroll for news items
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('opacity-100', 'translate-y-0');
+                    entry.target.classList.remove('opacity-0', 'translate-y-8');
+                }
+            });
+        }, observerOptions);</script>
+<script id="news-preview-bridge">
+(() => {
+  const params = new URLSearchParams(window.location.search);
+  const pick = (key, fallback = "") => params.get(key) || fallback;
+  const setText = (selector, value) => {
+    if (!value) return;
+    const node = document.querySelector(selector);
+    if (node) node.textContent = value;
+  };
+  const applyPalette = () => {
+    const palette = {
+      primary: pick("primary"),
+      bg: pick("bg"),
+      surface: pick("surface"),
+      text: pick("text"),
+      muted: pick("muted")
+    };
+    if (!palette.primary) return;
+    document.body.style.background = palette.bg;
+    document.body.style.color = palette.text;
+    document.querySelector("main")?.style.setProperty("background", palette.bg);
+    document.querySelectorAll(".text-primary").forEach((el) => { el.style.color = palette.primary; });
+    document.querySelectorAll(".text-on-surface").forEach((el) => { el.style.color = palette.text; });
+    document.querySelectorAll(".text-on-surface-variant, .text-outline").forEach((el) => { el.style.color = palette.muted; });
+    document.querySelectorAll(".bg-surface-variant").forEach((el) => { el.style.background = palette.surface; });
+  };
+  const applyNews = () => {
+    document.querySelectorAll("article.news-card").forEach((article, index) => {
+      const order = index + 1;
+      setTextFor(article.querySelector("time"), pick(`item${order}Date`));
+      setTextFor(article.querySelector("h3"), pick(`item${order}`));
+      setTextFor(article.querySelector("p"), pick(`item${order}Subtitle`));
+    });
+  };
+  const setTextFor = (node, value) => {
+    if (node && value) node.textContent = value;
+  };
+
+  applyPalette();
+  setText("aside span", pick("category"));
+  setText("aside h2", pick("title"));
+  setText("aside p", pick("subtitle"));
+  const cta = document.querySelector("aside a");
+  if (cta) {
+    const icon = cta.querySelector(".material-symbols-outlined");
+    cta.textContent = pick("cta", "查看更多");
+    if (icon) cta.appendChild(icon);
+  }
+  applyNews();
+})();
+</script>
+<script>
+(() => {
+  const reportHeight = () => parent.postMessage({ type: "front-preview-height", height: Math.max(document.body.scrollHeight, document.documentElement.scrollHeight) }, "*");
+  window.addEventListener("load", reportHeight); window.addEventListener("resize", reportHeight);
+  new ResizeObserver(reportHeight).observe(document.documentElement);
+  document.querySelectorAll("img").forEach((image) => image.addEventListener("load", reportHeight)); reportHeight();
+})();
+</script>
+</body></html>

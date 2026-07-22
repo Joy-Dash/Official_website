@@ -1,0 +1,516 @@
+<!DOCTYPE html><html lang="zh-TW" class="light" style=""><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&amp;family=Playfair+Display:ital,wght@0,600;0,700;1,600&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet"><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">try{
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "surface-container-high": "#e2e9ec",
+                "outline": "#707881",
+                "primary-fixed": "#cde5ff",
+                "on-secondary-fixed-variant": "#334f00",
+                "surface-dim": "#d4dbdd",
+                "primary-container": "#0077b6",
+                "on-tertiary-fixed": "#001f27",
+                "on-tertiary-container": "#ecf9ff",
+                "error-container": "#ffdad6",
+                "tertiary-container": "#007c95",
+                "secondary-fixed-dim": "#9dd83b",
+                "secondary-fixed": "#b7f555",
+                "tertiary": "#006176",
+                "on-secondary": "#ffffff",
+                "inverse-on-surface": "#ebf2f4",
+                "on-tertiary-fixed-variant": "#004e5f",
+                "outline-variant": "#bfc7d1",
+                "on-primary": "#ffffff",
+                "on-surface-variant": "#404850",
+                "surface-container": "#e8eff1",
+                "secondary-container": "#b7f555",
+                "primary-fixed-dim": "#94ccff",
+                "secondary": "#456800",
+                "surface-container-low": "#eef5f7",
+                "on-primary-fixed": "#001d32",
+                "tertiary-fixed-dim": "#4cd6fb",
+                "on-secondary-fixed": "#121f00",
+                "on-tertiary": "#ffffff",
+                "surface-container-lowest": "#ffffff",
+                "error": "#ba1a1a",
+                "on-secondary-container": "#4a6f00",
+                "primary": "#005d90",
+                "surface-tint": "#006399",
+                "background": "#f4fafd",
+                "on-background": "#161d1f",
+                "surface-bright": "#f4fafd",
+                "on-error": "#ffffff",
+                "surface-container-highest": "#dde4e6",
+                "on-primary-fixed-variant": "#004b74",
+                "surface": "#f4fafd",
+                "inverse-surface": "#2b3234",
+                "surface-variant": "#dde4e6",
+                "on-primary-container": "#f3f7ff",
+                "on-surface": "#161d1f",
+                "on-error-container": "#93000a",
+                "inverse-primary": "#94ccff",
+                "tertiary-fixed": "#b3ebff"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+            },
+            "spacing": {
+                "container-max": "1280px",
+                "margin-mobile": "16px",
+                "margin-desktop": "48px",
+                "base": "8px",
+                "gutter": "24px",
+                "section-gap": "80px"
+            },
+            "fontFamily": {
+                "body-md": ["Inter"],
+                "label-md": ["Inter"],
+                "headline-md": ["Playfair Display"],
+                "headline-lg": ["Playfair Display"],
+                "display-lg": ["Playfair Display"],
+                "body-lg": ["Inter"],
+                "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                "display-lg": ["56px", {"lineHeight": "64px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    }catch(_e){}</script><script id="backend-theme-bridge">(() => {
+  const params = new URLSearchParams(location.search);
+  const theme = {
+    primary: params.get("primary") || "#005d90",
+    accent: params.get("accent") || "#456800",
+    bg: params.get("bg") || "#f4fafd",
+    surface: params.get("surface") || "#ffffff",
+    text: params.get("text") || "#161d1f",
+    muted: params.get("muted") || "#404850"
+  };
+  const root = document.documentElement;
+  root.style.setProperty("--brand-primary", theme.primary);
+  root.style.setProperty("--brand-accent", theme.accent);
+  root.style.setProperty("--brand-bg", theme.bg);
+  root.style.setProperty("--brand-surface", theme.surface);
+  root.style.setProperty("--brand-text", theme.text);
+  root.style.setProperty("--brand-muted", theme.muted);
+  const style = document.createElement("style");
+  style.textContent = `
+    body { background: var(--brand-bg) !important; color: var(--brand-text) !important; }
+    [class~="bg-background"],
+    [class~="bg-surface"],
+    [class~="bg-surface-bright"] { background-color: var(--brand-bg) !important; }
+    [class~="bg-surface-container-lowest"],
+    [class~="bg-white"],
+    [class*="bg-white/"] { background-color: color-mix(in srgb, var(--brand-surface) 84%, transparent) !important; }
+    [class~="bg-surface-container"],
+    [class~="bg-surface-container-low"],
+    [class~="bg-surface-container-high"],
+    [class~="bg-surface-container-highest"],
+    [class~="bg-surface-variant"] { background-color: color-mix(in srgb, var(--brand-bg) 78%, var(--brand-primary) 8%) !important; }
+    [class~="text-on-surface"],
+    [class~="text-on-background"] { color: var(--brand-text) !important; }
+    [class~="text-on-surface-variant"],
+    [class~="text-outline"],
+    [class~="text-outline-variant"] { color: var(--brand-muted) !important; }
+    [class~="text-primary"],
+    [class*="hover:text-primary"] { color: var(--brand-primary) !important; }
+    [class~="bg-primary"] { background-color: var(--brand-primary) !important; }
+    [class*="bg-primary/"] { background-color: color-mix(in srgb, var(--brand-primary) 12%, transparent) !important; }
+    [class~="border-primary"],
+    [class*="border-primary/"] { border-color: color-mix(in srgb, var(--brand-primary) 62%, transparent) !important; }
+    [class~="shadow-primary/5"],
+    [class~="shadow-primary/20"] { box-shadow: 0 22px 48px color-mix(in srgb, var(--brand-primary) 13%, transparent) !important; }
+    [class~="text-secondary"],
+    [class~="text-tertiary"] { color: var(--brand-accent) !important; }
+    [class~="bg-secondary"],
+    [class~="bg-tertiary"],
+    [class~="bg-secondary-container"],
+    [class~="bg-secondary-fixed"],
+    [class*="bg-secondary/"],
+    [class*="bg-tertiary/"] { background-color: color-mix(in srgb, var(--brand-accent) 18%, transparent) !important; }
+    .gradient-liquid,
+    .h2-connector { background: linear-gradient(90deg, var(--brand-primary), var(--brand-accent)) !important; }
+    .glass-nav,
+    .fine-stroke { border-color: color-mix(in srgb, var(--brand-primary) 18%, transparent) !important; }
+    .glass-nav {
+      position: sticky !important;
+      top: 0 !important;
+      width: 100% !important;
+      max-width: none !important;
+      height: 72px !important;
+      padding-left: clamp(24px, 4vw, 52px) !important;
+      padding-right: clamp(24px, 4vw, 52px) !important;
+      background: color-mix(in srgb, var(--brand-surface) 82%, transparent) !important;
+      backdrop-filter: blur(18px) !important;
+      border-bottom: 1px solid color-mix(in srgb, var(--brand-primary) 14%, transparent) !important;
+      overflow-x: auto !important;
+      overflow-y: hidden !important;
+    }
+    .glass-nav > .hidden {
+      display: flex !important;
+      gap: clamp(14px, 1.5vw, 24px) !important;
+      min-width: 0 !important;
+      flex: 1 1 auto !important;
+      justify-content: center !important;
+    }
+    .glass-nav a,
+    .glass-nav button {
+      white-space: nowrap !important;
+      font-size: clamp(11px, 1.05vw, 13px) !important;
+    }
+    .glass-nav > div:first-child span {
+      white-space: nowrap !important;
+      font-size: clamp(15px, 1.35vw, 18px) !important;
+    }
+    body > section:first-of-type {
+      min-height: calc(100vh - 72px) !important;
+      padding-top: clamp(42px, 7vh, 72px) !important;
+      padding-bottom: clamp(48px, 7vh, 80px) !important;
+    }
+    body > section:first-of-type > .grid {
+      grid-template-columns: minmax(320px, .95fr) minmax(320px, 1fr) !important;
+      gap: clamp(28px, 5vw, 64px) !important;
+    }
+    body > section:first-of-type h1 {
+      font-size: clamp(42px, 5.5vw, 64px) !important;
+      line-height: 1.08 !important;
+      letter-spacing: -0.02em !important;
+    }
+    body > section:first-of-type img {
+      max-height: min(58vh, 560px) !important;
+      object-fit: cover !important;
+    }
+    @media (max-width: 760px) {
+      .glass-nav > .hidden {
+        display: flex !important;
+        gap: 12px !important;
+        justify-content: flex-start !important;
+      }
+      .glass-nav button {
+        display: inline-flex !important;
+        padding: 9px 13px !important;
+      }
+      .glass-nav a,
+      .glass-nav button {
+        font-size: 11px !important;
+      }
+      body > section:first-of-type > .grid { grid-template-columns: 1fr !important; }
+    }
+  `;
+  document.head.appendChild(style);
+})();</script><meta charset="utf-8"></head><body class="font-body-md overflow-x-hidden">
+<!-- Top Navigation -->
+<nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-desktop h-20 max-w-container-max mx-auto glass-nav">
+<div class="flex items-center gap-4">
+<span class="text-body-lg font-headline-md font-bold text-on-surface">利每家 LIMJIA × Dash-U</span>
+</div>
+<div class="hidden md:flex items-center gap-8">
+<a href="#" class="text-primary font-bold border-b-2 border-primary pb-1 font-label-md">首頁</a>
+<a href="#" class="text-on-surface-variant hover:text-primary transition-colors font-label-md">認識利每家</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-md" href="#">智慧富氫水站</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-md" href="#">富氫水知識</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-md" href="#">品牌價值</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-md" href="#">服務入口</a>
+</div>
+<button class="bg-primary text-on-primary px-6 py-2 rounded-full font-label-md transition-transform active:scale-95 hover:opacity-90">
+            合作諮詢
+        </button>
+</nav>
+<!-- Hero Section -->
+<section class="relative min-h-screen pt-32 pb-20 px-margin-desktop flex items-center overflow-hidden">
+
+<div class="bubble w-20 h-20 -top-10 left-1/4"></div>
+<div class="bubble w-32 h-32 top-1/2 -right-10" style="animation-delay: -5s"></div>
+<div class="max-w-container-max mx-auto grid grid-cols-1 md:grid-cols-2 gap-gutter items-center relative z-10">
+<div class="space-y-8">
+<div class="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1 rounded-full">
+<span class="material-symbols-outlined text-[18px]">water_drop</span>
+<span class="font-label-md">智慧飲水新定義</span>
+</div>
+<h1 class="font-display-lg text-display-lg leading-tight text-on-surface">
+                    智慧好水，<br>
+<span class="text-primary italic">走進每個人的日常</span>
+</h1>
+<p class="font-body-lg text-on-surface-variant max-w-lg">
+                    以智慧富氫水站串聯社區、生活與永續服務，讓安心飲水變得更方便。結合氫能科技與智慧物聯，打造新世代的補水體驗。
+                </p>
+<div class="flex flex-wrap gap-4 pt-4">
+<button class="bg-primary text-on-primary px-8 py-4 rounded-full font-label-md hover:opacity-90 transition-all flex items-center gap-2">
+                        認識智慧富氫水站
+                        <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<button class="border border-primary text-primary px-8 py-4 rounded-full font-label-md hover:bg-primary/5 transition-all">
+                        合作諮詢
+                    </button>
+</div>
+</div>
+<div class="relative">
+<div class="absolute inset-0 -z-10"><div class="absolute inset-0 bg-primary/5 rounded-[40px] blur-3xl transform rotate-6"></div><div class="absolute top-1/4 -left-10 w-64 h-64 bg-tertiary-fixed-dim/20 rounded-full blur-[80px] animate-[pulse_8s_infinite]"></div><div class="absolute bottom-1/4 -right-10 w-80 h-80 bg-primary-fixed-dim/20 rounded-full blur-[100px] animate-[pulse_12s_infinite]"></div><div class="absolute inset-0 flex items-center justify-center overflow-hidden"><div class="absolute w-[150%] h-[150%] rounded-full border border-primary/10 animate-[ping_10s_linear_infinite] opacity-30"></div><div class="absolute w-[120%] h-[120%] rounded-full border border-white/20 animate-[ping_15s_linear_infinite] opacity-20" style="animation-delay: -2s"></div><div class="absolute w-full h-full bg-[radial-gradient(circle,rgba(0,93,144,0.05)_0%,transparent_70%)] animate-[pulse_8s_infinite]"></div><svg class="w-full h-full opacity-20" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg"><circle cx="200" cy="200" r="150" fill="none" stroke="currentColor" stroke-width="0.5" class="text-primary/30 animate-[ping_10s_linear_infinite]"></circle><circle cx="200" cy="200" r="100" fill="none" stroke="currentColor" stroke-width="0.5" class="text-primary/20 animate-[ping_15s_linear_infinite]"></circle><g class="text-primary/40"><circle cx="100" cy="100" r="8" fill="currentColor"></circle><circle cx="120" cy="90" r="4" fill="currentColor"></circle><circle cx="120" cy="110" r="4" fill="currentColor"></circle><line x1="100" y1="100" x2="120" y2="90" stroke="currentColor" stroke-width="1"></line><line x1="100" y1="100" x2="120" y2="110" stroke="currentColor" stroke-width="1"></line></g><g class="text-tertiary/30" transform="translate(250, 280) rotate(45)"><circle cx="0" cy="0" r="6" fill="currentColor"></circle><circle cx="15" cy="-10" r="3" fill="currentColor"></circle><circle cx="15" cy="10" r="3" fill="currentColor"></circle><line x1="0" y1="0" x2="15" y2="-10" stroke="currentColor" stroke-width="1"></line><line x1="0" y1="0" x2="15" y2="10" stroke="currentColor" stroke-width="1"></line></g></svg></div></div>
+<div class="rounded-[40px] overflow-hidden fine-stroke bg-white/20 backdrop-blur-sm p-4 transform transition-transform hover:scale-[1.02] duration-700">
+<img class="w-full h-auto rounded-[32px] object-cover" data-alt="A sleek, modern smart hydrogen water dispensing station in a bright, minimalist setting. The equipment features a premium white and metallic finish with a digital touchscreen interface. Soft daylight illuminates the scene, highlighting the fluid curves of the machine. The style is high-end wellness tech, clean and professional, with subtle reflections on the glass surface of the station." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqQ0u-GVeWZQ4s5t-fN4YNH44PHZIodEZs1ZAG7apeMz2BvnyLedSt_WX85lhjz50QiBZdJp1FehQTDQU7cdgeAnH34hMTloYMlt2AgKm5fnln-6UqP3wqkCLb-c5UTE1RfDaJARd9YwXuTWL7zqxiaF7RSyiaQkDKZK6KVtJp9gocesu8G-8aNYCQZEa7D8e9IDujfuTKr-3SIvuMGb93w4d603rVfc5wnZzABlVOyrGfZNIA1pY-P5_GPZ8MIIPZ1_47VQILAHb3">
+</div>
+</div>
+</div>
+</section>
+<!-- Brand Core Values -->
+<section class="py-20 bg-surface-container-lowest relative">
+<div class="max-w-container-max mx-auto px-margin-desktop">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-0">
+<!-- Value 1 -->
+<div class="flex flex-col items-center text-center px-8 border-r border-outline-variant/30 md:last:border-r-0">
+<span class="font-display-lg text-primary/10 text-[64px] leading-none mb-4">01</span>
+<span class="material-symbols-outlined text-secondary text-3xl mb-4" data-weight="fill">verified_user</span>
+<h3 class="font-headline-md text-on-surface mb-2">安心飲水</h3>
+<p class="text-body-sm text-on-surface-variant">多重過濾與富氫技術，確保每一口水的純淨與活力。</p>
+</div>
+<!-- Value 2 -->
+<div class="flex flex-col items-center text-center px-8 md:border-r border-outline-variant/30">
+<span class="font-display-lg text-primary/10 text-[64px] leading-none mb-4">02</span>
+<span class="material-symbols-outlined text-primary text-3xl mb-4" data-weight="fill">smart_toy</span>
+<h3 class="font-headline-md text-on-surface mb-2">智慧便利</h3>
+<p class="text-body-sm text-on-surface-variant">IoT 監測與自動化服務，智慧化管理您的飲水生活。</p>
+</div>
+<!-- Value 3 -->
+<div class="flex flex-col items-center text-center px-8 border-r border-outline-variant/30">
+<span class="font-display-lg text-primary/10 text-[64px] leading-none mb-4">03</span>
+<span class="material-symbols-outlined text-tertiary text-3xl mb-4" data-weight="fill">hub</span>
+<h3 class="font-headline-md text-on-surface mb-2">生活連結</h3>
+<p class="text-body-sm text-on-surface-variant">深入社區與公共空間，讓補水成為社交與健康的交匯點。</p>
+</div>
+<!-- Value 4 -->
+<div class="flex flex-col items-center text-center px-8">
+<span class="font-display-lg text-primary/10 text-[64px] leading-none mb-4">04</span>
+<span class="material-symbols-outlined text-secondary text-3xl mb-4" data-weight="fill">eco</span>
+<h3 class="font-headline-md text-on-surface mb-2">永續實踐</h3>
+<p class="text-body-sm text-on-surface-variant">減少單次性塑膠，推動資源循環與低碳生活藍圖。</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Equipment Showcase -->
+<section class="py-section-gap px-margin-desktop overflow-hidden">
+<div class="max-w-container-max mx-auto">
+<div class="flex flex-col md:flex-row gap-gutter items-center">
+<div class="w-full md:w-3/5 relative">
+<div class="rounded-xl overflow-hidden shadow-2xl shadow-primary/5">
+<img class="w-full h-[600px] object-cover" data-alt="A smart hydrogen water station seamlessly integrated into a high-end modern fitness center. Gym enthusiasts in the background are exercising in a brightly lit, clean space with light wood floors and large windows. The water station is the focal point, emitting a soft blue glow from its interface. The lighting is crisp and energetic, emphasizing the clean, health-focused atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgH6LDjfDlTx-isg5Y0zzIyHCHvpuT5gv1qo5aP_8uPX1TCoLOnguCdRb99AJUWF7CJjUGnbR2JFOLE06zIL2LdHHJKKhSDdphLpExcakGvq6BBJLKMKGOrCw8DscNRFHDvKAzjBaqfXyMI-Ir5xtuEN7cbWbZI1ZEU8yiZZsewDYUTplq_f991tDmZKyfpmp5ob0ON1p-_LGPujbL29CUnHED59mlXsstTOOWWE_xuM17g2hMyWmheMYgf0LGHcLSQWplPsj6ecNr">
+</div>
+<div class="absolute -bottom-8 -right-8 bg-white/80 backdrop-blur-xl p-8 rounded-xl fine-stroke shadow-lg max-w-sm hidden lg:block">
+<h4 class="font-headline-md text-primary mb-2 italic">智慧辨識科技</h4>
+<p class="text-body-sm text-on-surface-variant">支援人臉辨識與數位支付，只需一秒即可開啟您的專屬補水旅程。系統自動記錄您的飲水量，同步健康數據。</p>
+</div>
+</div>
+<div class="w-full md:w-2/5 space-y-12">
+<div class="space-y-4">
+<h2 class="font-display-lg text-[40px] leading-tight text-on-surface">無所不在的<br>純淨能量</h2>
+<div class="w-12 h-1 bg-primary"></div>
+</div>
+<ul class="space-y-8">
+<li class="flex gap-6 items-start">
+<span class="material-symbols-outlined text-primary bg-primary/5 p-3 rounded-full">face_6</span>
+<div>
+<h5 class="font-headline-md text-lg mb-1">感應式自動給水</h5>
+<p class="text-on-surface-variant text-body-sm">零接觸科技，自動感應杯體位置，提供最衛生的飲水環境。</p>
+</div>
+</li>
+<li class="flex gap-6 items-start">
+<span class="material-symbols-outlined text-primary bg-primary/5 p-3 rounded-full">analytics</span>
+<div>
+<h5 class="font-headline-md text-lg mb-1">即時水質監測</h5>
+<p class="text-on-surface-variant text-body-sm">雲端數據中心 24/7 監控水質與設備狀態，確保每一滴水都符合最高標準。</p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<!-- Interactive Video Section -->
+<section class="py-section-gap px-margin-desktop bg-surface-container">
+<div class="max-w-container-max mx-auto text-center mb-12">
+<h2 class="font-headline-lg text-on-surface mb-2">智慧飲水新體驗</h2>
+<p class="text-on-surface-variant max-w-2xl mx-auto">透過簡潔的影像，探索未來飲水站如何重塑我們的社區生活與健康習慣。</p>
+</div>
+<div class="max-w-4xl mx-auto relative group">
+<div class="aspect-video bg-black rounded-xl overflow-hidden relative shadow-2xl">
+<div class="absolute inset-0 flex items-center justify-center bg-black/20 z-10 group-hover:bg-black/10 transition-all duration-500">
+<button class="w-20 h-20 bg-white/90 rounded-full flex items-center justify-center transform group-hover:scale-110 transition-transform shadow-xl">
+<span class="material-symbols-outlined text-primary text-4xl">play_arrow</span>
+</button>
+</div>
+<img class="w-full h-full object-cover" data-alt="A cinematic 16:9 lifestyle shot of a young professional woman using the smart water station in a sleek, sun-drenched office atrium. She is placing a stylish glass bottle under the dispenser. The video aesthetic is clean, high-contrast, with a color palette of whites, light blues, and natural greenery. The atmosphere is serene and sophisticated, highlighting the seamless integration of technology into modern daily routines." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVBd6K0iXyvT9bDtceqkXRwl1G6OFF2c_pqU-To0xNMZeklCVpRVCvm5HMIyrYlaJGg1b_TLiAhLbKzGgMJwQuLG9OugdiRMPkVYfQUaC2P4zOAHv0uM6A1nvyPNjSTHOfZUYFL4uRgfVjzIoBYNhxQ9NrG2kCy5y41cFG0MWPxjrHkeTim13byrAzjfjOr1lh3iyHTdXRRlbXM4ciEVOxriKhqWtGAmG3JU3KWTkKSt57FzWnurc1TEWZs4ikiqo2tfsDJe39bCc4">
+<!-- UI Controls Overlay -->
+<div class="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black/60 to-transparent z-20">
+<div class="flex items-center gap-4 text-white">
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">pause</span>
+<div class="flex-grow h-1 bg-white/30 rounded-full relative">
+<div class="absolute left-0 top-0 h-full w-1/3 gradient-liquid rounded-full"></div>
+</div>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">volume_up</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">fullscreen</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Service Process & Scenarios -->
+<section class="py-section-gap relative">
+<div class="max-w-container-max mx-auto px-margin-desktop">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
+<!-- Step 1 -->
+<div class="relative group">
+<div class="aspect-square rounded-[40px] overflow-hidden mb-6 fine-stroke">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A lifestyle shot of a runner checking their mobile app to find the nearest hydrogen water station. The background is a lush city park during golden hour. The image has a warm, energetic feel with soft bokeh and sunlight filtering through trees. Focus is on the clean interface of the app on the phone screen." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcMMvzqp8IHn_P9Q_Z35KO0Y7drONMYZLiGm23mOyl8rC1BVjlapH66iVA73Sa3jQyWMuzlrYsNTelrz_uHrQ9qwRsAdpJLKr-6ZHUllBQpYZ9aRvGt0Q46li_gT0_KY7L0Nk5y1f39PaffHxUArV3cTBgA18iaF1iy3UCQ42IR5PeD8oWAZQRef4Q8AUhgUtI_Z64ter-472VzFBG_fTtQALPe9EOzIOHijPIZocEhgWnRXZn8bg1MuDu4tluQdItEDnF5mwNl-ef">
+</div>
+<div class="flex items-center gap-4 mb-4">
+<span class="w-10 h-10 rounded-full border border-primary text-primary flex items-center justify-center font-headline-md italic">01</span>
+<h4 class="font-headline-md">找尋站點</h4>
+</div>
+<p class="text-on-surface-variant">透過專屬 APP 即時導覽，在您周遭的社區或辦公室輕鬆找到最近的智慧富氫水站。</p>
+</div>
+<!-- Step 2 -->
+<div class="relative group mt-12 md:mt-0">
+<div class="aspect-square rounded-[40px] overflow-hidden mb-6 fine-stroke">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A close-up shot of a person using a smart watch to identify themselves at the water station's NFC terminal. The terminal has a clean, white glass finish with a subtle digital ripple effect. Soft cool-toned lighting highlights the precision of the tech. The mood is modern and effortless." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJ7b40AaapGXBuYXOrMbfudZGKBBQQHtoQUCtRxaXkuzzlsD1kT4VDaDAzJLXusVKVxXkkcuevqBD7Lt5IjiTQhaHICgU-ZtKZBTpJif-a-GmhvMrZ9awgD2C0P2msoJSp9QLavxDNrjHWY7JukjQgQRe0sxDjSYuwY0TM7zm0MRcoZQIW-n8jUy5eF0R2xz3vQ0X3EUmntpraOYsbQbom22nceOvyqRElt1nisOqw1vrulbFiHrF0Eq5AeFYwYlE84IWkQqz6iIHp">
+</div>
+<div class="flex items-center gap-4 mb-4">
+<span class="w-10 h-10 rounded-full border border-primary text-primary flex items-center justify-center font-headline-md italic">02</span>
+<h4 class="font-headline-md">智慧身分辨識</h4>
+</div>
+<p class="text-on-surface-variant">支援 QR Code、NFC 或面部辨識，一指或一閃即可同步個人健康飲水計畫與點數記錄。</p>
+</div>
+<!-- Step 3 -->
+<div class="relative group mt-12 md:mt-0">
+<div class="aspect-square rounded-[40px] overflow-hidden mb-6 fine-stroke">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A beautiful, slow-motion capture of hydrogen-rich water pouring into a clear glass bottle. Fine bubbles are visible in the water, refracting light like diamonds. The background is a clean, white-on-white kitchen or lounge environment. The lighting is ethereal and pure, evoking a sense of health and vitality." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOgnaW2suEAalYcgkj44Gyv4ryLrbkNmTXMrU2AUKqPP-qgTHDXxzRWBTW8NxdhnX_2w7XTUqxqp2Lzi5k-2uRJ3QBeMBGgK5EO1ggdA3rkjnkX6lUUu0balRR9nk6AHCroIRIXx0ORdBsl0TjeQCOAiYt0VGncmLucMHBwqT5NxPrCLQztkpIRxblj_Oi_8Oe92ZfpeNIVEjc6006S0pCeyRp6C8uITai-6EYynB5-ZnHIxJCn2H5MTm0ejtBDAYD7joUxIB1TlsW">
+</div>
+<div class="flex items-center gap-4 mb-4">
+<span class="w-10 h-10 rounded-full border border-primary text-primary flex items-center justify-center font-headline-md italic">03</span>
+<h4 class="font-headline-md">純淨取水</h4>
+</div>
+<p class="text-on-surface-variant">自動感應給水，即刻享用富含活性氫的高品質好水，為您的身體注入源源不絕的能量。</p>
+</div>
+<!-- Connecting Line -->
+<div class="hidden md:block absolute top-1/3 left-0 w-full h-px h2-connector -z-10"></div>
+</div>
+</div>
+</section>
+<!-- Knowledge & Sustainability -->
+<section class="py-section-gap bg-surface-bright overflow-hidden">
+<div class="max-w-container-max mx-auto px-margin-desktop">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-section-gap items-center">
+<div class="space-y-12">
+<div class="space-y-6">
+<h2 class="font-display-lg text-display-lg">以氫科技，<br>重塑永續日常</h2>
+<p class="font-body-lg text-on-surface-variant">我們相信，每一口水都該是健康的投資，也是對地球的關懷。透過富氫技術與減塑行動，我們正在改變世界。</p>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+<div class="p-8 border-l-2 border-secondary bg-secondary/5 rounded-r-xl">
+<h5 class="font-headline-md text-lg text-secondary mb-2">活性氫知識</h5>
+<p class="text-body-sm text-on-surface-variant">氫是宇宙中最輕的元素，也是極佳的抗氧化劑，幫助調節生理機能，提升活力。</p>
+</div>
+<div class="p-8 border-l-2 border-primary bg-primary/5 rounded-r-xl">
+<h5 class="font-headline-md text-lg text-primary mb-2">減塑影響力</h5>
+<p class="text-body-sm text-on-surface-variant">每站點每年預計可減少超過 10,000 個單次性塑膠瓶，為海洋保育貢獻一份心力。</p>
+</div>
+</div>
+<a class="inline-flex items-center gap-2 font-headline-md text-primary group" href="#">
+                        探索更多富氫水科學
+                        <span class="material-symbols-outlined group-hover:translate-x-2 transition-transform">trending_flat</span>
+</a>
+</div>
+<div class="relative">
+<div class="absolute -inset-10 bg-tertiary-fixed/30 rounded-full blur-[100px] -z-10"></div>
+<div class="relative aspect-square max-w-md mx-auto">
+<!-- Abstract H2 Motif -->
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="w-64 h-64 border border-primary/20 rounded-full animate-[spin_20s_linear_infinite]"></div>
+<div class="absolute w-6 h-6 bg-primary rounded-full top-0 left-1/2 -translate-x-1/2 shadow-lg shadow-primary/50"></div>
+<div class="absolute w-4 h-4 bg-tertiary rounded-full bottom-1/4 right-0 shadow-lg shadow-tertiary/50"></div>
+</div>
+<img class="w-full h-full object-contain relative z-10" data-alt="A minimalist, scientific illustration of hydrogen molecules as glowing transparent orbs with fine connecting lines. The background is a soft, gradients of pale blue and warm white. The image style is clean, editorial, and sophisticated, avoiding heavy glow effects for a more elegant, professional medical-scientific look." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFdn51OPX6fDl7Qe-g6vZKliFklQag4d0uNILNcefAccQ-gnBpVmdWN0Ue3f_YLlaEZHg1_26wKF9UVyDibYkcLkGIVRKP-nhL0KMbqYiiGM3zaBawli9RqVXiznvJYdYD3V1aM3zbKB00kT_h-jLdbWCHEL974X_OghOZZ-7n1hfkY1MmwQFqOEldPyoIH6WnA8Jt9z1GsogGlt6NkZL0BcJRodm_UyK0S0Hxga91b_WsUJOBWvGlTZy_mXXF5_XMXbyU0thL1I2n">
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Bottom CTA -->
+<section class="py-32 px-margin-desktop relative overflow-hidden text-center">
+<div class="absolute inset-0 -z-10">
+<img class="w-full h-full object-cover opacity-30" data-alt="A wide-angle, serene background showing a minimalist architecture with large windows looking out onto a peaceful green landscape. The interior is bright, clean, and dominated by light tones. The lighting is warm and inviting, like early morning sun. This background serves as an atmospheric canvas for the final call to action." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEeI0CGA-_OFOPxbNktni7Pv_-VBTawR-ZS3xdWSAje5PMqEQWU2m0mRIpZY5Sm_OHh95Ea1WFBJiR79wajtTPl5MDDWjWvZk8Hryl9UxBCwmgDXVMx5OMXwWlDClH8p7lkvID778l_Nwv_frrXGcplj1S390WrU8djp_NAn5I3xdrqAIIxSBvvnulACqVLvwaYK_wTfYpg5nhBV73P3YTfAHDJZmxPxbRlURP5KLwVNvXjjeLDBtZDT3HM0R0empTYlHzjxtaWQPO">
+<div class="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background"></div>
+</div>
+<div class="max-w-3xl mx-auto space-y-12 relative z-10">
+<h2 class="font-display-lg text-display-lg text-on-surface">
+                讓智慧好水，<br>成為生活的一部分
+            </h2>
+<div class="flex flex-col sm:flex-row gap-6 justify-center">
+<button class="bg-primary text-on-primary px-12 py-5 rounded-full font-headline-md text-lg hover:scale-105 transition-transform shadow-xl shadow-primary/20">
+                    立即諮詢
+                </button>
+<button class="bg-white/80 backdrop-blur-md text-primary border border-primary/20 px-12 py-5 rounded-full font-headline-md text-lg hover:bg-white transition-all">
+                    了解合作方式
+                </button>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest dark:bg-surface-dim border-t border-outline-variant/20 py-12 px-margin-desktop">
+<div class="max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center gap-base">
+<div class="flex flex-col gap-4 text-center md:text-left">
+<span class="font-headline-md text-headline-md text-on-surface">利每家 LIMJIA × Dash-U</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant max-w-sm">© 2024 利每家 LIMJIA. All rights reserved. 智慧設備技術支持：Dash-U.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-8">
+<a class="text-outline hover:text-primary transition-colors font-label-md" href="#">隱私政策</a>
+<a class="text-outline hover:text-primary transition-colors font-label-md" href="#">服務條款</a>
+<a class="text-outline hover:text-primary transition-colors font-label-md" href="#">永續報告</a>
+<a class="text-outline hover:text-primary transition-colors font-label-md" href="#">加入我們</a>
+</div>
+<div class="flex gap-4">
+<a class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center text-outline-variant hover:text-primary hover:border-primary transition-all" href="#">
+<span class="material-symbols-outlined text-lg">share</span>
+</a>
+<a class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center text-outline-variant hover:text-primary hover:border-primary transition-all" href="#">
+<span class="material-symbols-outlined text-lg">language</span>
+</a>
+</div>
+</div>
+</footer>
+<script>
+        // Smooth reveal on scroll for elements
+        document.addEventListener('DOMContentLoaded', () => {
+            const observerOptions = {
+                threshold: 0.1
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('opacity-100', 'translate-y-0');
+                        entry.target.classList.remove('opacity-0', 'translate-y-10');
+                    }
+                });
+            }, observerOptions);
+
+            // Add classes for intersection observer to handle
+            const sections = document.querySelectorAll('section > div');
+            sections.forEach(el => {
+                el.classList.add('transition-all', 'duration-1000', 'opacity-0', 'translate-y-10');
+                observer.observe(el);
+            });
+        });
+    </script>
+
+</body></html>

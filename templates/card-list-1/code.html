@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-TW"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>版型 A｜互動情境展開</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+                  "primary-fixed-dim": "#b6c4ff",
+                  "outline": "#737688",
+                  "on-primary-fixed": "#001551",
+                  "on-tertiary-fixed-variant": "#872100",
+                  "outline-variant": "#c3c5d9",
+                  "surface-container-high": "#e7e7f5",
+                  "surface-variant": "#e1e1ef",
+                  "on-tertiary": "#ffffff",
+                  "on-surface": "#191b25",
+                  "on-secondary-container": "#616363",
+                  "secondary-fixed-dim": "#c6c6c7",
+                  "surface-container-highest": "#e1e1ef",
+                  "surface-container": "#ededfb",
+                  "on-tertiary-fixed": "#3b0900",
+                  "secondary-fixed": "#e2e2e2",
+                  "on-secondary-fixed-variant": "#454747",
+                  "inverse-surface": "#2e303a",
+                  "secondary": "#5d5f5f",
+                  "on-primary-container": "#e3e6ff",
+                  "tertiary-fixed-dim": "#ffb5a0",
+                  "surface-container-low": "#f3f2ff",
+                  "surface-tint": "#004dea",
+                  "primary-container": "#0055ff",
+                  "error-container": "#ffdad6",
+                  "tertiary-container": "#c13301",
+                  "on-error": "#ffffff",
+                  "background": "#faf8ff",
+                  "on-background": "#191b25",
+                  "on-primary-fixed-variant": "#0039b3",
+                  "surface-container-lowest": "#ffffff",
+                  "on-tertiary-container": "#ffe1d9",
+                  "inverse-primary": "#b6c4ff",
+                  "on-secondary-fixed": "#1a1c1c",
+                  "inverse-on-surface": "#f0f0fd",
+                  "primary": "#0041c8",
+                  "surface-dim": "#d9d9e6",
+                  "primary-fixed": "#dce1ff",
+                  "surface": "#faf8ff",
+                  "surface-bright": "#faf8ff",
+                  "error": "#ba1a1a",
+                  "on-surface-variant": "#434656",
+                  "on-error-container": "#93000a",
+                  "on-secondary": "#ffffff",
+                  "tertiary": "#972500",
+                  "tertiary-fixed": "#ffdbd1",
+                  "secondary-container": "#dfe0e0",
+                  "on-primary": "#ffffff"
+          },
+          "borderRadius": {
+                  "DEFAULT": "0.25rem",
+                  "lg": "0.5rem",
+                  "xl": "0.75rem",
+                  "full": "9999px"
+          },
+          "spacing": {
+                  "sm": "12px",
+                  "lg": "48px",
+                  "base": "8px",
+                  "gutter": "24px",
+                  "margin-desktop": "64px",
+                  "xs": "4px",
+                  "xl": "80px",
+                  "md": "24px",
+                  "margin-mobile": "20px"
+          },
+          "fontFamily": {
+                  "headline-lg-mobile": ["Geist"],
+                  "label-md": ["Geist"],
+                  "headline-md": ["Geist"],
+                  "headline-lg": ["Geist"],
+                  "body-lg": ["Inter"],
+                  "label-sm": ["Geist"],
+                  "display": ["Geist"],
+                  "body-md": ["Inter"]
+          },
+          "fontSize": {
+                  "headline-lg-mobile": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                  "label-md": ["14px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                  "headline-md": ["32px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                  "headline-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                  "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                  "label-sm": ["12px", {"lineHeight": "1", "fontWeight": "600"}],
+                  "display": ["72px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700"}],
+                  "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      background-color: #faf8ff;
+      overflow-x: hidden;
+    }
+
+    .panel-container {
+      height: 85vh;
+      min-height: 600px;
+    }
+
+    /* Interactive Desktop Grid */
+    .scenario-grid {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      gap: 2px;
+      transition: all 600ms cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .scenario-panel {
+      position: relative;
+      flex: 1;
+      height: 100%;
+      overflow: hidden;
+      transition: flex 600ms cubic-bezier(0.25, 1, 0.5, 1);
+      cursor: pointer;
+    }
+
+    /* Default state: Expanded for the first panel */
+    .scenario-panel:first-child {
+      flex: 1.6;
+    }
+
+    /* Hover interactions */
+    .scenario-grid:hover .scenario-panel {
+      flex: 0.8;
+    }
+
+    .scenario-grid .scenario-panel:hover {
+      flex: 1.6;
+    }
+
+    /* Image zoom effect */
+    .panel-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      transition: transform 800ms cubic-bezier(0.25, 1, 0.5, 1);
+      z-index: 0;
+    }
+
+    .scenario-panel:hover .panel-bg {
+      transform: scale(1.05);
+    }
+
+    /* Gradient Overlay */
+    .panel-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.85) 100%);
+      z-index: 1;
+    }
+
+    /* Content Visibility Controls */
+    .full-description {
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 400ms ease-out 200ms;
+      max-height: 0;
+      overflow: hidden;
+    }
+
+    .scenario-panel:hover .full-description,
+    .scenario-panel:first-child:not(.scenario-grid:hover .scenario-panel) .full-description {
+      opacity: 1;
+      transform: translateY(0);
+      max-height: 100px;
+    }
+
+    /* Hide descriptions on non-hovered items when container is hovered */
+    .scenario-grid:hover .scenario-panel:not(:hover) .full-description {
+      opacity: 0;
+      max-height: 0;
+    }
+
+    /* Mobile handling: Horizontal Scroll */
+    @media (max-width: 768px) {
+      .scenario-grid {
+        flex-direction: row;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        gap: 12px;
+        padding: 0 20px;
+      }
+      .scenario-panel {
+        flex: 0 0 85% !important;
+        height: 70vh;
+        scroll-snap-align: center;
+        border-radius: 12px;
+      }
+      .full-description {
+        opacity: 1 !important;
+        max-height: none !important;
+        transform: none !important;
+      }
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body class="antialiased">
+<main class="w-full h-screen flex items-center justify-center p-gutter md:p-margin-desktop">
+<section class="panel-container w-full max-w-7xl mx-auto overflow-hidden">
+<div class="scenario-grid">
+<!-- Panel 01: 日常使用 (Active by default) -->
+<article class="scenario-panel">
+<div class="panel-bg" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCn-mq3wx66VFaYlQB3K6uSm2Kii_BnnVx5zL9pMcUwaHeA6S-SiaXubRPzkDDAtspq1ctG0FwJPg0K9_d1v1lKm0h2WSwHqCPLw_aE87Lkg_QpPTdZ5Vq16YyoNWo5ta8Mv3Vs7c_AexZ0jxbsb2vNMY8kz8jUtJNgi2J3KjzjJK3hOXe3iVU1AMS9lRity-9Nn43_JuQXOtb9VEPqNedXHPVwowicZ4bNseNqy8UJpRTA9ppl3Exs_rRmdfKNMAUpgt58eH_jHno')"></div>
+<div class="panel-overlay"></div>
+<div class="relative z-10 h-full flex flex-col justify-between p-md md:p-lg text-white">
+<span class="font-label-md text-label-md opacity-70 tracking-widest">01</span>
+<div class="space-y-sm">
+<h2 class="font-headline-md text-headline-md">日常使用</h2>
+<div class="full-description">
+<p class="font-body-md text-body-md text-white/80 max-w-xs">讓產品自然融入每天的生活情境，為每個細節帶來極致便利。</p>
+<a class="inline-flex items-center gap-xs mt-md font-label-md text-label-md text-white group" href="#">
+                  了解更多
+                  <span class="material-symbols-outlined transition-transform group-hover:translate-x-1">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</article>
+<!-- Panel 02: 社區服務 -->
+<article class="scenario-panel">
+<div class="panel-bg" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAGq8an2BFmIszSlnoL87wTQBJWVsBURCg6PUpeujYZteMy_lVanoW-Z6eknBNiKDRJp39CrendLlQLIs1FOUp5Y4gnIY6m7nsIx8HskZrm9dpmBEeQD5buWVivA0xPTN9DzKD9MC6uolmAJQSgWNuYUc3UPNgkPzKagG1iaE0VGpilmm-59qyNthtaEyxhNXFUudrGvU9-XLXI02Xv0Xv1tRjxNYbN80z3vXzdWpHxicRIXFQSwyePrUtecvjZQXL0wdBBpuIfClk')"></div>
+<div class="panel-overlay"></div>
+<div class="relative z-10 h-full flex flex-col justify-between p-md md:p-lg text-white">
+<span class="font-label-md text-label-md opacity-70 tracking-widest">02</span>
+<div class="space-y-sm">
+<h2 class="font-headline-md text-headline-md">社區服務</h2>
+<div class="full-description">
+<p class="font-body-md text-body-md text-white/80 max-w-xs">為社區與公共空間提供便利服務，連結人與環境的共好未來。</p>
+<a class="inline-flex items-center gap-xs mt-md font-label-md text-label-md text-white group" href="#">
+                  探索場域
+                  <span class="material-symbols-outlined transition-transform group-hover:translate-x-1">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</article>
+<!-- Panel 03: 運動生活 -->
+<article class="scenario-panel">
+<div class="panel-bg" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCOZbGVth5mv09yXW4chJodRvOLMoBNZZWZu8xuoIzR_0VCZHf69jV_7d7UTEyk-AOOQ90Au7vspp9xw_CM8P8GURnJLQ8QY-KAlBnWp4BUWh_lV4OJrOlb21Ldo843TMdChtcjLWCvGo0sAMZGQTGEW8GNy_aZgdY3H1IPz5WhyfKXjfv8N7XLyAiGaC2TusxYLOdd-WlWg2TOyOxIsf2X3ZsI94g54Lo94CPax2N2lPqaqbn7x75Gng5IcZMSRKbmo4FtBUFtd4o')"></div>
+<div class="panel-overlay"></div>
+<div class="relative z-10 h-full flex flex-col justify-between p-md md:p-lg text-white">
+<span class="font-label-md text-label-md opacity-70 tracking-widest">03</span>
+<div class="space-y-sm">
+<h2 class="font-headline-md text-headline-md">運動生活</h2>
+<div class="full-description">
+<p class="font-body-md text-body-md text-white/80 max-w-xs">在不同運動情境中提供即時支援，陪伴您追求更好的健康體魄。</p>
+<a class="inline-flex items-center gap-xs mt-md font-label-md text-label-md text-white group" href="#">
+                  查看應用
+                  <span class="material-symbols-outlined transition-transform group-hover:translate-x-1">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</article>
+<!-- Panel 04: 家庭照護 -->
+<article class="scenario-panel">
+<div class="panel-bg" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCsG1AR6h_EErZJJVRmvZJDgj3jQkUX9P6nHyw87F3EZFDxCff6ffdyz4ix0Y-VpeIPhjqIGxT0iCHMhLWCRzJAvlBtNzDjhx8VJbrTflmVpb0ofsq62QedsW81n7GDOGRsmPJDbDau1tHeVyAp1T43JJRepUYf8knwDCAwzzuOcB3XNp6JjRFCLHEfXHsq_4UaDk3jK3ZCcXBuB-8QMU5Rd2pP5vXWfmYgwhruK0pIC9WFrk66Zgt6_CLI35EAnpwFRLQGA-emNBo')"></div>
+<div class="panel-overlay"></div>
+<div class="relative z-10 h-full flex flex-col justify-between p-md md:p-lg text-white">
+<span class="font-label-md text-label-md opacity-70 tracking-widest">04</span>
+<div class="space-y-sm">
+<h2 class="font-headline-md text-headline-md">家庭照護</h2>
+<div class="full-description">
+<p class="font-body-md text-body-md text-white/80 max-w-xs">滿足不同家庭成員的日常需求，讓關懷透過科技隨時傳遞。</p>
+<a class="inline-flex items-center gap-xs mt-md font-label-md text-label-md text-white group" href="#">
+                  了解服務
+                  <span class="material-symbols-outlined transition-transform group-hover:translate-x-1">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</article>
+</div>
+</section>
+</main>
+<script>
+    // Lightweight micro-interaction for mobile touch visibility
+    document.querySelectorAll('.scenario-panel').forEach(panel => {
+      panel.addEventListener('touchstart', function() {
+        // Simple visual feedback for touch on mobile
+        this.style.filter = 'brightness(1.1)';
+      });
+      panel.addEventListener('touchend', function() {
+        this.style.filter = 'none';
+      });
+    });
+  </script>
+<script id="cards-preview-bridge">
+(() => {
+  const params = new URLSearchParams(window.location.search);
+  const pick = (key, fallback = "") => params.get(key) || fallback;
+  const applyPalette = () => {
+    const palette = {
+      primary: pick("primary"),
+      accent: pick("accent"),
+      bg: pick("bg"),
+      surface: pick("surface"),
+      text: pick("text"),
+      muted: pick("muted")
+    };
+    if (!palette.primary) return;
+    document.body.style.background = palette.bg;
+    document.querySelector("main")?.style.setProperty("background", palette.bg);
+    document.querySelectorAll(".panel-overlay").forEach((el) => {
+      el.style.background = `linear-gradient(180deg, rgba(0,0,0,0.1), ${palette.text}dd)`;
+    });
+    document.querySelectorAll(".scenario-panel").forEach((el) => {
+      el.style.outlineColor = palette.primary;
+    });
+    document.querySelectorAll("a").forEach((el) => {
+      el.style.color = "#fff";
+    });
+  };
+  const applyCards = () => {
+    document.querySelectorAll(".scenario-panel").forEach((panel, index) => {
+      const order = index + 1;
+      const title = pick(`item${order}`);
+      const subtitle = pick(`item${order}Subtitle`);
+      const linkEnabled = pick(`item${order}LinkEnabled`, "1") === "1";
+      const linkText = pick(`item${order}LinkText`);
+      const titleNode = panel.querySelector("h2");
+      const subtitleNode = panel.querySelector("p");
+      const linkNode = panel.querySelector("a");
+      if (titleNode && title) titleNode.textContent = title;
+      if (subtitleNode && subtitle) subtitleNode.textContent = subtitle;
+      if (linkNode) {
+        if (linkEnabled && linkText) {
+          const icon = linkNode.querySelector(".material-symbols-outlined");
+          linkNode.textContent = linkText;
+          if (icon) linkNode.appendChild(icon);
+        } else {
+          linkNode.remove();
+        }
+      }
+    });
+  };
+
+  applyPalette();
+  applyCards();
+})();
+</script>
+<script>
+(() => {
+  const reportHeight = () => parent.postMessage({ type: "front-preview-height", height: Math.max(document.body.scrollHeight, document.documentElement.scrollHeight) }, "*");
+  window.addEventListener("load", reportHeight);
+  window.addEventListener("resize", reportHeight);
+  new ResizeObserver(reportHeight).observe(document.documentElement);
+  document.querySelectorAll("img").forEach((image) => image.addEventListener("load", reportHeight));
+  reportHeight();
+})();
+</script>
+</body></html>

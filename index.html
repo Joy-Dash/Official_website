@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>首頁模塊 Builder Demo</title>
+  <link rel="stylesheet" href="./src/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <strong>首頁模塊 Builder Demo</strong>
+        <span>新增 / 刪除 / 隱藏 / 類型 / 版型 / 連結</span>
+      </div>
+      <div class="top-actions">
+        <button class="btn" type="button" data-view="both">前台 + 後台</button>
+        <button class="btn" type="button" data-view="preview">只看前台</button>
+        <button class="btn is-active" type="button" data-view="admin">只看後台</button>
+      </div>
+    </header>
+
+    <main class="workspace" id="workspace">
+      <section class="panel preview-panel" id="previewPanel">
+        <div class="panel-head">
+          <div>
+            <h1>前台首頁預覽</h1>
+            <p>切換模塊類型或版型後，這裡會即時看出不同版面。</p>
+          </div>
+        </div>
+        <nav class="site-nav">
+          <strong>利每家</strong>
+          <span>找水站</span>
+          <span>合作案例</span>
+          <span>知識中心</span>
+          <span>LINE 諮詢</span>
+        </nav>
+        <div id="previewRoot"></div>
+      </section>
+
+      <aside class="panel admin-panel" id="adminPanel">
+        <div class="panel-head">
+          <div>
+            <h1>後台：官網設定</h1>
+            <p>先設定整站官網模板與色系，再管理首頁模塊、前台頁面與後台資料。</p>
+          </div>
+          <div class="actions">
+            <button class="btn hidden" type="button" id="backHomeOverviewBtn">返回首頁現況</button>
+            <button class="btn primary" type="button" id="saveBtn">儲存</button>
+          </div>
+        </div>
+
+        <div class="admin-layout">
+          <nav class="backend-nav" aria-label="後台功能列">
+            <button type="button" data-admin-section="brandStyle">品牌樣式設定</button>
+            <button class="is-active" type="button" data-admin-section="home">首頁管理</button>
+            <button type="button" data-admin-section="pages">前台頁面</button>
+            <button class="nav-group-toggle" type="button" data-nav-group-toggle="blueprint" aria-expanded="true">
+              <span>官網資料管理</span>
+              <span class="nav-group-chevron" aria-hidden="true">−</span>
+            </button>
+            <div class="nav-group" data-nav-group="blueprint">
+              <button type="button" data-admin-section="blueprintArticles">文章管理</button>
+              <button type="button" data-admin-section="blueprintFaq">FAQ 管理</button>
+              <button type="button" data-admin-section="blueprintProducts">商品 / 服務資料</button>
+              <button type="button" data-admin-section="blueprintResources">據點 / 資源資料</button>
+            </div>
+            <button class="nav-group-toggle" type="button" data-nav-group-toggle="ops" aria-expanded="true">
+              <span>維運</span>
+              <span class="nav-group-chevron" aria-hidden="true">−</span>
+            </button>
+            <div class="nav-group" data-nav-group="ops">
+              <button type="button" data-admin-section="adminUsers">後台帳號管理</button>
+              <button type="button" data-admin-section="contactRecords">聯絡表單紀錄</button>
+              <button type="button" data-admin-section="supportMessages">客服訊息管理</button>
+              <button type="button" data-admin-section="media">媒體庫</button>
+              <button type="button" data-admin-section="seo">Banner / Meta</button>
+              <button type="button" data-admin-section="tracking">追蹤設定</button>
+              <button type="button" data-admin-section="site">網站設定</button>
+              <button type="button" data-admin-section="logs">操作紀錄</button>
+            </div>
+          </nav>
+
+          <section class="module-sidebar">
+            <div class="toolbar">
+              <div>
+                <h2>首頁模塊</h2>
+                <p>拖曳排序；Hero 與 Footer 固定。</p>
+              </div>
+              <button class="btn primary" type="button" id="addModuleBtn">新增模塊</button>
+            </div>
+            <div class="summary" id="summary"></div>
+            <div class="module-list" id="moduleList"></div>
+          </section>
+
+          <section class="settings-panel">
+            <h2 id="settingsTitle">模塊設定</h2>
+            <div id="settingsRoot"></div>
+          </section>
+
+          <section class="manager-panel hidden" id="managerPanel"></section>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script src="./src/app.js"></script>
+</body>
+</html>
