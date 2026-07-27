@@ -198,6 +198,26 @@ const defaultSiteMeta = {
   indexable: "yes"
 };
 
+const defaultSiteInfo = {
+  logoFileName: "尚未選擇 Logo",
+  logoPreviewUrl: "",
+  brandName: "利每家・智慧富氫水站",
+  englishName: "LIMEIJIA Smart Hydrogen Water Station",
+  siteName: "利每家智慧富氫水站",
+  phone: "0968-104-098",
+  serviceHours: "9:00～18:00",
+  email: "service@example.com",
+  lineUrl: "https://line.me/R/ti/p/@limeijia",
+  address: "請填寫公司或門市地址",
+  footerCompany: "利每家智慧富氫水站",
+  seoTitleSuffix: "利每家智慧富氫水站",
+  seoDescription: "以智慧飲水科技與永續服務，打造更健康、更便利的生活體驗。",
+  shareImageName: "尚未選擇分享圖",
+  showHeaderPhone: "yes",
+  showServiceHours: "yes",
+  showFooterInfo: "yes"
+};
+
 function createPage(item) {
   const template = getPageTemplate(item.template);
   const content = {};
@@ -301,7 +321,7 @@ const initialDataCollections = {
     { id: "article-1", title: "品牌最新消息範例", type: "最新消息", category: "最新消息", status: "已發布", updated: "2026/07/17" },
     { id: "article-2", title: "服務知識文章範例", type: "知識文章", category: "知識文章", status: "草稿", updated: "2026/07/16" },
     { id: "article-3", title: "活動公告範例", type: "活動公告", category: "活動公告", status: "已發布", updated: "2026/07/12" },
-    { id: "article-4", title: "常見問題範例", type: "FAQ", category: "FAQ", status: "已發布", updated: "2026/07/12" },
+    { id: "article-4", title: "常見問題範例", type: "FAQ", category: "一般問題", status: "已發布", updated: "2026/07/12" },
     { id: "article-5", title: "合作案例範例", type: "案例", category: "案例", status: "已發布", updated: "2026/07/11" }
   ],
   cases: [
@@ -321,6 +341,8 @@ const initialDataCollections = {
   ]
 };
 
+const initialArticleCategories = ["最新消息", "知識文章", "活動公告", "案例"];
+
 const initialContactRecords = [
   { id: "contact-1", name: "王先生", contact: "visitor@example.com", type: "聯絡詢問", source: "聯絡我們頁", subject: "想了解服務內容", status: "待處理", owner: "未指派", createdAt: "2026/07/20 10:30", note: "希望收到方案介紹。" },
   { id: "contact-2", name: "李小姐", contact: "0912-000-000", type: "預約諮詢", source: "首頁 CTA", subject: "預約顧問聯繫", status: "已回覆", owner: "客服 A", createdAt: "2026/07/19 15:12", note: "已約下週二電話說明。" },
@@ -328,7 +350,7 @@ const initialContactRecords = [
 ];
 
 const initialAdminUsers = [
-  { id: "admin-1", name: "Joy", email: "joy@example.com", role: "管理員", status: "啟用", lastLogin: "2026/07/21 09:20", note: "網站主要管理者" },
+  { id: "admin-1", name: "Joy", email: "joy@example.com", role: "最高管理者", status: "啟用", lastLogin: "2026/07/21 09:20", note: "網站主要管理者" },
   { id: "admin-2", name: "內容編輯", email: "editor@example.com", role: "編輯者", status: "啟用", lastLogin: "2026/07/20 16:45", note: "可管理文章、FAQ 與頁面內容" },
   { id: "admin-3", name: "檢視人員", email: "viewer@example.com", role: "檢視者", status: "停用", lastLogin: "尚未登入", note: "僅供檢視後台資料" }
 ];
@@ -338,6 +360,8 @@ const initialSupportMessages = [
   { id: "message-2", name: "張先生", channel: "網站留言", subject: "產品規格問題", lastMessage: "想確認是否有規格表可以下載。", status: "處理中", owner: "客服 B", updatedAt: "2026/07/20 09:20", note: "已轉商品負責人確認。" },
   { id: "message-3", name: "黃小姐", channel: "Email", subject: "售後服務詢問", lastMessage: "設備安裝後若有問題如何報修？", status: "已結案", owner: "客服 A", updatedAt: "2026/07/18 16:40", note: "已提供客服信箱與報修流程。" }
 ];
+
+const adminRoleOptions = ["最高管理者", "管理員", "編輯者", "檢視者"];
 
 const siteStyleTemplates = [
   {
@@ -461,9 +485,17 @@ const state = {
   isChoosingPageTemplate: false,
   isChoosingPageSource: false,
   activeDataEditor: null,
+  activeArticleQuickAdd: null,
   activeOpsEditor: null,
   activeAdminUserEditor: null,
-  activeArticleType: "最新消息",
+  activePasswordResetUserId: "",
+  passwordResetDraft: { password: "", confirm: "" },
+  activeSuperAdminTransferUserId: "",
+  superAdminTransferTargetId: "",
+  siteInfoPreviewTab: "edit",
+  activeArticleCategory: "最新消息",
+  articleCategoryDraft: "",
+  articleQuickDraft: { title: "", category: "", status: "草稿" },
   dataFilters: {
     articles: { search: "", category: "", status: "" },
     cases: { search: "", category: "", status: "" },
@@ -476,6 +508,7 @@ const state = {
   },
   pages: clone(initialPages),
   dataCollections: clone(initialDataCollections),
+  articleCategories: clone(initialArticleCategories),
   contactRecords: clone(initialContactRecords),
   supportMessages: clone(initialSupportMessages),
   adminUsers: clone(initialAdminUsers),
@@ -486,6 +519,8 @@ const state = {
     savedTemplateId: "business",
     savedPaletteId: "teal"
   },
+  siteInfo: clone(defaultSiteInfo),
+  savedSiteInfo: clone(defaultSiteInfo),
   savedModules: clone(initialModules),
   draftModules: clone(initialModules),
   navGroups: {
@@ -504,9 +539,9 @@ const navSectionGroups = {
   adminUsers: "ops",
   contactRecords: "ops",
   supportMessages: "ops",
-  media: "ops",
   seo: "ops",
   tracking: "ops",
+  siteBasicInfo: "ops",
   brandStyle: "ops",
   site: "ops",
   logs: "ops"
@@ -533,6 +568,7 @@ const els = {
   addModuleBtn: document.getElementById("addModuleBtn"),
   backHomeOverviewBtn: document.getElementById("backHomeOverviewBtn"),
   saveBtn: document.getElementById("saveBtn"),
+  adminHeaderTemplateSlot: document.getElementById("adminHeaderTemplateSlot"),
   managerPanel: document.getElementById("managerPanel")
 };
 
@@ -544,6 +580,18 @@ function esc(value) {
     '"': "&quot;",
     "'": "&#039;"
   })[char]);
+}
+
+function richTextInitialHtml(item) {
+  if (item.bodyHtml) return item.bodyHtml;
+  return esc(item.body || "").replace(/\n/g, "<br>");
+}
+
+function normalizeExternalUrl(value) {
+  const url = String(value || "").trim();
+  if (!url) return "";
+  if (/^(https?:|mailto:|tel:|#)/i.test(url)) return url;
+  return `https://${url}`;
 }
 
 function getType(typeId) {
@@ -784,7 +832,7 @@ function renderHomeOverview() {
   els.settingsTitle.textContent = "首頁模塊現況預覽";
   els.settingsRoot.innerHTML = `
     <div class="settings-body">
-      ${renderCurrentSiteTemplateNotice("首頁管理")}
+      ${renderHomeActionStrip()}
       <section class="settings-card home-overview-panel">
         <div class="section-head">
           <div>
@@ -823,6 +871,7 @@ function renderHomeOverview() {
   `;
 
   bindAdminSectionLinks(els.settingsRoot);
+  bindHomeActionStrip(els.settingsRoot);
 
   els.settingsRoot.querySelectorAll("[data-edit]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -866,6 +915,7 @@ function renderInsertFlow() {
   if (!selectedType) {
     els.settingsRoot.innerHTML = `
       <div class="settings-body">
+        ${renderHomeActionStrip()}
         <section class="settings-card">
           <div class="section-head">
             <div>
@@ -898,11 +948,13 @@ function renderInsertFlow() {
         render();
       });
     });
+    bindHomeActionStrip(els.settingsRoot);
     return;
   }
 
   els.settingsRoot.innerHTML = `
     <div class="settings-body">
+      ${renderHomeActionStrip()}
       <section class="settings-card">
         <div class="section-head">
           <div>
@@ -940,6 +992,7 @@ function renderInsertFlow() {
       addModuleFromTemplate(state.pendingModuleTypeId);
     });
   });
+  bindHomeActionStrip(els.settingsRoot);
 }
 
 function renderSettings() {
@@ -995,7 +1048,7 @@ function renderSettings() {
   els.settingsTitle.textContent = `${module.name}｜${type.name}｜版型 ${variant.id}`;
   els.settingsRoot.innerHTML = `
     <div class="settings-body">
-      ${renderCurrentSiteTemplateNotice("首頁模塊")}
+      ${renderHomeActionStrip()}
       ${isHero ? renderHeroVariantWorkbench(module) : ""}
       ${isIntro ? renderIntroVariantWorkbench(module) : ""}
       ${isStats ? renderStatsVariantWorkbench(module) : ""}
@@ -1041,6 +1094,7 @@ function renderSettings() {
   `;
 
   bindAdminSectionLinks(els.settingsRoot);
+  bindHomeActionStrip(els.settingsRoot);
 
   els.settingsRoot.querySelectorAll("[data-field]").forEach((input) => {
     input.addEventListener("input", () => updateField(module, input));
@@ -1091,6 +1145,18 @@ function renderSettings() {
   expandFrontPreviewFrames();
 }
 
+function renderPreviewVariantSelect(module, label = "選擇版型") {
+  const type = getType(module.type);
+  return `
+    <div class="field preview-variant-select">
+      <label>${esc(label)}</label>
+      <select data-field="variant">
+        ${type.variants.map((item) => `<option value="${item.id}" ${module.variant === item.id ? "selected" : ""}>版型 ${item.id}：${item.name}｜${item.description}</option>`).join("")}
+      </select>
+    </div>
+  `;
+}
+
 function renderHeroVariantWorkbench(module) {
   const type = getType(module.type);
   const activeTab = state.heroEditorTab || "edit";
@@ -1126,6 +1192,7 @@ function renderHeroVariantWorkbench(module) {
               <span>使用目前填寫的主標題、副標題與主圖產生預覽。</span>
             </div>
           </div>
+          ${renderPreviewVariantSelect(module, "選擇首屏呈現方式")}
           <div class="hero-live-preview-wrap" data-hero-live-preview>
             ${renderHeroCustomerPreview(module)}
           </div>
@@ -1200,6 +1267,7 @@ function renderIntroVariantWorkbench(module) {
               <span>使用目前填寫的主標題、副標題與主圖產生預覽。</span>
             </div>
           </div>
+          ${renderPreviewVariantSelect(module, "選擇圖文呈現方式")}
           <div class="hero-live-preview-wrap" data-hero-live-preview>
             ${renderIntroCustomerPreview(module)}
           </div>
@@ -1272,6 +1340,7 @@ function renderStatsVariantWorkbench(module) {
               <span>使用目前填寫的主標題、副標題與數據項目產生預覽。</span>
             </div>
           </div>
+          ${renderPreviewVariantSelect(module, "選擇數據呈現方式")}
           <div class="hero-live-preview-wrap" data-hero-live-preview>
             ${renderStatsCustomerPreview(module)}
           </div>
@@ -1354,6 +1423,7 @@ function renderCardsVariantWorkbench(module) {
               <span>使用目前填寫的卡片標題、說明與按鈕文字產生預覽。</span>
             </div>
           </div>
+          ${renderPreviewVariantSelect(module, "選擇卡片呈現方式")}
           <div class="hero-live-preview-wrap" data-hero-live-preview>
             ${renderCardsCustomerPreview(module)}
           </div>
@@ -1440,6 +1510,7 @@ function renderNewsVariantWorkbench(module) {
               <span>使用目前填寫的文章日期、標題與摘要產生預覽。</span>
             </div>
           </div>
+          ${renderPreviewVariantSelect(module, "選擇新聞呈現方式")}
           <div class="hero-live-preview-wrap" data-hero-live-preview>
             ${renderNewsCustomerPreview(module)}
           </div>
@@ -1521,6 +1592,7 @@ function renderFaqVariantWorkbench(module) {
               <span>使用目前填寫的問題與答案產生預覽。</span>
             </div>
           </div>
+          ${renderPreviewVariantSelect(module, "選擇 FAQ 呈現方式")}
           <div class="hero-live-preview-wrap" data-hero-live-preview>
             ${renderFaqCustomerPreview(module)}
           </div>
@@ -2073,6 +2145,11 @@ function updateSaveState() {
   els.saveBtn.classList.toggle("unsaved", state.isDirty);
   els.saveBtn.classList.toggle("primary", !state.isDirty);
   els.saveBtn.textContent = state.isDirty ? "儲存變更" : "已儲存";
+  els.settingsRoot.querySelectorAll("[data-save-home-inline]").forEach((button) => {
+    button.classList.toggle("unsaved", state.isDirty);
+    button.classList.toggle("primary", !state.isDirty);
+    button.textContent = state.isDirty ? "儲存變更" : "已儲存";
+  });
 }
 
 function expandFrontPreviewFrames() {
@@ -2473,12 +2550,9 @@ function setView(view) {
 }
 
 function managerHeader(title, description, actions = []) {
+  if (!actions.length) return "";
   return `
-    <div class="manager-head">
-      <div>
-        <h2>${esc(title)}</h2>
-        <p>${esc(description)}</p>
-      </div>
+    <div class="manager-actions-bar">
       <div class="actions">
         ${actions.map((item) => `<button class="btn" type="button">${esc(item)}</button>`).join("")}
       </div>
@@ -2759,11 +2833,44 @@ function renderCurrentSiteTemplateNotice(scope) {
       <div>
         <span>目前整站官網模板</span>
         <strong>${esc(template.name)}｜${esc(palette.name)}</strong>
-        <p>${esc(scope)}會沿用這套模板的排版語言、色系與元件風格；這裡只調整內容模塊、排序與頁面資料。</p>
       </div>
-      <button class="btn" type="button" data-admin-section="brandStyle">調整品牌樣式</button>
     </section>
   `;
+}
+
+function renderHeaderSiteTemplateNotice() {
+  if (!els.adminHeaderTemplateSlot) return;
+  els.adminHeaderTemplateSlot.innerHTML = renderCurrentSiteTemplateNotice();
+  els.adminHeaderTemplateSlot.querySelector(".site-template-notice")?.classList.add("compact");
+}
+
+function renderHomeActionStrip() {
+  const isHomeSubFlow = state.adminSection === "home" && state.homeMode !== "overview";
+  const template = getActiveSiteTemplate();
+  const palette = getActiveSitePalette();
+  return `
+    <section class="home-action-strip">
+      <div class="current-template-inline">
+        <span>目前整站官網模板</span>
+        <strong>${esc(template.name)}｜${esc(palette.name)}</strong>
+      </div>
+      <div class="actions">
+        <button class="btn ${isHomeSubFlow ? "" : "hidden"}" type="button" data-back-home-overview-inline>返回首頁現況</button>
+        <button class="btn ${state.isDirty ? "unsaved" : "primary"}" type="button" data-save-home-inline>${state.isDirty ? "儲存變更" : "已儲存"}</button>
+      </div>
+    </section>
+  `;
+}
+
+function bindHomeActionStrip(root) {
+  root.querySelector("[data-back-home-overview-inline]")?.addEventListener("click", () => {
+    state.homeMode = "overview";
+    state.pendingModuleTypeId = "";
+    state.isChoosingModuleTemplate = false;
+    state.insertAfterId = "";
+    render();
+  });
+  root.querySelector("[data-save-home-inline]")?.addEventListener("click", saveDraft);
 }
 
 function isSiteStyleDirty() {
@@ -2977,17 +3084,415 @@ function renderBrandStyleManager() {
   `;
 }
 
+function isSiteInfoDirty() {
+  return JSON.stringify(state.siteInfo) !== JSON.stringify(state.savedSiteInfo);
+}
+
+function renderYesNoSelect(field) {
+  const value = state.siteInfo[field] || "yes";
+  return `
+    <select data-site-info-field="${field}">
+      <option value="yes" ${value === "yes" ? "selected" : ""}>顯示</option>
+      <option value="no" ${value === "no" ? "selected" : ""}>不顯示</option>
+    </select>
+  `;
+}
+
+function renderSiteLogoPreview(info, className = "preview-logo-mark") {
+  if (info.logoPreviewUrl) {
+    return `<img class="${className}" src="${esc(info.logoPreviewUrl)}" alt="${esc(info.brandName)} Logo">`;
+  }
+  return `<div class="${className}">Logo</div>`;
+}
+
+function renderSiteHeaderFooterPreview(info) {
+  return `
+    <section class="site-info-preview-card">
+      <div class="section-title">
+        <div>
+          <h3>Header 預覽</h3>
+          <p>模擬前台頁首會如何帶入 Logo、品牌名稱、選單、電話與服務時間。</p>
+        </div>
+      </div>
+      <div class="site-header-mock">
+        <div class="site-header-brand">
+          ${renderSiteLogoPreview(info)}
+          <div>
+            <strong>${esc(info.brandName)}</strong>
+            <span>${esc(info.englishName)}</span>
+          </div>
+        </div>
+        <div class="site-header-empty-mock" aria-hidden="true"></div>
+        <div class="site-header-contact-mock">
+          ${info.showHeaderPhone === "yes" ? `<strong>tel. ${esc(info.phone)}</strong>` : ""}
+          ${info.showServiceHours === "yes" ? `<span>服務時間 ${esc(info.serviceHours)}</span>` : ""}
+        </div>
+        <button class="site-header-menu-mock" type="button" aria-label="選單"><span></span><span></span><span></span></button>
+      </div>
+    </section>
+    <section class="site-info-preview-card">
+      <div class="section-title">
+        <div>
+          <h3>Footer 預覽</h3>
+          <p>模擬前台頁尾會如何帶入公司資訊、聯絡方式、地址與 SEO 摘要。</p>
+        </div>
+      </div>
+      <div class="site-footer-mock">
+        <div class="site-footer-brand">
+          ${renderSiteLogoPreview(info, "preview-logo-mark small")}
+          <div>
+            <strong>${esc(info.footerCompany)}</strong>
+            <span>${esc(info.siteName)}</span>
+          </div>
+        </div>
+        <div class="site-footer-grid">
+          <div>
+            <span class="eyebrow">Contact</span>
+            <p>${esc(info.phone)}</p>
+            <p>${esc(info.email)}</p>
+            <p>${esc(info.serviceHours)}</p>
+          </div>
+          <div>
+            <span class="eyebrow">Company</span>
+            <p>${esc(info.address)}</p>
+            <p>${esc(info.lineUrl)}</p>
+          </div>
+        </div>
+        <div class="site-footer-seo">
+          <strong>${esc(info.seoTitleSuffix)}</strong>
+          <p>${esc(info.seoDescription)}</p>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function renderSiteBasicInfoManager() {
+  const info = state.siteInfo;
+  const isDirty = isSiteInfoDirty();
+  const activeTab = state.siteInfoPreviewTab || "edit";
+  return `
+    <section class="site-info-layout">
+      <div class="site-info-main">
+        <div class="brand-style-heading site-info-heading">
+          <div>
+            <h2>官網基本資訊</h2>
+            <p>這是建站第一步。Header、Footer、聯絡頁、SEO 與社群分享會優先沿用這裡的全站資料。</p>
+          </div>
+          <div class="actions">
+            <span class="save-pill ${isDirty ? "unsaved" : ""}">${isDirty ? "尚未儲存" : "已儲存"}</span>
+            <button class="btn primary" type="button" data-save-site-info>儲存基本資訊</button>
+          </div>
+        </div>
+
+        <div class="tabs site-info-workspace-tabs" role="tablist" aria-label="官網基本資訊工作區">
+          <button class="tab ${activeTab === "edit" ? "is-active" : ""}" type="button" data-site-info-preview-tab="edit">編輯資料</button>
+          <button class="tab ${activeTab === "preview" ? "is-active" : ""}" type="button" data-site-info-preview-tab="preview">Header / Footer 預覽</button>
+        </div>
+
+        ${activeTab === "edit" ? `
+        <section class="settings-card">
+          <div class="section-title">
+            <div>
+              <h3>品牌識別</h3>
+              <p>控制官網左上角品牌、Logo 與全站顯示名稱。</p>
+            </div>
+          </div>
+          <div class="field-grid">
+            <div class="field">
+              <label>上傳 Logo</label>
+              <div class="file-upload-row">
+                <label class="btn" for="siteLogoFile">選擇檔案</label>
+                <span class="hint">${esc(info.logoFileName)}</span>
+                <input class="visually-hidden" id="siteLogoFile" type="file" accept="image/*" data-site-info-file="logoFileName">
+              </div>
+            </div>
+            <div class="field">
+              <label>品牌名稱</label>
+              <input type="text" value="${esc(info.brandName)}" data-site-info-field="brandName">
+            </div>
+            <div class="field">
+              <label>英文名稱 / 副標</label>
+              <input type="text" value="${esc(info.englishName)}" data-site-info-field="englishName">
+            </div>
+            <div class="field">
+              <label>網站名稱</label>
+              <input type="text" value="${esc(info.siteName)}" data-site-info-field="siteName">
+            </div>
+          </div>
+        </section>
+
+        <section class="settings-card">
+          <div class="section-title">
+            <div>
+              <h3>聯絡資訊</h3>
+              <p>供 Header、Footer、聯絡頁與 CTA 共用。</p>
+            </div>
+          </div>
+          <div class="field-grid">
+            <div class="field">
+              <label>聯絡電話</label>
+              <input type="text" value="${esc(info.phone)}" data-site-info-field="phone">
+            </div>
+            <div class="field">
+              <label>服務時間</label>
+              <input type="text" value="${esc(info.serviceHours)}" data-site-info-field="serviceHours">
+            </div>
+            <div class="field">
+              <label>Email</label>
+              <input type="email" value="${esc(info.email)}" data-site-info-field="email">
+            </div>
+            <div class="field">
+              <label>LINE / 社群連結</label>
+              <input type="text" value="${esc(info.lineUrl)}" data-site-info-field="lineUrl">
+            </div>
+            <div class="field full">
+              <label>地址</label>
+              <input type="text" value="${esc(info.address)}" data-site-info-field="address">
+            </div>
+          </div>
+        </section>
+
+        <section class="settings-card">
+          <div class="section-title">
+            <div>
+              <h3>全站 SEO</h3>
+              <p>作為各頁未填 SEO 時的預設值。</p>
+            </div>
+          </div>
+          <div class="field-grid">
+            <div class="field">
+              <label>預設 Title 後綴</label>
+              <input type="text" value="${esc(info.seoTitleSuffix)}" data-site-info-field="seoTitleSuffix">
+            </div>
+            <div class="field">
+              <label>社群分享圖</label>
+              <div class="file-upload-row">
+                <label class="btn" for="siteShareImage">選擇檔案</label>
+                <span class="hint">${esc(info.shareImageName)}</span>
+                <input class="visually-hidden" id="siteShareImage" type="file" accept="image/*" data-site-info-file="shareImageName">
+              </div>
+            </div>
+            <div class="field full">
+              <label>預設網站描述</label>
+              <textarea data-site-info-field="seoDescription">${esc(info.seoDescription)}</textarea>
+            </div>
+          </div>
+        </section>
+
+        <section class="settings-card">
+          <div class="section-title">
+            <div>
+              <h3>Header / Footer 顯示</h3>
+              <p>控制全站共用區塊是否顯示電話、服務時間與公司資訊。</p>
+            </div>
+          </div>
+          <div class="field-grid">
+            <div class="field">
+              <label>Header 電話</label>
+              ${renderYesNoSelect("showHeaderPhone")}
+            </div>
+            <div class="field">
+              <label>Header 服務時間</label>
+              ${renderYesNoSelect("showServiceHours")}
+            </div>
+            <div class="field">
+              <label>Footer 公司資訊</label>
+              ${renderYesNoSelect("showFooterInfo")}
+            </div>
+            <div class="field">
+              <label>Footer 公司名稱</label>
+              <input type="text" value="${esc(info.footerCompany)}" data-site-info-field="footerCompany">
+            </div>
+          </div>
+        </section>
+        ` : `
+          <div class="site-info-preview-panel">
+            ${renderSiteHeaderFooterPreview(info)}
+          </div>
+        `}
+      </div>
+    </section>
+  `;
+}
+
+function renderBannerMetaManager() {
+  return `
+    <section class="settings-stack">
+      ${managerHeader("Banner / Meta", "管理頁面曝光、SEO 與社群分享資訊；品牌與聯絡資料請回到官網基本資訊填寫。", [])}
+      <section class="settings-card">
+        <div class="section-title">
+          <div>
+            <h3>首頁 Banner / Meta 預設</h3>
+            <p>作為首頁與未指定頁面的預設曝光資料。</p>
+          </div>
+          <button class="btn primary" type="button">儲存 Meta</button>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label>首頁 Meta Title</label>
+            <input type="text" value="利每家智慧富氫水站｜智慧飲水與富氫水服務">
+          </div>
+          <div class="field">
+            <label>Canonical URL</label>
+            <input type="text" value="https://www.example.com/">
+          </div>
+          <div class="field full">
+            <label>首頁 Meta Description</label>
+            <textarea>以智慧飲水科技與永續服務，打造更健康、更便利的生活體驗。</textarea>
+          </div>
+          <div class="field">
+            <label>社群分享圖</label>
+            <div class="file-upload-row"><label class="btn">選擇檔案</label><span class="hint">尚未選擇圖片</span></div>
+          </div>
+          <div class="field">
+            <label>搜尋引擎索引</label>
+            <select><option>允許索引</option><option>不允許索引</option></select>
+          </div>
+        </div>
+      </section>
+      <section class="settings-card">
+        <div class="section-title">
+          <div>
+            <h3>各頁 SEO / 社群分享</h3>
+            <p>針對前台頁面設定 title、description、OG 與 robots 狀態。</p>
+          </div>
+        </div>
+        <table class="admin-table responsive-table">
+          <thead><tr><th>頁面</th><th>SEO 狀態</th><th>分享圖</th><th>索引</th><th>操作</th></tr></thead>
+          <tbody>
+            ${["首頁", "品牌故事", "最新消息", "FAQ", "聯絡我們"].map((page, index) => `
+              <tr>
+                <td data-label="頁面"><strong>${page}</strong></td>
+                <td data-label="SEO 狀態"><span class="status-pill">${index < 2 ? "已填" : "待補"}</span></td>
+                <td data-label="分享圖">${index === 0 ? "已上傳" : "沿用預設"}</td>
+                <td data-label="索引">允許索引</td>
+                <td data-label="操作"><button class="btn" type="button">編輯 Meta</button></td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </section>
+      <section class="settings-card">
+        <div class="section-title">
+          <div>
+            <h3>進階 SEO</h3>
+            <p>提供給需要自訂 robots、canonical、結構化資料的專案使用。</p>
+          </div>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label>Robots 預設</label>
+            <select><option>index, follow</option><option>noindex, nofollow</option></select>
+          </div>
+          <div class="field">
+            <label>結構化資料類型</label>
+            <select><option>Organization</option><option>LocalBusiness</option><option>Article</option></select>
+          </div>
+        </div>
+      </section>
+    </section>
+  `;
+}
+
+function renderTrackingSettingsManager() {
+  return `
+    <section class="settings-stack">
+      ${managerHeader("追蹤設定", "管理第三方追蹤碼、驗證碼、Cookie 同意與重要事件名稱。", [])}
+      <section class="settings-card">
+        <div class="section-title">
+          <div>
+            <h3>追蹤碼</h3>
+            <p>填入第三方平台 ID，正式版部署時會輸出到前台。</p>
+          </div>
+          <button class="btn primary" type="button">儲存追蹤設定</button>
+        </div>
+        <div class="field-grid">
+          <div class="field"><label>GA4 Measurement ID</label><input type="text" placeholder="G-XXXXXXXXXX"></div>
+          <div class="field"><label>GTM Container ID</label><input type="text" placeholder="GTM-XXXXXXX"></div>
+          <div class="field"><label>Meta Pixel ID</label><input type="text" placeholder="例如 1234567890"></div>
+          <div class="field"><label>LINE Tag ID</label><input type="text" placeholder="LINE Tag ID"></div>
+          <div class="field full"><label>Google Search Console 驗證碼</label><input type="text" placeholder="google-site-verification=..."></div>
+        </div>
+      </section>
+      <section class="settings-card">
+        <div class="section-title">
+          <div>
+            <h3>事件追蹤</h3>
+            <p>統一命名前台互動事件，方便 GA4 / GTM 對應。</p>
+          </div>
+        </div>
+        <table class="admin-table responsive-table">
+          <thead><tr><th>事件</th><th>事件名稱</th><th>觸發位置</th><th>狀態</th></tr></thead>
+          <tbody>
+            ${[
+              ["表單送出", "form_submit", "聯絡頁 / CTA", "啟用"],
+              ["LINE 點擊", "line_click", "Header / Footer / CTA", "啟用"],
+              ["電話點擊", "phone_click", "Header / Footer", "啟用"],
+              ["文章點擊", "article_click", "列表 / 首頁模塊", "待確認"]
+            ].map((row) => `<tr>${row.map((cell, index) => `<td data-label="${["事件", "事件名稱", "觸發位置", "狀態"][index]}">${index === 3 ? `<span class="status-pill">${cell}</span>` : esc(cell)}</td>`).join("")}</tr>`).join("")}
+          </tbody>
+        </table>
+      </section>
+      <section class="settings-card">
+        <div class="section-title"><div><h3>Cookie / Consent</h3><p>控制是否在前台顯示同意提示與追蹤載入模式。</p></div></div>
+        <div class="field-grid">
+          <div class="field"><label>Cookie 同意提示</label><select><option>啟用</option><option>停用</option></select></div>
+          <div class="field"><label>同意前追蹤碼</label><select><option>延後載入</option><option>立即載入</option></select></div>
+        </div>
+      </section>
+    </section>
+  `;
+}
+
+function renderSiteSettingsManager() {
+  return `
+    <section class="settings-stack">
+      ${managerHeader("網站設定", "管理站台系統層級設定；品牌、Logo、聯絡資料請在官網基本資訊維護。", [])}
+      <section class="settings-card">
+        <div class="section-title">
+          <div><h3>站台狀態</h3><p>控制網站基本運作狀態、網域、語系與時區。</p></div>
+          <button class="btn primary" type="button">儲存網站設定</button>
+        </div>
+        <div class="field-grid">
+          <div class="field"><label>正式網域</label><input type="text" placeholder="https://www.example.com"></div>
+          <div class="field"><label>網站狀態</label><select><option>已發布</option><option>維護模式</option><option>草稿站</option></select></div>
+          <div class="field"><label>預設語系</label><select><option>繁體中文 zh-TW</option><option>英文 en</option></select></div>
+          <div class="field"><label>時區</label><select><option>Asia/Taipei</option><option>UTC</option></select></div>
+        </div>
+      </section>
+      <section class="settings-card">
+        <div class="section-title"><div><h3>Sitemap / Robots</h3><p>控制搜尋引擎讀取站台的基礎檔案。</p></div></div>
+        <div class="field-grid">
+          <div class="field"><label>Sitemap</label><select><option>自動產生</option><option>手動上傳</option></select></div>
+          <div class="field"><label>robots.txt</label><select><option>允許正式站索引</option><option>封鎖全站索引</option></select></div>
+          <div class="field full"><label>自訂 robots.txt 內容</label><textarea placeholder="User-agent: *&#10;Allow: /"></textarea></div>
+        </div>
+      </section>
+      <section class="settings-card">
+        <div class="section-title"><div><h3>安全與上傳</h3><p>管理後台登入安全、上傳格式與系統操作限制。</p></div></div>
+        <div class="field-grid">
+          <div class="field"><label>登入逾時</label><select><option>30 分鐘</option><option>1 小時</option><option>4 小時</option></select></div>
+          <div class="field"><label>允許上傳副檔名</label><input type="text" value="jpg, png, webp, pdf, mp4"></div>
+          <div class="field"><label>最大上傳容量</label><select><option>10 MB</option><option>50 MB</option><option>100 MB</option></select></div>
+          <div class="field"><label>404 頁面</label><select><option>使用預設 404</option><option>指定前台頁面</option></select></div>
+        </div>
+      </section>
+    </section>
+  `;
+}
+
 const dataManagerConfig = {
   articles: {
     title: "內容管理",
     description: "管理最新消息、公告、活動、知識文章、FAQ 與長篇內容資料。",
     addLabel: "新增內容",
-    columns: ["標題", "內容類型", "分類", "狀態", "更新 / 備註"],
+    columns: ["標題", "文章類型", "分類", "狀態", "更新 / 備註"],
     detailTitle: "文章內容",
     detailFields: [
       { key: "summary", label: "文章摘要", type: "textarea", help: "顯示在列表卡片、首頁最新消息或文章頁開頭。" },
       { key: "body", label: "文章內文", type: "textarea", help: "正式文章內容，可作為前台文章詳細頁使用。" },
-      { key: "imageAlt", label: "封面圖片描述", type: "text", help: "先填圖片用途，正式版可接媒體庫上傳。" },
+      { key: "imageAlt", label: "封面圖片描述", type: "text", help: "填寫圖片用途，方便前台顯示與無障礙描述。" },
       { key: "linkUrl", label: "頁面連結", type: "text", help: "例如 /news/article-title，供首頁模塊或列表頁連到文章。" }
     ]
   },
@@ -3002,22 +3507,27 @@ const dataManagerConfig = {
       { key: "challenge", label: "需求 / 挑戰", type: "textarea", help: "描述原本遇到的需求、目標、限制或問題。" },
       { key: "solution", label: "執行方式", type: "textarea", help: "描述提供的服務、流程、內容或解決方式。" },
       { key: "result", label: "成果 / 亮點", type: "textarea", help: "描述成果數據、成效、亮點、客戶回饋或可展示的證明。" },
-      { key: "imageAlt", label: "圖片描述", type: "text", help: "先填圖片內容，正式版可接媒體庫上傳一張或多張圖片。" },
+      { key: "imageAlt", label: "圖片描述", type: "text", help: "填寫圖片內容，方便前台顯示與無障礙描述。" },
       { key: "linkUrl", label: "詳細頁連結", type: "text", help: "例如 /cases/sample-project，供首頁模塊或列表頁引用。" }
     ]
   },
   products: {
     title: "商品 / 服務管理",
-    description: "管理商品資訊、服務方案、規格、價格、CTA 與方案比較資料。",
+    description: "管理商品、服務、方案與加值項目；類型可自訂，單筆資料共用同一組欄位。",
     addLabel: "新增商品 / 服務",
-    columns: ["項目", "類型", "分類", "狀態", "CTA / 備註"],
+    columns: ["名稱", "類型", "分類", "狀態", "CTA / 備註"],
     detailTitle: "商品 / 服務內容",
     detailFields: [
       { key: "summary", label: "簡短介紹", type: "textarea", help: "顯示在商品卡片、服務列表或頁首摘要。" },
-      { key: "spec", label: "規格 / 內容範圍", type: "textarea", help: "填寫規格、包含項目、適用對象、服務內容或方案細節。" },
-      { key: "benefit", label: "主要優勢", type: "textarea", help: "整理使用者最在意的賣點或選擇理由。" },
+      { key: "imageAlt", label: "代表圖 / 主圖描述", type: "text", help: "填寫圖片內容，方便前台顯示與無障礙描述。" },
+      { key: "mainFileName", label: "上傳代表圖 / 主圖", type: "file", accept: "image/*", help: "用於列表卡片、詳細頁主圖或分享圖片。" },
+      { key: "body", label: "詳細內容", type: "textarea", help: "放完整介紹、圖片影片說明、服務細節或方案內容。" },
+      { key: "spec", label: "規格 / 服務內容", type: "textarea", help: "填寫規格、包含項目、適用對象、服務內容或方案細節。" },
+      { key: "benefit", label: "主要特色", type: "textarea", help: "整理使用者最在意的賣點、優勢或選擇理由。" },
       { key: "ctaText", label: "CTA 文字", type: "text", help: "例如 立即諮詢、索取簡報、查看方案。" },
-      { key: "linkUrl", label: "詳細頁連結", type: "text", help: "例如 /products/sample-item 或 /services/sample-service。" }
+      { key: "linkUrl", label: "CTA 連結", type: "text", help: "例如 /products/sample-item、/services/sample-service 或外部連結。" },
+      { key: "seoTitle", label: "SEO 標題", type: "text", help: "未填時可沿用名稱。" },
+      { key: "slug", label: "友善網址", type: "text", help: "例如 product-title、service-title 或 plan-title。" }
     ]
   },
   resources: {
@@ -3047,7 +3557,14 @@ function createDataItem(kind, config) {
     updated: date,
     summary: "",
     body: "",
-    linkUrl: ""
+    linkUrl: "",
+    imageAlt: "",
+    mainFileName: "",
+    spec: "",
+    benefit: "",
+    ctaText: "",
+    seoTitle: "",
+    slug: ""
   };
 }
 
@@ -3076,7 +3593,11 @@ function renderDataEditor(kind, item) {
         </div>
         <div class="field">
           <label>${esc(config.columns[1])}</label>
-          <input type="text" value="${esc(item.type)}" data-data-field="type" data-data-kind="${kind}" data-data-id="${item.id}">
+          ${kind === "products"
+            ? `<select data-data-field="type" data-data-kind="${kind}" data-data-id="${item.id}">
+                ${getCmsTypeOptions("products", state.dataCollections.products).map((option) => `<option value="${esc(option)}" ${item.type === option ? "selected" : ""}>${esc(option)}</option>`).join("")}
+              </select>`
+            : `<input type="text" value="${esc(item.type)}" data-data-field="type" data-data-kind="${kind}" data-data-id="${item.id}">`}
         </div>
         <div class="field">
           <label>${esc(config.columns[2])}</label>
@@ -3096,7 +3617,13 @@ function renderDataEditor(kind, item) {
           <div class="field ${field.type === "textarea" ? "full" : ""}">
             <label>${esc(field.label)}</label>
             <div class="field-help">${esc(field.help)}</div>
-            ${field.type === "textarea"
+            ${field.type === "file"
+              ? `<div class="file-upload-row">
+                  <label class="btn" for="${field.key}-${item.id}">選擇檔案</label>
+                  <span class="hint">${esc(item[field.key] || "尚未選擇檔案")}</span>
+                  <input class="visually-hidden" id="${field.key}-${item.id}" type="file" accept="${esc(field.accept || "*")}" data-file-field="${field.key}" data-data-kind="${kind}" data-data-id="${item.id}">
+                </div>`
+              : field.type === "textarea"
               ? `<textarea data-data-field="${field.key}" data-data-kind="${kind}" data-data-id="${item.id}">${esc(item[field.key] || "")}</textarea>`
               : `<input type="text" value="${esc(item[field.key] || "")}" data-data-field="${field.key}" data-data-kind="${kind}" data-data-id="${item.id}">`}
           </div>
@@ -3172,19 +3699,40 @@ function renderBlueprintArticleEditor(item) {
           <button class="btn" type="button" data-back-data-list>返回列表</button>
         </div>
       </div>
-      <div class="field-grid">
+      <div class="field-grid article-editor-grid">
+        <div class="field article-title-field">
+          <label>${titleLabel}</label>
+          <input type="text" value="${esc(item.title)}" data-data-field="title" data-data-kind="articles" data-data-id="${item.id}">
+        </div>
+        ${isFaq ? `
+          <div class="field article-type-field">
+            <label>FAQ 類型</label>
+            <select data-data-field="category" data-data-kind="articles" data-data-id="${item.id}">
+              ${getCmsCategoryOptions("faq", state.dataCollections.articles.filter((entry) => entry.type === "FAQ")).map((option) => `<option value="${esc(option)}" ${item.category === option ? "selected" : ""}>${esc(option)}</option>`).join("")}
+            </select>
+            <div class="field-help">決定這題 FAQ 顯示在哪一個分類。</div>
+          </div>
+        ` : `
+          <div class="field article-type-field">
+            <label>文章類型</label>
+            <select data-data-field="type" data-data-kind="articles" data-data-id="${item.id}">
+              ${cmsTypeOptions.articles.map((option) => `<option value="${esc(option)}" ${type === option ? "selected" : ""}>${esc(option)}</option>`).join("")}
+            </select>
+            <div class="field-help">決定這篇文章使用一般、活動或案例欄位。</div>
+          </div>
+        `}
         <div class="field full publish-control-field">
           <div class="publish-control-row ${isFaq ? "no-pin" : ""}">
-            <div class="date-time-field">
-              <label>${dateLabel}</label>
-              <input type="datetime-local" value="${esc(toDateTimeValue(item.updated))}" data-data-field="updated" data-data-kind="articles" data-data-id="${item.id}">
-              <div class="field-help">可直接輸入日期時間，也可用日曆選擇。</div>
-            </div>
             <div class="status-select-field">
               <label>狀態</label>
               <select data-data-field="status" data-data-kind="articles" data-data-id="${item.id}">
                 ${["草稿", "已發布", "隱藏"].map((status) => `<option value="${status}" ${statusValue === status ? "selected" : ""}>${status}</option>`).join("")}
               </select>
+            </div>
+            <div class="date-time-field">
+              <label>${dateLabel}</label>
+              <input type="datetime-local" value="${esc(toDateTimeValue(item.updated))}" data-data-field="updated" data-data-kind="articles" data-data-id="${item.id}">
+              <div class="field-help">可直接輸入日期時間，也可用日曆選擇。</div>
             </div>
             ${isFaq ? "" : `
               <label class="switch-control pin-switch-control ${canPin ? "" : "is-disabled"}">
@@ -3195,27 +3743,18 @@ function renderBlueprintArticleEditor(item) {
             `}
           </div>
         </div>
-        <div class="field full">
-          <label>${titleLabel}</label>
-          <input type="text" value="${esc(item.title)}" data-data-field="title" data-data-kind="articles" data-data-id="${item.id}">
-        </div>
         ${isFaq ? "" : `
-          <div class="field">
-            <label>SEO 標題</label>
-            <input type="text" value="${esc(item.seoTitle || "")}" placeholder="未填時可沿用標題" data-data-field="seoTitle" data-data-kind="articles" data-data-id="${item.id}">
-          </div>
-          <div class="field">
-            <label>友善網址</label>
-            <input type="text" value="${esc(item.slug || "")}" placeholder="例如 news-title 或 article-title" data-data-field="slug" data-data-kind="articles" data-data-id="${item.id}">
-          </div>
           <div class="field full">
             <label>摘要</label>
             <input type="text" value="${esc(item.summary || "")}" data-data-field="summary" data-data-kind="articles" data-data-id="${item.id}">
           </div>
+        `}
+        ${extraFields[type] || ""}
+        ${isFaq ? "" : `
           <div class="field">
             <label>封面圖描述</label>
+            <input type="text" value="${esc(item.imageAlt || "")}" placeholder="填寫封面圖內容描述" data-data-field="imageAlt" data-data-kind="articles" data-data-id="${item.id}">
             <div class="field-help">用在列表卡片、分享圖片或文章封面。</div>
-            <input type="text" value="${esc(item.imageAlt || "")}" placeholder="先填封面圖內容，正式版可接媒體庫" data-data-field="imageAlt" data-data-kind="articles" data-data-id="${item.id}">
           </div>
           <div class="field">
             <label>上傳封面圖</label>
@@ -3224,11 +3763,12 @@ function renderBlueprintArticleEditor(item) {
               <span class="hint">${esc(item.coverFileName || "尚未選擇檔案")}</span>
               <input class="visually-hidden" id="coverFile-${item.id}" type="file" accept="image/*" data-file-field="coverFileName" data-data-kind="articles" data-data-id="${item.id}">
             </div>
+            <div class="field-help">&nbsp;</div>
           </div>
           <div class="field">
             <label>文章首圖描述</label>
+            <input type="text" value="${esc(item.heroImageAlt || "")}" placeholder="填寫文章首圖內容描述" data-data-field="heroImageAlt" data-data-kind="articles" data-data-id="${item.id}">
             <div class="field-help">用在文章詳細頁內文最上方的主圖。</div>
-            <input type="text" value="${esc(item.heroImageAlt || "")}" placeholder="先填文章首圖內容，正式版可接媒體庫" data-data-field="heroImageAlt" data-data-kind="articles" data-data-id="${item.id}">
           </div>
           <div class="field">
             <label>上傳文章首圖</label>
@@ -3237,12 +3777,36 @@ function renderBlueprintArticleEditor(item) {
               <span class="hint">${esc(item.heroFileName || "尚未選擇檔案")}</span>
               <input class="visually-hidden" id="heroFile-${item.id}" type="file" accept="image/*" data-file-field="heroFileName" data-data-kind="articles" data-data-id="${item.id}">
             </div>
+            <div class="field-help">&nbsp;</div>
+          </div>
+          <div class="field">
+            <label>SEO 標題</label>
+            <input type="text" value="${esc(item.seoTitle || "")}" placeholder="未填時可沿用標題" data-data-field="seoTitle" data-data-kind="articles" data-data-id="${item.id}">
+          </div>
+          <div class="field">
+            <label>友善網址</label>
+            <input type="text" value="${esc(item.slug || "")}" placeholder="例如 news-title 或 article-title" data-data-field="slug" data-data-kind="articles" data-data-id="${item.id}">
           </div>
         `}
-        ${extraFields[type] || ""}
-        <div class="field full">
+        <div class="field full rich-editor-field">
           <label>${bodyLabel}</label>
-          <textarea data-data-field="body" data-data-kind="articles" data-data-id="${item.id}">${esc(item.body || "")}</textarea>
+          <div class="rich-editor" data-rich-editor="${item.id}">
+            <div class="rich-toolbar" aria-label="內文編輯工具列">
+              <button class="btn compact" type="button" data-rich-command="bold" title="粗體"><strong>B</strong></button>
+              <button class="btn compact" type="button" data-rich-command="foreColor" data-rich-value="#0e6a8c" title="品牌色文字">品牌色</button>
+              <label class="rich-color" title="文字顏色">
+                <span>A</span>
+                <input type="color" value="#0e6a8c" data-rich-color>
+              </label>
+              <button class="btn compact" type="button" data-rich-insert="link" title="插入連結">連結</button>
+              <button class="btn compact" type="button" data-rich-upload-trigger="image" title="上傳圖片">圖片</button>
+              <button class="btn compact" type="button" data-rich-upload-trigger="video" title="上傳影片">影片</button>
+              <input class="visually-hidden" type="file" accept="image/*" data-rich-upload="image">
+              <input class="visually-hidden" type="file" accept="video/*" data-rich-upload="video">
+            </div>
+            <div class="rich-body" contenteditable="true" data-placeholder="輸入文章內容，可上傳圖片、影片或插入連結。" data-rich-body data-data-kind="articles" data-data-id="${item.id}" data-data-field="bodyHtml">${richTextInitialHtml(item)}</div>
+          </div>
+          <div class="field-help">可編輯文字粗體、顏色，並直接上傳圖片、影片；連結可貼網址。</div>
         </div>
       </div>
     </div>
@@ -3257,13 +3821,17 @@ function getCmsCategoryOptions(kind, items) {
   return [...new Set([...(cmsTypeOptions[kind] || []), ...items.map((item) => item.category).filter(Boolean)])];
 }
 
-function filterDataItems(kind, items) {
+function getCmsTypeOptions(kind, items) {
+  return [...new Set([...(cmsTypeOptions[kind] || []), ...items.map((item) => item.type).filter(Boolean)])];
+}
+
+function filterDataItems(kind, items, categoryField = kind === "articles" ? "type" : "category") {
   const filters = state.dataFilters[kind] || { search: "", category: "", status: "" };
   const query = filters.search.trim().toLowerCase();
   return items.filter((item) => {
     const matchesSearch = !query || [item.title, item.type, item.category, item.status, item.updated]
       .some((value) => String(value || "").toLowerCase().includes(query));
-    const matchesCategory = !filters.category || item.category === filters.category;
+    const matchesCategory = !filters.category || item[categoryField] === filters.category;
     const matchesStatus = !filters.status || item.status === filters.status;
     return matchesSearch && matchesCategory && matchesStatus;
   });
@@ -3271,6 +3839,7 @@ function filterDataItems(kind, items) {
 
 const cmsTypeOptions = {
   articles: ["最新消息", "知識文章", "活動公告", "案例"],
+  faq: ["一般問題", "服務問題", "付款問題"],
   cases: ["案例"],
   products: ["商品", "服務", "方案", "加值項目"],
   resources: ["據點", "檔案下載", "外部連結", "常用資源"]
@@ -3287,7 +3856,7 @@ function renderCmsDataManager(kind) {
 
   const filters = state.dataFilters[kind] || { search: "", category: "", status: "" };
   const visibleItems = filterDataItems(kind, items);
-  const categoryOptions = getCmsCategoryOptions(kind, items);
+  const categoryOptions = kind === "articles" ? cmsTypeOptions.articles : getCmsCategoryOptions(kind, items);
   const statusOptions = getDataFilterOptions(items, "status");
   const typeOptions = cmsTypeOptions[kind] || ["一般資料"];
 
@@ -3345,6 +3914,95 @@ function renderCmsDataManager(kind) {
   `;
 }
 
+function renderArticleQuickAddModal(fixedType = "") {
+  const quickAdd = state.activeArticleQuickAdd;
+  if (!quickAdd) return "";
+  const isCategory = quickAdd.type === "category";
+  const isFaq = quickAdd.type === "faq";
+  if (!isCategory && !isFaq) return "";
+  const isFaqCategory = isCategory && fixedType === "FAQ";
+  const titleId = isFaq ? "faqQuickAddTitle" : "articleQuickAddTitle";
+  const categoryLabel = isFaqCategory ? "FAQ 類型名稱" : "文章類型名稱";
+  const categoryPlaceholder = isFaqCategory ? "例如：服務問題、付款問題" : "例如：品牌觀點、活動消息";
+  return `
+    <div class="modal-backdrop" role="presentation" data-close-article-quick-add>
+      <section class="quick-modal" role="dialog" aria-modal="true" aria-labelledby="${titleId}" data-modal-panel>
+        <div class="quick-modal-head">
+          <div>
+            <h3 id="${titleId}">${isFaq ? "新增 FAQ" : isFaqCategory ? "新增 FAQ 類型" : "新增文章類型"}</h3>
+            <p>${isFaq ? "快速輸入問題與答案，新增後會直接出現在 FAQ 總表。" : isFaqCategory ? "新增後會同步到 FAQ 類型、篩選器與新增 FAQ 選單。" : "新增後會同步到文章類型、篩選器與文章編輯選單。"}</p>
+          </div>
+        </div>
+        <div class="quick-modal-body">
+          ${isFaq ? `
+            <div class="field">
+              <label>問題</label>
+              <input type="text" value="${esc(state.articleQuickDraft.title || "")}" placeholder="請輸入常見問題" data-article-quick-field="title">
+            </div>
+            <div class="field">
+              <label>FAQ 類型</label>
+              <select data-article-quick-field="category">
+                ${getCmsCategoryOptions("faq", state.dataCollections.articles.filter((item) => item.type === "FAQ")).map((category) => `<option value="${esc(category)}" ${state.articleQuickDraft.category === category ? "selected" : ""}>${esc(category)}</option>`).join("")}
+              </select>
+            </div>
+            <div class="field">
+              <label>答案</label>
+              <textarea placeholder="請輸入回答內容" data-article-quick-field="body">${esc(state.articleQuickDraft.body || "")}</textarea>
+            </div>
+            <div class="field-grid modal-field-grid">
+              <div class="field">
+                <label>排序</label>
+                <input type="text" value="${esc(state.articleQuickDraft.sort || "")}" placeholder="例如 1" data-article-quick-field="sort">
+              </div>
+              <div class="field">
+                <label>狀態</label>
+                <select data-article-quick-field="status">
+                  ${["已發布", "草稿"].map((status) => `<option value="${status}" ${state.articleQuickDraft.status === status ? "selected" : ""}>${status}</option>`).join("")}
+                </select>
+              </div>
+            </div>
+          ` : `
+            <div class="field">
+              <label>${categoryLabel}</label>
+              <input type="text" value="${esc(state.articleCategoryDraft)}" placeholder="${categoryPlaceholder}" data-article-category-draft>
+            </div>
+          `}
+        </div>
+        <div class="quick-modal-actions">
+          <button class="btn" type="button" data-close-article-quick-add>取消</button>
+          <button class="btn primary" type="button" data-confirm-article-quick-add>${isFaq ? "新增 FAQ" : isFaqCategory ? "新增 FAQ 類型" : "新增文章類型"}</button>
+        </div>
+      </section>
+    </div>
+  `;
+}
+
+function renderProductTypeAddModal() {
+  if (state.activeArticleQuickAdd?.type !== "productType") return "";
+  return `
+    <div class="modal-backdrop" role="presentation" data-close-product-type-add>
+      <section class="quick-modal" role="dialog" aria-modal="true" aria-labelledby="productTypeAddTitle" data-modal-panel>
+        <div class="quick-modal-head">
+          <div>
+            <h3 id="productTypeAddTitle">新增類型</h3>
+            <p>新增後會同步到類型篩選器與商品 / 服務編輯選單。</p>
+          </div>
+        </div>
+        <div class="quick-modal-body">
+          <div class="field">
+            <label>類型名稱</label>
+            <input type="text" value="${esc(state.articleCategoryDraft)}" placeholder="例如：顧問服務、訂閱方案" data-product-type-draft>
+          </div>
+        </div>
+        <div class="quick-modal-actions">
+          <button class="btn" type="button" data-close-product-type-add>取消</button>
+          <button class="btn primary" type="button" data-confirm-product-type-add>新增類型</button>
+        </div>
+      </section>
+    </div>
+  `;
+}
+
 function renderBlueprintCollection(kind, fixedType = "") {
   const config = dataManagerConfig[kind];
   const items = state.dataCollections[kind] || [];
@@ -3355,36 +4013,34 @@ function renderBlueprintCollection(kind, fixedType = "") {
   if (editing) return renderDataEditor(kind, editing);
 
   const filters = state.dataFilters[kind] || { search: "", category: "", status: "" };
-  const articleType = state.activeArticleType || cmsTypeOptions.articles[0];
-  const activeTabbedType = fixedType || (kind === "articles" ? articleType : "");
-  const hasTypeTabs = kind === "articles" && !fixedType;
   const hasFixedType = Boolean(fixedType);
-  const sourceItems = kind === "articles" ? items.filter((item) => item.type === activeTabbedType) : items;
-  const visibleItems = filterDataItems(kind, sourceItems);
-  const categoryOptions = getCmsCategoryOptions(kind, items);
+  const sourceItems = kind === "articles"
+    ? items.filter((item) => fixedType ? item.type === fixedType : true)
+    : items;
+  const isFaqPage = kind === "articles" && fixedType === "FAQ";
+  const isProductPage = kind === "products";
+  const visibleItems = filterDataItems(kind, sourceItems, isFaqPage ? "category" : isProductPage ? "type" : undefined);
+  const categoryOptions = isFaqPage ? getCmsCategoryOptions("faq", sourceItems) : isProductPage ? getCmsTypeOptions("products", items) : getCmsCategoryOptions(kind, items);
   const statusOptions = getDataFilterOptions(items, "status");
   const typeOptions = cmsTypeOptions[kind] || ["一般資料"];
-  const createLabel = kind === "articles" ? `新增${activeTabbedType}` : "新增資料";
-  const isFaqTab = kind === "articles" && activeTabbedType === "FAQ";
   const title = fixedType ? fixedType : kind === "articles" ? "文章" : config.title.replace("管理", "");
+  const categoryLabel = isFaqPage ? "FAQ 類型" : kind === "articles" ? "文章類型" : isProductPage ? "類型" : "分類";
+  const categoryAllLabel = isFaqPage ? "全部 FAQ 類型" : kind === "articles" ? "全部文章類型" : isProductPage ? "全部類型" : "全部分類";
 
   return `
     <section class="cms-workbench">
-      ${hasTypeTabs ? `
-        <div class="tabs" role="tablist" aria-label="內容資料分類">
-          ${typeOptions.map((type) => `<button class="tab ${activeTabbedType === type ? "is-active" : ""}" type="button" data-article-type-tab="${esc(type)}">${esc(type)}</button>`).join("")}
-        </div>
-      ` : ""}
+      ${kind === "articles" ? renderArticleQuickAddModal(fixedType) : ""}
+      ${kind === "products" ? renderProductTypeAddModal() : ""}
       <div class="list-controls">
         <div class="list-control-fields">
           <div class="field">
             <label>搜尋</label>
-            <input type="search" value="${esc(filters.search)}" placeholder="搜尋名稱、分類、狀態或備註" data-data-filter="search" data-data-filter-kind="${kind}">
+            <input type="search" value="${esc(filters.search)}" placeholder="${isProductPage ? "搜尋名稱、類型、分類、狀態或備註" : "搜尋文章名稱、分類、狀態或備註"}" data-data-filter="search" data-data-filter-kind="${kind}">
           </div>
-          <div class="field ${kind === "articles" ? "hidden" : ""}">
-            <label>分類</label>
+          <div class="field">
+            <label>${categoryLabel}</label>
             <select data-data-filter="category" data-data-filter-kind="${kind}">
-              <option value="">全部分類</option>
+              <option value="">${categoryAllLabel}</option>
               ${categoryOptions.map((category) => `<option value="${esc(category)}" ${filters.category === category ? "selected" : ""}>${esc(category)}</option>`).join("")}
             </select>
           </div>
@@ -3400,7 +4056,7 @@ function renderBlueprintCollection(kind, fixedType = "") {
         <div class="list-control-actions">
           ${kind === "articles"
             ? `
-              ${isFaqTab ? `
+              ${isFaqPage ? `
                 <details class="action-menu">
                   <summary class="btn">批次操作</summary>
                   <div class="action-menu-list">
@@ -3410,37 +4066,75 @@ function renderBlueprintCollection(kind, fixedType = "") {
                 </details>
                 <input class="visually-hidden" id="faqBatchUpload" type="file" accept=".csv,.xlsx,.xls" data-faq-batch-upload>
               ` : ""}
-              <button class="btn primary" type="button" data-quick-add-data="${kind}" data-quick-add-type="${esc(activeTabbedType)}">${esc(createLabel)}</button>
+              ${isFaqPage
+                ? `
+                  <details class="action-menu create-menu">
+                    <summary class="btn primary">新增</summary>
+                    <div class="action-menu-list">
+                      <button class="action-menu-item" type="button" data-open-article-quick-add="faq">新增 FAQ</button>
+                      <button class="action-menu-item" type="button" data-open-article-quick-add="category">新增 FAQ 類型</button>
+                    </div>
+                  </details>
+                `
+                : `
+                  <details class="action-menu create-menu">
+                    <summary class="btn primary">新增</summary>
+                    <div class="action-menu-list">
+                      <button class="action-menu-item" type="button" data-open-article-quick-add="article">新增文章</button>
+                      ${fixedType ? "" : `<button class="action-menu-item" type="button" data-open-article-quick-add="category">新增文章類型</button>`}
+                    </div>
+                  </details>
+                `}
             `
-            : typeOptions.map((type) => `<button class="btn" type="button" data-quick-add-data="${kind}" data-quick-add-type="${esc(type)}">新增${esc(type)}</button>`).join("")}
+            : isProductPage
+              ? `
+                <details class="action-menu create-menu">
+                  <summary class="btn primary">新增</summary>
+                  <div class="action-menu-list">
+                    <button class="action-menu-item" type="button" data-quick-add-data="${kind}" data-quick-add-type="${esc(filters.category || typeOptions[0])}">新增商品 / 服務資料</button>
+                    <button class="action-menu-item" type="button" data-open-product-type-add>新增類型</button>
+                  </div>
+                </details>
+              `
+              : typeOptions.map((type) => `<button class="btn" type="button" data-quick-add-data="${kind}" data-quick-add-type="${esc(type)}">新增${esc(type)}</button>`).join("")}
         </div>
       </div>
 
       <div class="admin-table-wrap">
-        <table class="admin-table">
+        <div class="table-toolbar">
+          <div>
+            <h3>${esc(title)}總表</h3>
+            <p>共 ${visibleItems.length} 筆符合條件的資料，可檢視、編輯或刪除單筆項目。</p>
+          </div>
+        </div>
+        <table class="admin-table responsive-table">
           <thead>
-            <tr>${kind === "articles" || hasFixedType ? "<th>內容類型</th><th>名稱</th>" : "<th>名稱</th><th>分類</th>"}<th>狀態</th><th>更新 / 備註</th><th>操作</th></tr>
+            <tr>${kind === "articles" || hasFixedType ? `<th>${isFaqPage ? "FAQ 類型" : "文章類型"}</th><th>名稱</th>` : isProductPage ? "<th>類型</th><th>名稱</th><th>分類</th>" : "<th>名稱</th><th>分類</th>"}<th>狀態</th><th>更新 / 備註</th><th>操作</th></tr>
           </thead>
           <tbody>
             ${visibleItems.length ? visibleItems.map((item) => `
               <tr>
                 ${kind === "articles" || hasFixedType ? `
-                  <td><span class="status-pill">${esc(item.type)}</span></td>
-                  <td><strong>${esc(item.title)}</strong></td>
+                  <td data-label="${isFaqPage ? "FAQ 類型" : "文章類型"}"><span class="status-pill">${esc(isFaqPage ? item.category : item.type)}</span></td>
+                  <td data-label="名稱"><strong>${esc(item.title)}</strong></td>
+                ` : isProductPage ? `
+                  <td data-label="類型"><span class="status-pill">${esc(item.type)}</span></td>
+                  <td data-label="名稱"><strong>${esc(item.title)}</strong></td>
+                  <td data-label="分類">${esc(item.category)}</td>
                 ` : `
-                  <td><strong>${esc(item.title)}</strong><p class="hint">${esc(item.type)}</p></td>
-                  <td>${esc(item.category)}</td>
+                  <td data-label="名稱"><strong>${esc(item.title)}</strong><p class="hint">${esc(item.type)}</p></td>
+                  <td data-label="分類">${esc(item.category)}</td>
                 `}
-                <td><span class="status-pill">${esc(item.status)}</span></td>
-                <td>${esc(item.updated)}</td>
-                <td>
+                <td data-label="狀態"><span class="status-pill">${esc(item.status)}</span></td>
+                <td data-label="更新 / 備註">${esc(item.updated)}</td>
+                <td data-label="操作">
                   <div class="actions">
                     <button class="btn" type="button" data-edit-data="${kind}:${item.id}">編輯</button>
                     <button class="btn danger" type="button" data-delete-data="${kind}:${item.id}">刪除</button>
                   </div>
                 </td>
               </tr>
-            `).join("") : `<tr><td colspan="5"><p class="hint">沒有符合條件的資料。</p></td></tr>`}
+            `).join("") : `<tr><td colspan="${isProductPage ? 6 : 5}"><p class="hint">沒有符合條件的資料。</p></td></tr>`}
           </tbody>
         </table>
       </div>
@@ -3467,7 +4161,7 @@ const blueprintPagePlans = [
     name: "文章列表頁",
     source: "內容資料",
     use: "最新消息、知識中心、活動公告與案例文章。",
-    content: ["頁首標題", "頁首簡介", "內容類型篩選", "文章卡片", "文章連結"],
+    content: ["頁首標題", "頁首簡介", "文章類型篩選", "文章卡片", "文章連結"],
     data: "外部欄位只放會被系統拿來顯示、搜尋、排序、SEO、產生卡片的資訊；其餘內容都交給內文編輯器。"
   },
   {
@@ -3497,7 +4191,7 @@ const blueprintDataPlans = [
   {
     name: "內容資料",
     types: ["最新消息", "知識文章", "活動公告", "案例"],
-    fields: ["標題", "SEO 標題", "友善網址", "摘要", "封面圖片", "發布日期", "狀態", "置頂", "內文編輯器"],
+    fields: ["標題", "文章類型", "狀態", "發布日期", "摘要", "封面圖片", "SEO 標題", "友善網址", "內文編輯器"],
     usedBy: "文章列表頁、FAQ 頁、首頁最新消息模塊"
   },
   {
@@ -3777,7 +4471,7 @@ function renderPageManager() {
   const isAddingPageFlow = state.isChoosingPageTemplate || state.isChoosingPageSource;
   const templateChooser = `
     <section class="settings-card template-panel">
-      <div class="manager-head compact">
+      <div class="flow-step-head">
         <div>
           <h2>1. 選擇頁面類型</h2>
           <p>先決定頁面用途；案例、活動與知識內容都由「文章管理」統一提供。</p>
@@ -3804,7 +4498,7 @@ function renderPageManager() {
   const pendingTemplate = getPageTemplate(state.pendingPageTemplate);
   const sourceChooser = `
     <section class="settings-card template-panel source-step ${state.pendingPageTemplate ? "is-ready" : "is-disabled"}">
-      <div class="manager-head compact">
+      <div class="flow-step-head">
         <div>
           <h2>2. 選擇內容來源</h2>
           <p>${state.pendingPageTemplate ? `已選「${esc(pendingTemplate.name)}」；決定要手動撰寫，或從文章／FAQ 管理帶入內容。` : "請先完成第 1 步，這裡會顯示適合的內容來源。"}</p>
@@ -3976,7 +4670,6 @@ function renderPageManager() {
 
   return `
     ${managerHeader("前台頁面管理", "基於目前整站官網模板，管理首頁以外的頁面內容、選單階層、導覽顯示與 Footer 摘要。", [])}
-    ${renderCurrentSiteTemplateNotice("前台頁面")}
     ${state.pageMode === "edit" ? `
       <div class="page-actions">
         <span class="hint">正在編輯單一頁面；完成後可返回列表調整排序或階層。</span>
@@ -4026,7 +4719,7 @@ function renderPageDataSettings(page) {
         </div>
         <div class="field">
           <label>篩選 / 排序 / 筆數</label>
-          <div class="field-help">最新資訊範例：內容類型=最新消息；狀態=已發布；排序=發布日期新到舊；筆數=6。</div>
+          <div class="field-help">最新資訊範例：文章類型=最新消息；狀態=已發布；排序=發布日期新到舊；筆數=6。</div>
           <input type="text" value="${esc(page.dataFilter || "")}" data-page-field="dataFilter">
         </div>
         <div class="field">
@@ -4210,7 +4903,7 @@ function updatePageField(page, input) {
     const template = getPageTemplate(page.template);
     page.dataFormat = page.dataFormat || "collection";
     page.dataSource = page.dataSource || (page.template === "faq" ? "FAQ 管理" : "文章管理");
-    page.dataFilter = page.dataFilter || "內容類型=最新消息；狀態=已發布；排序=發布日期新到舊；筆數=6";
+    page.dataFilter = page.dataFilter || "文章類型=最新消息；狀態=已發布；排序=發布日期新到舊；筆數=6";
     page.dataMapping = page.dataMapping || template.fields.map((field, index) => `field${index} = ${field}`).join("\n");
   }
   render();
@@ -4300,6 +4993,85 @@ function updateNavGroups() {
   });
 }
 
+function renderPasswordResetModal() {
+  const user = state.adminUsers.find((item) => item.id === state.activePasswordResetUserId);
+  if (!user) return "";
+  return `
+    <div class="modal-backdrop" role="presentation" data-close-password-reset>
+      <section class="quick-modal" role="dialog" aria-modal="true" aria-labelledby="passwordResetTitle" data-modal-panel>
+        <div class="quick-modal-head">
+          <div>
+            <h3 id="passwordResetTitle">重置密碼</h3>
+            <p>最高管理者可替其他後台使用者設定新密碼。</p>
+          </div>
+        </div>
+        <div class="quick-modal-body">
+          <div class="reset-user-summary">
+            <strong>${esc(user.name)}</strong>
+            <span>${esc(user.email)}｜${esc(user.role)}</span>
+          </div>
+          <div class="field">
+            <label>新密碼</label>
+            <input type="password" value="${esc(state.passwordResetDraft.password)}" placeholder="請輸入新密碼" data-password-reset-field="password">
+          </div>
+          <div class="field">
+            <label>確認新密碼</label>
+            <input type="password" value="${esc(state.passwordResetDraft.confirm)}" placeholder="再次輸入新密碼" data-password-reset-field="confirm">
+          </div>
+          <p class="hint">Demo 僅記錄重置狀態；正式版應寄送通知並要求使用者下次登入更換密碼。</p>
+        </div>
+        <div class="quick-modal-actions">
+          <button class="btn" type="button" data-close-password-reset>取消</button>
+          <button class="btn primary" type="button" data-confirm-password-reset>確認重置</button>
+        </div>
+      </section>
+    </div>
+  `;
+}
+
+function renderSuperAdminTransferModal() {
+  const current = state.adminUsers.find((item) => item.id === state.activeSuperAdminTransferUserId);
+  if (!current) return "";
+  const candidates = state.adminUsers.filter((user) => user.id !== current.id && user.role === "管理員" && user.status === "啟用");
+  const selectedTarget = state.superAdminTransferTargetId || candidates[0]?.id || "";
+  return `
+    <div class="modal-backdrop" role="presentation" data-close-super-admin-transfer>
+      <section class="quick-modal" role="dialog" aria-modal="true" aria-labelledby="superAdminTransferTitle" data-modal-panel>
+        <div class="quick-modal-head">
+          <div>
+            <h3 id="superAdminTransferTitle">轉移最高權限</h3>
+            <p>最高管理者不能直接刪除；請先把最高權限轉移給另一位管理員。</p>
+          </div>
+        </div>
+        <div class="quick-modal-body">
+          <div class="reset-user-summary">
+            <strong>目前最高管理者：${esc(current.name)}</strong>
+            <span>${esc(current.email)}</span>
+          </div>
+          ${candidates.length ? `
+            <div class="field">
+              <label>新的最高管理者</label>
+              <select data-super-admin-transfer-target>
+                ${candidates.map((user) => `<option value="${user.id}" ${selectedTarget === user.id ? "selected" : ""}>${esc(user.name)}｜${esc(user.email)}</option>`).join("")}
+              </select>
+            </div>
+            <p class="hint">轉移後，${esc(current.name)} 會變為一般管理員，之後就可以刪除。</p>
+          ` : `
+            <div class="empty-state compact">
+              <strong>目前沒有可接手的管理員</strong>
+              <p>請先新增或編輯一位啟用中的管理員，再回來轉移最高權限。</p>
+            </div>
+          `}
+        </div>
+        <div class="quick-modal-actions">
+          <button class="btn" type="button" data-close-super-admin-transfer>取消</button>
+          <button class="btn primary" type="button" data-confirm-super-admin-transfer ${candidates.length ? "" : "disabled"}>確認轉移</button>
+        </div>
+      </section>
+    </div>
+  `;
+}
+
 function renderAdminUsers() {
   const editor = state.activeAdminUserEditor;
   if (editor) {
@@ -4334,7 +5106,7 @@ function renderAdminUsers() {
           <div class="field">
             <label>角色</label>
             <select data-admin-user-field="${user.id}:role">
-              ${["管理員", "編輯者", "檢視者"].map((role) => `<option value="${role}" ${user.role === role ? "selected" : ""}>${role}</option>`).join("")}
+              ${adminRoleOptions.map((role) => `<option value="${role}" ${user.role === role ? "selected" : ""}>${role}</option>`).join("")}
             </select>
           </div>
           <div class="field">
@@ -4363,6 +5135,8 @@ function renderAdminUsers() {
   return `
     ${managerHeader("後台帳號管理", "管理後台登入帳號、角色與啟用狀態，確保每位協作者只看到需要的功能。", [])}
     <section class="cms-workbench">
+      ${renderPasswordResetModal()}
+      ${renderSuperAdminTransferModal()}
       <div class="list-controls">
         <div class="list-control-fields">
           <div class="field">
@@ -4373,7 +5147,7 @@ function renderAdminUsers() {
             <label>角色</label>
             <select data-admin-user-filter="role">
               <option value="">全部角色</option>
-              ${["管理員", "編輯者", "檢視者"].map((role) => `<option value="${role}" ${filters.role === role ? "selected" : ""}>${role}</option>`).join("")}
+              ${adminRoleOptions.map((role) => `<option value="${role}" ${filters.role === role ? "selected" : ""}>${role}</option>`).join("")}
             </select>
           </div>
           <div class="field">
@@ -4399,7 +5173,15 @@ function renderAdminUsers() {
               <td><span class="status-pill">${esc(user.status)}</span></td>
               <td>${esc(user.lastLogin)}</td>
               <td>${esc(user.note || "未填寫")}</td>
-              <td><div class="actions"><button class="btn" type="button" data-edit-admin-user="${user.id}">編輯</button><button class="btn danger" type="button" data-delete-admin-user="${user.id}">刪除</button></div></td>
+              <td>
+                <div class="actions">
+                  <button class="btn" type="button" data-edit-admin-user="${user.id}">編輯</button>
+                  ${user.role === "最高管理者" ? "" : `<button class="btn" type="button" data-reset-password="${user.id}">重置密碼</button>`}
+                  ${user.role === "最高管理者"
+                    ? `<button class="btn" type="button" data-transfer-super-admin="${user.id}">轉移最高權限</button>`
+                    : `<button class="btn danger" type="button" data-delete-admin-user="${user.id}">刪除</button>`}
+                </div>
+              </td>
             </tr>
           `).join("") : `<tr><td colspan="6"><p class="hint">沒有符合條件的使用者。</p></td></tr>`}
         </tbody>
@@ -4418,7 +5200,8 @@ function renderManagerPanel() {
   document.querySelector(".module-sidebar").classList.toggle("hidden", !isHome);
   document.querySelector(".settings-panel").classList.toggle("hidden", !isHome);
   els.managerPanel.classList.toggle("hidden", isHome);
-  els.saveBtn.classList.toggle("hidden", !isHome);
+  els.saveBtn.classList.add("hidden");
+  els.backHomeOverviewBtn.classList.add("hidden");
   if (isHome) return;
 
   const managerPages = {
@@ -4430,30 +5213,14 @@ function renderManagerPanel() {
     blueprintResources: renderBlueprintCollection("resources"),
     contactRecords: renderOpsManager("contactRecords"),
     supportMessages: renderOpsManager("supportMessages"),
-    media: `
-      ${managerHeader("媒體庫", "上傳圖片、Logo、檔案，供頁面、文章、案例引用。", ["上傳圖片", "新增資料夾"])}
-      <div class="admin-cards">
-        <article><strong>首頁主視覺</strong><span>12 張</span><p>Hero、產品、場景底圖。</p></article>
-        <article><strong>案例照片</strong><span>24 張</span><p>社區、水站與活動圖片。</p></article>
-        <article><strong>報告檔案</strong><span>9 份</span><p>SGS、水質報告、合作文件。</p></article>
-      </div>
-    `,
-    seo: `
-      ${managerHeader("Banner / Meta 管理", "管理首頁 Banner、各頁 Meta title、description 與社群分享圖片。", ["儲存 Meta"])}
-      ${simpleTable(["頁面", "搜尋標題", "搜尋摘要", "分享圖"], [["首頁", "已填", "已填", "已上傳"], ["找水站", "已填", "待補", "已上傳"], ["合作案例", "待補", "待補", "未上傳"]])}
-    `,
-    tracking: `
-      ${managerHeader("追蹤設定", "管理 GA4、GTM、Meta Pixel、LINE Tag、UTM 與 Consent。", ["儲存追蹤碼"])}
-      ${simpleTable(["項目", "狀態", "備註"], [["GA4", "已設定", "G-XXXXXXX"], ["GTM", "待確認", "需工程部署"], ["LINE Tag", "已設定", "轉換事件待補"]])}
-    `,
+    siteBasicInfo: renderSiteBasicInfoManager(),
+    seo: renderBannerMetaManager(),
+    tracking: renderTrackingSettingsManager(),
     brandStyle: renderBrandStyleManager(),
-    site: `
-      ${managerHeader("網站設定", "管理網站名稱、Logo、聯絡資訊、Footer、社群連結與基礎設定。", ["儲存設定"])}
-      ${simpleTable(["設定", "目前內容", "狀態"], [["網站名稱", "利每家智慧富氫水站", "已設定"], ["聯絡電話", "0968-104-098", "已設定"], ["Footer 選單", "6 個連結", "已設定"]])}
-    `,
+    site: renderSiteSettingsManager(),
     logs: `
       ${managerHeader("操作紀錄", "記錄誰修改了內容，方便追查。", ["篩選紀錄"])}
-      ${simpleTable(["時間", "使用者", "動作", "項目"], [["2026/07/17 15:50", "Joy", "更新", "首頁模塊"], ["2026/07/17 15:30", "Joy", "新增", "前台頁面"], ["2026/07/16 18:03", "Editor", "上傳", "媒體庫圖片"]])}
+      ${simpleTable(["時間", "使用者", "動作", "項目"], [["2026/07/17 15:50", "Joy", "更新", "首頁模塊"], ["2026/07/17 15:30", "Joy", "新增", "前台頁面"], ["2026/07/16 18:03", "Editor", "上傳", "文章圖片"]])}
     `
   };
 
@@ -4478,19 +5245,134 @@ function renderManagerPanel() {
         const config = dataManagerConfig[kind];
         const item = createDataItem(kind, config);
         item.type = button.dataset.quickAddType;
-        item.category = button.dataset.quickAddType;
-        item.title = `${button.dataset.quickAddType} ${state.dataCollections[kind].length + 1}`;
+        item.category = button.dataset.quickAddCategory || "未分類";
+        item.title = kind === "products"
+          ? `新增商品 / 服務資料 ${state.dataCollections[kind].length + 1}`
+          : `${item.category} ${state.dataCollections[kind].length + 1}`;
         state.dataCollections[kind].push(item);
         state.activeDataEditor = { kind, id: item.id, isDirty: true };
         render();
       });
     });
-    els.managerPanel.querySelectorAll("[data-article-type-tab]").forEach((button) => {
+    els.managerPanel.querySelector("[data-open-product-type-add]")?.addEventListener("click", () => {
+      state.activeArticleQuickAdd = { type: "productType" };
+      state.articleCategoryDraft = "";
+      render();
+    });
+    els.managerPanel.querySelectorAll("[data-close-product-type-add]").forEach((button) => {
       button.addEventListener("click", () => {
-        state.activeArticleType = button.dataset.articleTypeTab;
-        state.dataFilters.articles = { ...state.dataFilters.articles, search: "", category: "", status: "" };
+        state.activeArticleQuickAdd = null;
+        state.articleCategoryDraft = "";
         render();
       });
+    });
+    els.managerPanel.querySelector("[data-product-type-draft]")?.addEventListener("input", (event) => {
+      state.articleCategoryDraft = event.currentTarget.value;
+    });
+    els.managerPanel.querySelector("[data-confirm-product-type-add]")?.addEventListener("click", () => {
+      const type = state.articleCategoryDraft.trim();
+      if (!type || cmsTypeOptions.products.includes(type)) return;
+      cmsTypeOptions.products.push(type);
+      state.dataFilters.products = { ...state.dataFilters.products, category: type };
+      state.activeArticleQuickAdd = null;
+      state.articleCategoryDraft = "";
+      render();
+    });
+    els.managerPanel.querySelectorAll("[data-open-article-quick-add]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const type = button.dataset.openArticleQuickAdd;
+        const fixedArticleType = state.adminSection === "blueprintFaq" ? "FAQ" : "";
+        if (type === "article") {
+          const item = createDataItem("articles", dataManagerConfig.articles);
+          item.type = fixedArticleType || state.dataFilters.articles.category || cmsTypeOptions.articles[0];
+          item.category = item.type;
+          item.title = `新增文章 ${state.dataCollections.articles.length + 1}`;
+          state.dataCollections.articles.unshift(item);
+          state.activeDataEditor = { kind: "articles", id: item.id, isDirty: true };
+          render();
+          return;
+        }
+        state.activeArticleQuickAdd = { type };
+        state.articleCategoryDraft = "";
+        state.articleQuickDraft = {
+          title: "",
+          type: fixedArticleType || cmsTypeOptions.articles[0],
+          category: fixedArticleType === "FAQ"
+            ? (state.dataFilters.articles.category || cmsTypeOptions.faq[0])
+            : (state.dataFilters.articles.category || ""),
+          status: type === "faq" ? "已發布" : "草稿",
+          body: "",
+          sort: type === "faq" ? String(state.dataCollections.articles.filter((entry) => entry.type === "FAQ").length + 1) : ""
+        };
+        render();
+      });
+    });
+    els.managerPanel.querySelectorAll("[data-close-article-quick-add]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.activeArticleQuickAdd = null;
+        state.articleCategoryDraft = "";
+        render();
+      });
+    });
+    els.managerPanel.querySelector("[data-modal-panel]")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+    });
+    els.managerPanel.querySelectorAll("[data-article-quick-field]").forEach((input) => {
+      const updateQuickDraft = () => {
+        state.articleQuickDraft[input.dataset.articleQuickField] = input.value;
+      };
+      input.addEventListener("input", updateQuickDraft);
+      input.addEventListener("change", updateQuickDraft);
+    });
+    els.managerPanel.querySelector("[data-article-category-draft]")?.addEventListener("input", (event) => {
+      state.articleCategoryDraft = event.currentTarget.value;
+    });
+    els.managerPanel.querySelector("[data-confirm-article-quick-add]")?.addEventListener("click", () => {
+      const quickAdd = state.activeArticleQuickAdd;
+      if (!quickAdd) return;
+      if (quickAdd.type === "category") {
+        const category = state.articleCategoryDraft.trim();
+        const fixedArticleType = state.adminSection === "blueprintFaq" ? "FAQ" : "";
+        const optionKey = fixedArticleType === "FAQ" ? "faq" : "articles";
+        if (!category || cmsTypeOptions[optionKey].includes(category)) return;
+        cmsTypeOptions[optionKey].push(category);
+        state.dataFilters.articles = { ...state.dataFilters.articles, category };
+        state.articleCategoryDraft = "";
+        state.activeArticleQuickAdd = null;
+        render();
+        return;
+      }
+      if (quickAdd.type === "faq") {
+        const question = state.articleQuickDraft.title.trim();
+        const answer = state.articleQuickDraft.body.trim();
+        if (!question || !answer) return;
+        const item = createDataItem("articles", dataManagerConfig.articles);
+        item.type = "FAQ";
+        item.category = state.articleQuickDraft.category || cmsTypeOptions.faq[0];
+        item.title = question;
+        item.body = answer;
+        item.bodyHtml = esc(answer).replace(/\n/g, "<br>");
+        item.status = state.articleQuickDraft.status || "已發布";
+        item.sort = state.articleQuickDraft.sort || String(state.dataCollections.articles.filter((entry) => entry.type === "FAQ").length + 1);
+        item.updated = item.sort ? `排序 ${item.sort}` : item.updated;
+        state.dataCollections.articles.unshift(item);
+        state.activeArticleQuickAdd = null;
+        state.articleQuickDraft = { title: "", category: "", status: "草稿" };
+        render();
+        return;
+      }
+      const title = state.articleQuickDraft.title.trim();
+      if (!title) return;
+      const fixedArticleType = state.adminSection === "blueprintFaq" ? "FAQ" : "";
+      const item = createDataItem("articles", dataManagerConfig.articles);
+      item.type = fixedArticleType || state.articleQuickDraft.type || cmsTypeOptions.articles[0];
+      item.category = item.type;
+      item.status = state.articleQuickDraft.status || "草稿";
+      item.title = title;
+      state.dataCollections.articles.unshift(item);
+      state.activeArticleQuickAdd = null;
+      state.articleQuickDraft = { title: "", category: "", status: "草稿" };
+      render();
     });
     els.managerPanel.querySelector("[data-download-faq-template]")?.addEventListener("click", () => {
       const csv = "question,answer,category,sort,status\n範例問題,範例答案,FAQ,1,草稿";
@@ -4543,6 +5425,7 @@ function renderManagerPanel() {
       render();
     });
     els.managerPanel.querySelectorAll("[data-data-field]").forEach((input) => {
+      if (input.dataset.richBody !== undefined) return;
       input.addEventListener("input", () => {
         const item = state.dataCollections[input.dataset.dataKind].find((entry) => entry.id === input.dataset.dataId);
         if (item) {
@@ -4564,6 +5447,73 @@ function renderManagerPanel() {
         }
         if (state.activeDataEditor) state.activeDataEditor.isDirty = true;
         render();
+      });
+    });
+    els.managerPanel.querySelectorAll("[data-rich-body]").forEach((body) => {
+      body.addEventListener("input", () => {
+        const item = state.dataCollections[body.dataset.dataKind].find((entry) => entry.id === body.dataset.dataId);
+        if (item) {
+          item.bodyHtml = body.innerHTML;
+          item.body = body.innerText;
+        }
+        if (state.activeDataEditor) state.activeDataEditor.isDirty = true;
+      });
+    });
+    els.managerPanel.querySelectorAll("[data-rich-command]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const editor = button.closest("[data-rich-editor]");
+        const body = editor?.querySelector("[data-rich-body]");
+        body?.focus();
+        document.execCommand(button.dataset.richCommand, false, button.dataset.richValue || null);
+        body?.dispatchEvent(new Event("input", { bubbles: true }));
+      });
+    });
+    els.managerPanel.querySelectorAll("[data-rich-color]").forEach((input) => {
+      input.addEventListener("input", () => {
+        const editor = input.closest("[data-rich-editor]");
+        const body = editor?.querySelector("[data-rich-body]");
+        body?.focus();
+        document.execCommand("foreColor", false, input.value);
+        body?.dispatchEvent(new Event("input", { bubbles: true }));
+      });
+    });
+    els.managerPanel.querySelectorAll("[data-rich-insert]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const editor = button.closest("[data-rich-editor]");
+        const body = editor?.querySelector("[data-rich-body]");
+        const kind = button.dataset.richInsert;
+        body?.focus();
+        if (kind === "link") {
+          const url = prompt("請輸入連結網址");
+          if (!url) return;
+          document.execCommand("createLink", false, normalizeExternalUrl(url));
+        }
+        body?.dispatchEvent(new Event("input", { bubbles: true }));
+      });
+    });
+    els.managerPanel.querySelectorAll("[data-rich-upload-trigger]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const editor = button.closest("[data-rich-editor]");
+        const input = editor?.querySelector(`[data-rich-upload="${button.dataset.richUploadTrigger}"]`);
+        input?.click();
+      });
+    });
+    els.managerPanel.querySelectorAll("[data-rich-upload]").forEach((input) => {
+      input.addEventListener("change", () => {
+        const file = input.files?.[0];
+        if (!file) return;
+        const editor = input.closest("[data-rich-editor]");
+        const body = editor?.querySelector("[data-rich-body]");
+        const fileUrl = URL.createObjectURL(file);
+        body?.focus();
+        if (input.dataset.richUpload === "image") {
+          document.execCommand("insertHTML", false, `<figure><img src="${esc(fileUrl)}" alt="${esc(file.name)}"><figcaption>${esc(file.name)}</figcaption></figure>`);
+        }
+        if (input.dataset.richUpload === "video") {
+          document.execCommand("insertHTML", false, `<figure class="rich-video"><video src="${esc(fileUrl)}" controls></video><figcaption>${esc(file.name)}</figcaption></figure>`);
+        }
+        body?.dispatchEvent(new Event("input", { bubbles: true }));
+        input.value = "";
       });
     });
     els.managerPanel.querySelectorAll("[data-file-field]").forEach((input) => {
@@ -4620,10 +5570,72 @@ function renderManagerPanel() {
     });
     els.managerPanel.querySelectorAll("[data-delete-admin-user]").forEach((button) => {
       button.addEventListener("click", () => {
-        state.adminUsers = state.adminUsers.filter((user) => user.id !== button.dataset.deleteAdminUser);
+        const user = state.adminUsers.find((item) => item.id === button.dataset.deleteAdminUser);
+        if (user?.role === "最高管理者") return;
+        state.adminUsers = state.adminUsers.filter((item) => item.id !== button.dataset.deleteAdminUser);
         if (state.activeAdminUserEditor?.id === button.dataset.deleteAdminUser) state.activeAdminUserEditor = null;
         render();
       });
+    });
+    els.managerPanel.querySelectorAll("[data-transfer-super-admin]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const current = state.adminUsers.find((user) => user.id === button.dataset.transferSuperAdmin);
+        const firstTarget = state.adminUsers.find((user) => user.id !== current?.id && user.role === "管理員" && user.status === "啟用");
+        state.activeSuperAdminTransferUserId = button.dataset.transferSuperAdmin;
+        state.superAdminTransferTargetId = firstTarget?.id || "";
+        render();
+      });
+    });
+    els.managerPanel.querySelectorAll("[data-close-super-admin-transfer]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.activeSuperAdminTransferUserId = "";
+        state.superAdminTransferTargetId = "";
+        render();
+      });
+    });
+    els.managerPanel.querySelector("[data-super-admin-transfer-target]")?.addEventListener("change", (event) => {
+      state.superAdminTransferTargetId = event.currentTarget.value;
+    });
+    els.managerPanel.querySelector("[data-confirm-super-admin-transfer]")?.addEventListener("click", () => {
+      const current = state.adminUsers.find((user) => user.id === state.activeSuperAdminTransferUserId);
+      const target = state.adminUsers.find((user) => user.id === state.superAdminTransferTargetId);
+      if (!current || !target || current.id === target.id || target.role !== "管理員") return;
+      current.role = "管理員";
+      current.note = "最高權限已轉移，現在為一般管理帳號。";
+      target.role = "最高管理者";
+      target.note = "已接手最高管理者權限。";
+      state.activeSuperAdminTransferUserId = "";
+      state.superAdminTransferTargetId = "";
+      render();
+    });
+    els.managerPanel.querySelectorAll("[data-reset-password]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.activePasswordResetUserId = button.dataset.resetPassword;
+        state.passwordResetDraft = { password: "", confirm: "" };
+        render();
+      });
+    });
+    els.managerPanel.querySelectorAll("[data-close-password-reset]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.activePasswordResetUserId = "";
+        state.passwordResetDraft = { password: "", confirm: "" };
+        render();
+      });
+    });
+    els.managerPanel.querySelectorAll("[data-password-reset-field]").forEach((input) => {
+      input.addEventListener("input", () => {
+        state.passwordResetDraft[input.dataset.passwordResetField] = input.value;
+      });
+    });
+    els.managerPanel.querySelector("[data-confirm-password-reset]")?.addEventListener("click", () => {
+      const user = state.adminUsers.find((item) => item.id === state.activePasswordResetUserId);
+      const { password, confirm } = state.passwordResetDraft;
+      if (!user || !password || password !== confirm) return;
+      user.note = "密碼已由最高管理者重置，需通知使用者重新登入。";
+      user.lastLogin = user.lastLogin || "尚未登入";
+      state.activePasswordResetUserId = "";
+      state.passwordResetDraft = { password: "", confirm: "" };
+      render();
     });
     els.managerPanel.querySelector("[data-back-admin-users]")?.addEventListener("click", () => {
       state.activeAdminUserEditor = null;
@@ -4756,6 +5768,39 @@ function renderManagerPanel() {
     });
   }
 
+  if (state.adminSection === "siteBasicInfo") {
+    els.managerPanel.querySelectorAll("[data-site-info-preview-tab]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.siteInfoPreviewTab = button.dataset.siteInfoPreviewTab;
+        render();
+      });
+    });
+    els.managerPanel.querySelectorAll("[data-site-info-field]").forEach((input) => {
+      const updateField = () => {
+        state.siteInfo[input.dataset.siteInfoField] = input.value;
+      };
+      input.addEventListener("input", updateField);
+      input.addEventListener("change", () => {
+        updateField();
+        render();
+      });
+    });
+    els.managerPanel.querySelectorAll("[data-site-info-file]").forEach((input) => {
+      input.addEventListener("change", () => {
+        const file = input.files?.[0];
+        state.siteInfo[input.dataset.siteInfoFile] = file?.name || "尚未選擇檔案";
+        if (input.dataset.siteInfoFile === "logoFileName") {
+          state.siteInfo.logoPreviewUrl = file ? URL.createObjectURL(file) : "";
+        }
+        render();
+      });
+    });
+    els.managerPanel.querySelector("[data-save-site-info]")?.addEventListener("click", () => {
+      state.savedSiteInfo = clone(state.siteInfo);
+      render();
+    });
+  }
+
   if (state.adminSection === "pages") {
     els.managerPanel.querySelector("[data-add-page]")?.addEventListener("click", () => {
       state.isChoosingPageTemplate = true;
@@ -4853,11 +5898,12 @@ function render() {
   const isHomeSubFlow = state.adminSection === "home" && state.homeMode !== "overview";
   els.moduleToolbar.classList.toggle("hidden", isHomeSubFlow);
   els.summary.classList.toggle("hidden", isHomeSubFlow);
-  els.backHomeOverviewBtn.classList.toggle("hidden", !isHomeSubFlow);
+  els.backHomeOverviewBtn.classList.add("hidden");
   renderSummary();
   renderModuleList();
   renderSettings();
   renderManagerPanel();
+  renderHeaderSiteTemplateNotice();
   renderPreview();
   setView(state.view);
   updateSaveState();

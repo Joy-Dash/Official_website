@@ -44,15 +44,19 @@
             <h1>後台：官網設定</h1>
             <p>先設定整站官網模板與色系，再管理首頁模塊、前台頁面與後台資料。</p>
           </div>
-          <div class="actions">
+          <div class="admin-head-side">
+          <div id="adminHeaderTemplateSlot"></div>
+          <div class="actions admin-head-actions">
             <button class="btn hidden" type="button" id="backHomeOverviewBtn">返回首頁現況</button>
             <button class="btn primary" type="button" id="saveBtn">儲存</button>
+          </div>
           </div>
         </div>
 
         <div class="admin-layout">
           <nav class="backend-nav" aria-label="後台功能列">
             <button type="button" data-admin-section="brandStyle">品牌樣式設定</button>
+            <button type="button" data-admin-section="siteBasicInfo">官網基本資訊</button>
             <button class="is-active" type="button" data-admin-section="home">首頁管理</button>
             <button type="button" data-admin-section="pages">前台頁面</button>
             <button class="nav-group-toggle" type="button" data-nav-group-toggle="blueprint" aria-expanded="true">
@@ -73,7 +77,6 @@
               <button type="button" data-admin-section="adminUsers">後台帳號管理</button>
               <button type="button" data-admin-section="contactRecords">聯絡表單紀錄</button>
               <button type="button" data-admin-section="supportMessages">客服訊息管理</button>
-              <button type="button" data-admin-section="media">媒體庫</button>
               <button type="button" data-admin-section="seo">Banner / Meta</button>
               <button type="button" data-admin-section="tracking">追蹤設定</button>
               <button type="button" data-admin-section="site">網站設定</button>

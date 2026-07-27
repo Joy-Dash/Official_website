@@ -1,22 +1,27 @@
-# 官網後台 GitHub Pages 發布包
+# 首頁模塊 Builder Demo
 
-這個資料夾可以直接放到 GitHub repository 根目錄，並用 GitHub Pages 發布。
+這是一個純前端展示專案，用來和工程師溝通首頁 Section Builder 的後台邏輯。
 
-## 主要入口
+## 功能
 
-- `index.html`：官網首頁模組後台 Builder Demo
-- `ab-backend-admin-prototype.html`：A/B 後台管理原型單檔版
-- `homepage-module-builder-standalone.html`：首頁模組 Builder 單檔版
+- 新增首頁模塊
+- 刪除非固定模塊
+- 已新增但暫不顯示
+- 拖曳排序中間模塊
+- 模塊類型下拉選單，選項內含用途說明
+- 版型 tab 預覽，切換時先看版面差異
+- 設定欄位直接填寫，欄位下方有用途說明
+- 是否顯示頁面連結
+- 右上角儲存後，前台預覽才套用草稿變更
 
-## 手動發布步驟
+## 使用方式
 
-1. 在 GitHub 建立一個新的 repository。
-2. 把這個資料夾裡的所有檔案上傳到 repository 根目錄。
-3. 到 repository 的 `Settings` > `Pages`。
-4. 在 `Build and deployment` 選擇：
-   - Source: `Deploy from a branch`
-   - Branch: `main`
-   - Folder: `/ (root)`
-5. 儲存後等待 GitHub 產生網址。
+直接開啟 `index.html` 即可。
 
-發布完成後，開啟 GitHub Pages 網址會直接看到官網後台 Builder Demo。
+如果要用本機靜態伺服器展示，也可以在這個資料夾執行：
+
+```bash
+python -m http.server 8080
+```
+
+再開啟 `http://localhost:8080`。
