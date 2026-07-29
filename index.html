@@ -8,36 +8,36 @@
 </head>
 <body>
   <div class="app-shell">
-    <header class="topbar">
-      <div>
-        <strong>首頁模塊 Builder Demo</strong>
-        <span>新增 / 刪除 / 隱藏 / 類型 / 版型 / 連結</span>
+    <header class="admin-topbar" aria-label="後台系統列">
+      <div class="admin-brand-banner">
+        <div class="admin-brand-mark" aria-hidden="true">利</div>
+        <div>
+          <strong>利每家官網後台</strong>
+          <span>智慧富氫水站內容管理系統</span>
+        </div>
       </div>
-      <div class="top-actions">
-        <button class="btn" type="button" data-view="both">前台 + 後台</button>
-        <button class="btn" type="button" data-view="preview">只看前台</button>
-        <button class="btn is-active" type="button" data-view="admin">只看後台</button>
+      <div class="admin-topbar-actions">
+        <button class="theme-toggle" type="button" id="themeToggle" aria-label="切換深色模式" title="切換深色模式">
+          <span class="theme-toggle-icon" aria-hidden="true">Dark</span>
+          <span class="theme-toggle-text">深色</span>
+        </button>
+        <details class="admin-account-menu">
+          <summary aria-label="開啟帳號選單">
+            <span class="admin-avatar" aria-hidden="true">J</span>
+            <span class="admin-account-copy">
+              <strong>Joy</strong>
+              <small>最高管理者</small>
+            </span>
+            <span class="admin-account-chevron" aria-hidden="true">⌄</span>
+          </summary>
+          <div class="admin-account-dropdown">
+            <button type="button">登出</button>
+          </div>
+        </details>
       </div>
     </header>
 
     <main class="workspace" id="workspace">
-      <section class="panel preview-panel" id="previewPanel">
-        <div class="panel-head">
-          <div>
-            <h1>前台首頁預覽</h1>
-            <p>切換模塊類型或版型後，這裡會即時看出不同版面。</p>
-          </div>
-        </div>
-        <nav class="site-nav">
-          <strong>利每家</strong>
-          <span>找水站</span>
-          <span>合作案例</span>
-          <span>知識中心</span>
-          <span>LINE 諮詢</span>
-        </nav>
-        <div id="previewRoot"></div>
-      </section>
-
       <aside class="panel admin-panel" id="adminPanel">
         <div class="panel-head">
           <div>
@@ -55,31 +55,49 @@
 
         <div class="admin-layout">
           <nav class="backend-nav" aria-label="後台功能列">
-            <button type="button" data-admin-section="brandStyle">品牌樣式設定</button>
-            <button type="button" data-admin-section="siteBasicInfo">官網基本資訊</button>
-            <button class="is-active" type="button" data-admin-section="home">首頁管理</button>
-            <button type="button" data-admin-section="pages">前台頁面</button>
-            <button class="nav-group-toggle" type="button" data-nav-group-toggle="blueprint" aria-expanded="true">
-              <span>官網資料管理</span>
+            <button class="nav-group-toggle" type="button" data-nav-group-toggle="siteSettings" aria-expanded="true">
+              <span>網站設定</span>
               <span class="nav-group-chevron" aria-hidden="true">−</span>
             </button>
-            <div class="nav-group" data-nav-group="blueprint">
+            <div class="nav-group" data-nav-group="siteSettings">
+              <button type="button" data-admin-section="brandStyle">品牌樣式設定</button>
+              <button type="button" data-admin-section="siteBasicInfo">官網基本資訊</button>
+              <button type="button" data-admin-section="seo">Banner / Meta</button>
+              <button type="button" data-admin-section="tracking">追蹤設定</button>
+              <button type="button" data-admin-section="site">網站設定</button>
+            </div>
+            <button class="nav-group-toggle" type="button" data-nav-group-toggle="content" aria-expanded="true">
+              <span>內容管理</span>
+              <span class="nav-group-chevron" aria-hidden="true">−</span>
+            </button>
+            <div class="nav-group" data-nav-group="content">
+              <button class="is-active" type="button" data-admin-section="home">首頁管理</button>
+              <button type="button" data-admin-section="pages">前台頁面</button>
               <button type="button" data-admin-section="blueprintArticles">文章管理</button>
               <button type="button" data-admin-section="blueprintFaq">FAQ 管理</button>
               <button type="button" data-admin-section="blueprintProducts">商品 / 服務資料</button>
               <button type="button" data-admin-section="blueprintResources">據點 / 資源資料</button>
             </div>
-            <button class="nav-group-toggle" type="button" data-nav-group-toggle="ops" aria-expanded="true">
-              <span>維運</span>
+            <button class="nav-group-toggle" type="button" data-nav-group-toggle="interaction" aria-expanded="true">
+              <span>互動紀錄</span>
               <span class="nav-group-chevron" aria-hidden="true">−</span>
             </button>
-            <div class="nav-group" data-nav-group="ops">
-              <button type="button" data-admin-section="adminUsers">後台帳號管理</button>
+            <div class="nav-group" data-nav-group="interaction">
               <button type="button" data-admin-section="contactRecords">聯絡表單紀錄</button>
               <button type="button" data-admin-section="supportMessages">客服訊息管理</button>
-              <button type="button" data-admin-section="seo">Banner / Meta</button>
-              <button type="button" data-admin-section="tracking">追蹤設定</button>
-              <button type="button" data-admin-section="site">網站設定</button>
+            </div>
+            <button class="nav-group-toggle" type="button" data-nav-group-toggle="accounts" aria-expanded="true">
+              <span>帳號權限</span>
+              <span class="nav-group-chevron" aria-hidden="true">−</span>
+            </button>
+            <div class="nav-group" data-nav-group="accounts">
+              <button type="button" data-admin-section="adminUsers">後台帳號管理</button>
+            </div>
+            <button class="nav-group-toggle" type="button" data-nav-group-toggle="maintenance" aria-expanded="true">
+              <span>系統維運</span>
+              <span class="nav-group-chevron" aria-hidden="true">−</span>
+            </button>
+            <div class="nav-group" data-nav-group="maintenance">
               <button type="button" data-admin-section="logs">操作紀錄</button>
             </div>
           </nav>

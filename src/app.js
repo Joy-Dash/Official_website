@@ -165,10 +165,78 @@ const defaultModules = [
 ];
 
 const pageTemplates = [
-  { id: "content", name: "一般內容頁", defaultName: "關於頁面", description: "適合品牌故事、公司介紹、理念說明。", fields: ["頁面標題", "頁面簡介", "主要段落", "補充重點 1", "補充重點 2"], layouts: [{ id: "A", name: "標準內容版", description: "上方標題，下方段落內容。" }, { id: "B", name: "重點側欄版", description: "左側內容，右側重點摘要。" }] },
-  { id: "article", name: "文章列表頁", defaultName: "最新消息", description: "適合最新消息、知識中心、文章分類。", fields: ["頁面標題", "頁面簡介", "顯示分類", "顯示筆數"], layouts: [{ id: "A", name: "三欄文章卡", description: "文章以三欄卡片呈現。" }, { id: "B", name: "主文章 + 列表", description: "左側主文章，右側文章列表。" }] },
-  { id: "contact", name: "聯絡表單頁", defaultName: "聯絡我們", description: "適合聯絡資訊、LINE 諮詢、表單詢問。", fields: ["頁面標題", "頁面簡介", "電話", "Email", "LINE"], layouts: [{ id: "A", name: "表單右側版", description: "左側資訊，右側表單。" }, { id: "B", name: "表單置中版", description: "表單置中，資訊在下方。" }] },
-  { id: "faq", name: "FAQ 頁", defaultName: "常見問題", description: "適合常見問題、購買說明、服務問答。", fields: ["頁面標題", "頁面簡介", "問題分類", "顯示筆數"], layouts: [{ id: "A", name: "手風琴版", description: "問題以展開列表呈現。" }, { id: "B", name: "分類表格版", description: "問題依分類分組呈現。" }] }
+  {
+    id: "content",
+    name: "一般內容頁",
+    defaultName: "關於頁面",
+    description: "適合品牌故事、公司介紹、理念說明；欄位固定，用內容範本引導不同用途。",
+    fields: ["頁面標題", "頁面摘要", "內容區塊", "封面圖片"],
+    bestFor: "品牌故事、公司介紹、理念說明、服務說明",
+    layouts: [
+      { id: "A", name: "標準內容版", description: "上方標題，下方段落內容。", preview: "copy", entry: "templates/page-content-standard/code.html" },
+      { id: "B", name: "重點側欄版", description: "左側內容，右側重點摘要。", preview: "split", entry: "templates/page-content-sidebar/code.html" }
+    ]
+  },
+  {
+    id: "article",
+    name: "文章列表頁",
+    defaultName: "最新消息",
+    description: "適合最新消息、知識中心、文章分類入口；列表資料由背景資料帶入。",
+    fields: ["列表標題", "列表說明", "文章來源", "顯示筆數"],
+    bestFor: "最新消息、活動、知識中心、案例文章",
+    layouts: [
+      { id: "A", name: "三欄文章卡", description: "文章以三欄卡片呈現。", preview: "cards", entry: "templates/page-article-cards/code.html" },
+      { id: "B", name: "主文章 + 列表", description: "左側主文章，右側文章列表。", preview: "featured", entry: "templates/page-article-featured/code.html" }
+    ]
+  },
+  {
+    id: "contact",
+    name: "聯絡表單頁",
+    defaultName: "聯絡我們",
+    description: "適合聯絡資訊、LINE 諮詢、預約或詢價表單；技術追蹤由系統處理。",
+    fields: ["頁面標題", "表單說明", "聯絡方式", "表單欄位", "送出提示"],
+    bestFor: "聯絡資訊、LINE 諮詢、表單詢問",
+    layouts: [
+      { id: "A", name: "表單右側版", description: "左側資訊，右側表單。", preview: "form-side", entry: "templates/page-contact-side/code.html" },
+      { id: "B", name: "表單置中版", description: "表單置中，資訊在下方。", preview: "form-center", entry: "templates/page-contact-center/code.html" }
+    ]
+  },
+  {
+    id: "faq",
+    name: "FAQ 頁",
+    defaultName: "常見問題",
+    description: "適合常見問題、購買說明、服務問答；問答內容必須在前台可見。",
+    fields: ["頁面標題", "頁面說明", "問題分類", "問答資料"],
+    bestFor: "常見問題、購買說明、服務問答",
+    layouts: [
+      { id: "A", name: "手風琴版", description: "問題以展開列表呈現。", preview: "accordion", entry: "templates/page-faq-accordion/code.html" },
+      { id: "B", name: "分類側欄版", description: "左側分類，右側問答列表。", preview: "faq-sidebar", entry: "templates/page-faq-sidebar/code.html" }
+    ]
+  },
+  {
+    id: "product",
+    name: "商品 / 服務列表頁",
+    defaultName: "商品服務",
+    description: "適合商品方案、服務項目、方案比較或服務入口；項目資料可重複引用。",
+    fields: ["列表標題", "列表說明", "商品 / 服務來源", "CTA"],
+    bestFor: "商品方案、服務項目、方案比較",
+    layouts: [
+      { id: "A", name: "商品卡片格狀版", description: "以卡片呈現多項商品或服務。", preview: "cards", entry: "templates/page-product-cards/code.html" },
+      { id: "B", name: "方案比較列表版", description: "用較密集的列表呈現規格與差異。", preview: "compare", entry: "templates/page-product-compare/code.html" }
+    ]
+  },
+  {
+    id: "resource",
+    name: "據點 / 資源列表頁",
+    defaultName: "據點資源",
+    description: "適合門市據點、服務站、水質報告或下載資源；依資源類型顯示需要的欄位。",
+    fields: ["列表標題", "列表說明", "資源類型", "資源資料"],
+    bestFor: "門市據點、服務站、水質報告、下載資源",
+    layouts: [
+      { id: "A", name: "據點卡片版", description: "以卡片呈現地址、狀態與行動入口。", preview: "resource-cards", entry: "templates/page-resource-cards/code.html" },
+      { id: "B", name: "地區列表版", description: "依地區分組，適合大量據點或資源。", preview: "resource-list", entry: "templates/page-resource-list/code.html" }
+    ]
+  }
 ];
 
 const pageContentSources = [
@@ -184,18 +252,41 @@ const pageContentSources = [
   }
 ];
 
-const pageDataFormats = [
-  { id: "collection", name: "後台資料集合", description: "從內容、案例、商品 / 服務、據點 / 資源等資料表帶入。" },
-  { id: "csv", name: "CSV / Excel 匯入", description: "適合批次匯入站點、案例、FAQ 或文章列表。" },
-  { id: "json", name: "JSON 結構資料", description: "適合由外部系統或 API 提供結構化資料。" }
+const pageDataSources = [
+  { id: "articles", name: "文章", manager: "文章管理", description: "最新消息、活動、知識文章與案例文章。", categories: ["全部", "最新消息", "活動公告", "知識文章", "成功案例"] },
+  { id: "cases", name: "案例", manager: "案例資料管理", description: "成功案例、合作案例與導入成果。", categories: ["全部", "成功案例", "社區案例", "企業案例", "公共空間"] },
+  { id: "products", name: "商品 / 服務", manager: "商品 / 服務管理", description: "商品、方案、服務項目與服務入口。", categories: ["全部", "商品", "服務", "方案"] },
+  { id: "faq", name: "FAQ", manager: "FAQ 管理", description: "常見問題、購買說明與服務問答。", categories: ["全部", "購買說明", "服務問答", "設備保養", "付款配送"] },
+  { id: "resources", name: "據點 / 資源資料", manager: "據點 / 資源管理", description: "服務據點、水質報告、下載文件與資源資訊。", categories: ["全部", "服務據點", "水質報告", "下載資源", "合作資源"] }
 ];
+
+const moduleItemCountRules = {
+  cards: {
+    A: { recommended: 4, min: 2, max: 4, note: "沉浸情境面板最多 4 張；少於 4 張時系統會放大卡片比例。" },
+    B: { recommended: 4, min: 2, max: 6, note: "錯落圖文卡片可放 2–6 張；5–6 張會自動換行。" }
+  },
+  steps: {
+    A: { recommended: 3, min: 2, max: 5, note: "流程步驟建議 3 步；超過 5 步建議拆成詳細流程頁。" },
+    B: { recommended: 3, min: 2, max: 5, note: "流程步驟建議 3 步；超過 5 步建議拆成詳細流程頁。" }
+  },
+  faq: {
+    A: { recommended: 5, min: 3, max: 8, note: "首頁 FAQ 可放 3–8 題；更多問題建議改放 FAQ 頁。" },
+    B: { recommended: 5, min: 3, max: 8, note: "首頁 FAQ 可放 3–8 題；更多問題建議改放 FAQ 頁。" }
+  },
+  news: {
+    A: { recommended: 3, min: 3, max: 6, note: "首頁最新消息建議 3 則；更多內容交給文章列表頁承接。" },
+    B: { recommended: 3, min: 3, max: 6, note: "首頁最新消息建議 3 則；更多內容交給文章列表頁承接。" }
+  }
+};
 
 const defaultSiteMeta = {
   siteName: "利每家智慧富氫水站",
   titleSuffix: "利每家智慧富氫水站",
   description: "以智慧飲水科技與永續服務，打造更健康、更便利的生活體驗。",
   shareImageUrl: "",
-  indexable: "yes"
+  indexable: "yes",
+  followable: "yes",
+  productionBaseUrl: "https://www.example.com"
 };
 
 const defaultSiteInfo = {
@@ -231,6 +322,9 @@ function createPage(item) {
     contentSource: item.contentSource || "manual",
     dataSource: item.dataSource || "",
     dataFormat: item.dataFormat || "collection",
+    dataCategory: item.dataCategory || "",
+    dataSort: item.dataSort || "",
+    dataLimit: item.dataLimit || "",
     dataFilter: item.dataFilter || "",
     dataMapping: item.dataMapping || "",
     seoTitle: item.seoTitle || `${item.name}｜${defaultSiteMeta.titleSuffix}`,
@@ -252,10 +346,83 @@ const initialPages = [
   { id: "contact", name: "LINE 諮詢", template: "contact", status: "已發布", visible: "CTA" }
 ].map(createPage);
 
+const seoStorageKey = "limeijia-page-seo-settings-v1";
+
+function seoSlugFromId(id) {
+  if (id === "home") return "";
+  return String(id || "")
+    .replace(/-page$/, "")
+    .replace(/[^a-zA-Z0-9-]/g, "-")
+    .replace(/-{2,}/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function pageCanonicalUrl(slug) {
+  const base = defaultSiteMeta.productionBaseUrl.replace(/\/$/, "");
+  return slug ? `${base}/${slug}` : `${base}/`;
+}
+
+function createSeoSetting({ id, name }) {
+  const slug = seoSlugFromId(id);
+  const seoTitle = `${name}｜${defaultSiteMeta.titleSuffix}`;
+  return {
+    pageId: id,
+    pageName: name,
+    seoTitle,
+    seoDescription: defaultSiteMeta.description,
+    slug,
+    keywords: [],
+    syncOg: true,
+    ogTitle: seoTitle,
+    ogDescription: defaultSiteMeta.description,
+    useDefaultOgImage: true,
+    ogImageUrl: "",
+    ogImageName: "",
+    ogImageType: "",
+    ogImageSize: 0,
+    ogImageWidth: 0,
+    ogImageHeight: 0,
+    indexable: true,
+    followable: true,
+    canonicalMode: "auto",
+    canonicalUrl: pageCanonicalUrl(slug)
+  };
+}
+
+function initialSeoSettings() {
+  return [
+    createSeoSetting({ id: "home", name: "首頁" }),
+    ...initialPages.map((page) => createSeoSetting({ id: page.id, name: page.name }))
+  ];
+}
+
+function loadSeoSettings() {
+  const defaults = initialSeoSettings();
+  try {
+    const stored = JSON.parse(localStorage.getItem(seoStorageKey) || "[]");
+    if (!Array.isArray(stored)) return defaults;
+    return defaults.map((item) => {
+      const saved = stored.find((entry) => entry.pageId === item.pageId);
+      return saved ? { ...item, ...saved, pageName: item.pageName } : item;
+    });
+  } catch (error) {
+    return defaults;
+  }
+}
+
+function persistSeoSettings() {
+  try {
+    localStorage.setItem(seoStorageKey, JSON.stringify(state.pageSeoSettings));
+  } catch (error) {
+    // Demo storage can fail in private browsing; the in-memory state still works.
+  }
+}
+
 function defaultContent(item) {
   const itemLinksEnabled = ["news", "cards", "faq"].includes(item.type);
   return {
     title: item.name,
+    itemCount: defaultModuleItemCount(item.type, item.variant || "A"),
     subtitle: item.type === "hero" ? "把可生飲的富氫活水，帶進每一個社區家庭" : `${item.name}標題`,
     description: getType(item.type).description,
     imageLabel: item.type === "hero" ? "智慧富氫水站主視覺" : "上傳圖片 / 底圖",
@@ -267,6 +434,14 @@ function defaultContent(item) {
     item3Subtitle: "",
     item4: "內容項目 4",
     item4Subtitle: "",
+    item5: "內容項目 5",
+    item5Subtitle: "",
+    item6: "內容項目 6",
+    item6Subtitle: "",
+    item7: "內容項目 7",
+    item7Subtitle: "",
+    item8: "內容項目 8",
+    item8Subtitle: "",
     stat1Value: item.type === "stats" ? "24" : "",
     stat1Unit: item.type === "stats" ? "H" : "",
     stat1Label: item.type === "stats" ? "全天候智慧服務" : "",
@@ -294,8 +469,89 @@ function defaultContent(item) {
     item3LinkTarget: `/${item.id}/3`,
     item4LinkEnabled: itemLinksEnabled,
     item4LinkText: "查看更多",
-    item4LinkTarget: `/${item.id}/4`
+    item4LinkTarget: `/${item.id}/4`,
+    item5LinkEnabled: itemLinksEnabled,
+    item5LinkText: "查看更多",
+    item5LinkTarget: `/${item.id}/5`,
+    item6LinkEnabled: itemLinksEnabled,
+    item6LinkText: "查看更多",
+    item6LinkTarget: `/${item.id}/6`,
+    item7LinkEnabled: itemLinksEnabled,
+    item7LinkText: "查看更多",
+    item7LinkTarget: `/${item.id}/7`,
+    item8LinkEnabled: itemLinksEnabled,
+    item8LinkText: "查看更多",
+    item8LinkTarget: `/${item.id}/8`
   };
+}
+
+function itemCountRule(module) {
+  return moduleItemCountRules[module.type]?.[module.variant || "A"] || null;
+}
+
+function defaultModuleItemCount(type, variant = "A") {
+  return moduleItemCountRules[type]?.[variant]?.recommended || 3;
+}
+
+function itemCountOptions(module) {
+  const rule = itemCountRule(module);
+  if (!rule) return [];
+  return Array.from({ length: rule.max - rule.min + 1 }, (_, index) => rule.min + index);
+}
+
+function currentItemCount(module) {
+  module.content = module.content || defaultContent(module);
+  const rule = itemCountRule(module);
+  if (!rule) return 3;
+  const raw = Number(module.content.itemCount || rule.recommended);
+  const count = Number.isFinite(raw) ? raw : rule.recommended;
+  const normalized = Math.min(rule.max, Math.max(rule.min, count));
+  module.content.itemCount = String(normalized);
+  return normalized;
+}
+
+function renderItemCountField(module, label = "顯示項目數量") {
+  const rule = itemCountRule(module);
+  if (!rule) return "";
+  const count = currentItemCount(module);
+  return `
+    <div class="field item-count-field">
+      <label>${esc(label)}</label>
+      <div class="field-help">${esc(rule.note)}</div>
+      <select data-content-field="itemCount">
+        ${itemCountOptions(module).map((value) => `<option value="${value}" ${count === value ? "selected" : ""}>${value} 個</option>`).join("")}
+      </select>
+    </div>
+  `;
+}
+
+function itemNumbers(module) {
+  return Array.from({ length: currentItemCount(module) }, (_, index) => index + 1);
+}
+
+function appendItemParams(params, c, count, max) {
+  params.set("itemCount", String(count));
+  for (let index = 1; index <= max; index += 1) {
+    params.set(`item${index}`, previewPlainText(c[`item${index}`] || ""));
+    params.set(`item${index}Subtitle`, previewPlainText(c[`item${index}Subtitle`] || ""));
+    params.set(`item${index}Date`, previewPlainText(c[`item${index}Date`] || ""));
+    params.set(`item${index}LinkEnabled`, c[`item${index}LinkEnabled`] ? "1" : "0");
+    params.set(`item${index}LinkText`, previewPlainText(c[`item${index}LinkText`] || ""));
+  }
+}
+
+function previewPlainText(value, fallback = "") {
+  const raw = String(value || "").trim();
+  if (!raw) return fallback;
+  const withoutTags = htmlToPlainText(raw.replace(/<br\s*\/?>/gi, " "));
+  const cleaned = withoutTags
+    .replace(/<\/?[a-z][^>]*>/gi, " ")
+    .replace(/[<>]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const looksBroken = /<\/?[a-z][^>]*>|�|||||蝬|擐|瘞|撖|摰|閮|餈|隤|嚗/.test(raw);
+  if (!cleaned || looksBroken) return fallback || cleaned;
+  return cleaned;
 }
 
 function createModule(item) {
@@ -365,54 +621,6 @@ const adminRoleOptions = ["最高管理者", "管理員", "編輯者", "檢視�
 
 const siteStyleTemplates = [
   {
-    id: "business",
-    name: "商業服務型",
-    fit: "適合顧問、B2B 服務、專業品牌",
-    description: "清楚的主視覺、服務卡片、案例與 CTA，適合重視轉換的企業官網。",
-    previewClass: "business",
-    eyebrow: "Professional Service",
-    headline: "把專業服務包裝成高轉換官網",
-    proof: "清楚主張、明確導流、快速建立信任",
-    cta: "預約諮詢",
-    sections: ["Hero", "服務介紹", "案例證明", "聯絡 CTA"]
-  },
-  {
-    id: "industrial",
-    name: "工業製造型",
-    fit: "適合製造、設備、工程、供應鏈",
-    description: "強調規格、流程、品質認證與案例成果，視覺穩重、資訊密度較高。",
-    previewClass: "industrial",
-    eyebrow: "Manufacturing",
-    headline: "呈現製造能力、規格與品質信任",
-    proof: "適合產品規格、認證、製程與工程案例",
-    cta: "查看規格",
-    sections: ["產品能力", "製程流程", "品質認證", "技術諮詢"]
-  },
-  {
-    id: "image",
-    name: "品牌形象型",
-    fit: "適合品牌故事、形象展示、生活風格",
-    description: "大圖與文字敘事比例較高，適合先建立品牌感再導向內容或聯絡。",
-    previewClass: "image",
-    eyebrow: "Brand Story",
-    headline: "用第一眼視覺建立品牌記憶",
-    proof: "適合形象故事、生活情境、作品展示",
-    cta: "認識品牌",
-    sections: ["品牌主視覺", "理念介紹", "精選內容", "品牌 CTA"]
-  },
-  {
-    id: "content",
-    name: "內容知識型",
-    fit: "適合媒體、知識中心、部落格、FAQ",
-    description: "文章列表與分類入口較明顯，適合以內容帶動搜尋與長期流量。",
-    previewClass: "content",
-    eyebrow: "Content Hub",
-    headline: "讓文章、知識與 FAQ 成為流量入口",
-    proof: "適合知識中心、媒體、部落格與分類內容",
-    cta: "瀏覽文章",
-    sections: ["精選文章", "分類導覽", "最新內容", "訂閱 CTA"]
-  },
-  {
     id: "stitch-wellness",
     name: "高端品牌科技型",
     fit: "適合健康科技、精品服務、形象型品牌",
@@ -457,16 +665,107 @@ const siteStyleTemplates = [
 ];
 
 const siteColorPalettes = [
-  { id: "teal", name: "專業藍綠", primary: "#0e6a8c", accent: "#1f6b4a", bg: "#f3f7f8", surface: "#ffffff", muted: "#64747b", text: "#0b1f2a" },
-  { id: "navy", name: "穩重深藍", primary: "#1f3a5f", accent: "#4f6f52", bg: "#f4f7fb", surface: "#ffffff", muted: "#5f6e82", text: "#0c1726" },
-  { id: "mono", name: "黑白簡約", primary: "#111827", accent: "#6b7280", bg: "#f5f5f4", surface: "#ffffff", muted: "#6b7280", text: "#111827" },
-  { id: "warm", name: "溫暖品牌色", primary: "#9a4f2c", accent: "#b7791f", bg: "#fbf7f2", surface: "#fffaf4", muted: "#7c6556", text: "#24160f" },
-  { id: "fresh", name: "清爽綠意", primary: "#2f6f62", accent: "#84a98c", bg: "#f3f8f5", surface: "#ffffff", muted: "#60756c", text: "#10241f" }
+  {
+    id: "teal",
+    name: "專業藍綠",
+    primary: "#0e6a8c",
+    accent: "#1f6b4a",
+    bg: "#f3f7f8",
+    surface: "#ffffff",
+    muted: "#64747b",
+    text: "#0b1f2a",
+    spec: {
+      tone: "冷色、乾淨、專業可信",
+      bestFor: ["健康科技", "水處理", "醫療照護", "B2B 服務"],
+      differentiation: "主色承接專業與科技，輔色加入自然與永續；適合需要同時說服理性與安心感的品牌。",
+      avoidWhen: "品牌需要強烈精品、娛樂、年輕流行感時不優先。"
+    }
+  },
+  {
+    id: "navy",
+    name: "穩重深藍",
+    primary: "#1f3a5f",
+    accent: "#6e7f55",
+    bg: "#f4f7fb",
+    surface: "#ffffff",
+    muted: "#5f6e82",
+    text: "#0c1726",
+    spec: {
+      tone: "理性、權威、制度感",
+      bestFor: ["金融保險", "顧問服務", "企業集團", "資安與雲端"],
+      differentiation: "以深藍建立可信度，橄欖綠降低距離感；適合重視治理、流程、長期合作的品牌。",
+      avoidWhen: "品牌主要訴求是輕盈生活感、親子或強烈創意風格時不優先。"
+    }
+  },
+  {
+    id: "graphite",
+    name: "石墨銀灰",
+    primary: "#26323f",
+    accent: "#8a6f3d",
+    bg: "#f5f5f2",
+    surface: "#ffffff",
+    muted: "#6d7379",
+    text: "#171c22",
+    spec: {
+      tone: "精密、克制、高規格",
+      bestFor: ["精密製造", "設備工程", "建材五金", "高單價 B2B"],
+      differentiation: "中性灰黑作為結構主軸，少量金屬棕金強調規格與價值；適合資訊密度較高的工業官網。",
+      avoidWhen: "產品需要柔和照護、健康清新或大量生活情境時不優先。"
+    }
+  },
+  {
+    id: "champagne",
+    name: "香檳精品",
+    primary: "#6f5844",
+    accent: "#b9945e",
+    bg: "#f8f4ee",
+    surface: "#fffdf8",
+    muted: "#7c6f63",
+    text: "#241d18",
+    spec: {
+      tone: "高端、溫潤、精品服務",
+      bestFor: ["精品服務", "醫美健康", "高端生活", "品牌形象官網"],
+      differentiation: "用低彩度棕與香檳金建立高單價感，避免過亮金色造成廉價促銷感。",
+      avoidWhen: "品牌需要工程精密、科技冷感或高度公部門信任時不優先。"
+    }
+  },
+  {
+    id: "fresh",
+    name: "清爽綠意",
+    primary: "#2f6f62",
+    accent: "#8aa15f",
+    bg: "#f3f8f5",
+    surface: "#ffffff",
+    muted: "#60756c",
+    text: "#10241f",
+    spec: {
+      tone: "自然、安心、永續生活",
+      bestFor: ["健康食品", "環保永續", "生活設備", "社區服務"],
+      differentiation: "以綠色建立自然可信，低飽和背景讓內容保持乾淨；適合需要親近但不過度活潑的品牌。",
+      avoidWhen: "品牌需要明顯科技感、金融權威或強烈精品定位時不優先。"
+    }
+  },
+  {
+    id: "coral",
+    name: "珊瑚暖白",
+    primary: "#b45b4a",
+    accent: "#276f73",
+    bg: "#fff6f2",
+    surface: "#ffffff",
+    muted: "#806a62",
+    text: "#2a1713",
+    spec: {
+      tone: "親切、行動感、生活溫度",
+      bestFor: ["課程活動", "生活品牌", "女性客群", "社群導流"],
+      differentiation: "暖珊瑚負責情緒與轉換，藍綠輔色補回可信與平衡；適合需要較高 CTA 能見度的網站。",
+      avoidWhen: "品牌需要嚴肅規格、低調奢華或政府企業感時不優先。"
+    }
+  }
 ];
 
 const state = {
   view: "admin",
-  adminSection: "home",
+  adminSection: "brandStyle",
   homeMode: "overview",
   heroEditorTab: "edit",
   activeId: "hero",
@@ -478,12 +777,11 @@ const state = {
   pageLayoutTab: "settings",
   pageSavedNotice: "",
   pendingPageTemplate: "",
-  pendingPageSource: "",
+  newPageDraftId: "",
   customCount: 0,
   customPageCount: 0,
   isChoosingModuleTemplate: false,
   isChoosingPageTemplate: false,
-  isChoosingPageSource: false,
   activeDataEditor: null,
   activeArticleQuickAdd: null,
   activeOpsEditor: null,
@@ -513,10 +811,15 @@ const state = {
   supportMessages: clone(initialSupportMessages),
   adminUsers: clone(initialAdminUsers),
   adminUserFilters: { search: "", role: "", status: "" },
+  pageSeoSettings: loadSeoSettings(),
+  activeSeoPageId: "",
+  seoDraft: null,
+  seoErrors: {},
+  seoSavedNotice: "",
   siteStyle: {
-    templateId: "business",
+    templateId: "stitch-wellness",
     paletteId: "teal",
-    savedTemplateId: "business",
+    savedTemplateId: "stitch-wellness",
     savedPaletteId: "teal"
   },
   siteInfo: clone(defaultSiteInfo),
@@ -524,27 +827,31 @@ const state = {
   savedModules: clone(initialModules),
   draftModules: clone(initialModules),
   navGroups: {
-    cms: true,
-    blueprint: true,
-    ops: true
+    siteSettings: true,
+    content: true,
+    interaction: true,
+    accounts: true,
+    maintenance: true
   },
   isDirty: false
 };
 
 const navSectionGroups = {
-  blueprintArticles: "blueprint",
-  blueprintFaq: "blueprint",
-  blueprintProducts: "blueprint",
-  blueprintResources: "blueprint",
-  adminUsers: "ops",
-  contactRecords: "ops",
-  supportMessages: "ops",
-  seo: "ops",
-  tracking: "ops",
-  siteBasicInfo: "ops",
-  brandStyle: "ops",
-  site: "ops",
-  logs: "ops"
+  brandStyle: "siteSettings",
+  siteBasicInfo: "siteSettings",
+  seo: "siteSettings",
+  tracking: "siteSettings",
+  site: "siteSettings",
+  home: "content",
+  pages: "content",
+  blueprintArticles: "content",
+  blueprintFaq: "content",
+  blueprintProducts: "content",
+  blueprintResources: "content",
+  contactRecords: "interaction",
+  supportMessages: "interaction",
+  adminUsers: "accounts",
+  logs: "maintenance"
 };
 
 const dataSectionKinds = {
@@ -554,7 +861,10 @@ const dataSectionKinds = {
   blueprintResources: "resources"
 };
 
+const adminThemeStorageKey = "limjia-admin-theme";
+
 const els = {
+  themeToggle: document.getElementById("themeToggle"),
   workspace: document.getElementById("workspace"),
   previewPanel: document.getElementById("previewPanel"),
   adminPanel: document.getElementById("adminPanel"),
@@ -582,9 +892,100 @@ function esc(value) {
   })[char]);
 }
 
+function loadAdminTheme() {
+  try {
+    return localStorage.getItem(adminThemeStorageKey) === "dark" ? "dark" : "light";
+  } catch (error) {
+    return "light";
+  }
+}
+
+function persistAdminTheme(theme) {
+  try {
+    localStorage.setItem(adminThemeStorageKey, theme);
+  } catch (error) {
+    // Keep the UI usable when browser storage is unavailable.
+  }
+}
+
+function applyAdminTheme(theme) {
+  const mode = theme === "dark" ? "dark" : "light";
+  document.documentElement.dataset.theme = mode;
+  if (!els.themeToggle) return;
+
+  const isDark = mode === "dark";
+  const label = isDark ? "切換淺色模式" : "切換深色模式";
+  els.themeToggle.setAttribute("aria-pressed", isDark ? "true" : "false");
+  els.themeToggle.setAttribute("aria-label", label);
+  els.themeToggle.title = label;
+  els.themeToggle.querySelector(".theme-toggle-icon").textContent = isDark ? "Light" : "Dark";
+  els.themeToggle.querySelector(".theme-toggle-text").textContent = isDark ? "淺色" : "深色";
+}
+
+function toggleAdminTheme() {
+  const nextTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  applyAdminTheme(nextTheme);
+  persistAdminTheme(nextTheme);
+}
+
+applyAdminTheme(loadAdminTheme());
+
+const managedDropdownSelector = ".style-dropdown, .action-menu, .admin-account-menu";
+
+function closeManagedDropdowns(except = null) {
+  document.querySelectorAll(`${managedDropdownSelector}[open]`).forEach((dropdown) => {
+    if (dropdown !== except) dropdown.open = false;
+  });
+}
+
+document.addEventListener("click", (event) => {
+  const activeDropdown = event.target.closest(managedDropdownSelector);
+  closeManagedDropdowns(activeDropdown);
+  if (activeDropdown && event.target.closest(".style-dropdown-option, .action-menu button, .admin-account-dropdown button")) {
+    activeDropdown.open = false;
+  }
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") closeManagedDropdowns();
+});
+
 function richTextInitialHtml(item) {
   if (item.bodyHtml) return item.bodyHtml;
   return esc(item.body || "").replace(/\n/g, "<br>");
+}
+
+function richTextFieldInitialHtml(item, key) {
+  if (item[`${key}Html`]) return item[`${key}Html`];
+  return esc(item[key] || "").replace(/\n/g, "<br>");
+}
+
+function renderRichTextEditor({ kind, item, field, placeholder }) {
+  const htmlField = `${field.key}Html`;
+  return `
+    <div class="rich-editor data-rich-editor" data-rich-editor="${esc(kind)}-${esc(item.id)}-${esc(field.key)}">
+      <div class="rich-toolbar" aria-label="${esc(field.label)}編輯工具">
+        <button class="btn compact" type="button" data-rich-command="bold" title="粗體"><strong>B</strong></button>
+        <button class="btn compact" type="button" data-rich-command="foreColor" data-rich-value="#0e6a8c" title="品牌色文字">品牌色</button>
+        <select class="rich-size-select" data-rich-font-size title="文字大小">
+          <option value="">字級</option>
+          <option value="2">小字</option>
+          <option value="3">一般</option>
+          <option value="5">大字</option>
+          <option value="6">標題</option>
+        </select>
+        <label class="rich-color">文字色
+          <input type="color" value="#0e6a8c" data-rich-color>
+        </label>
+        <button class="btn compact" type="button" data-rich-insert="link" title="插入連結">連結</button>
+        <button class="btn compact" type="button" data-rich-upload-trigger="image" title="上傳圖片">圖片</button>
+        <button class="btn compact" type="button" data-rich-upload-trigger="video" title="上傳影片">影片</button>
+        <input class="visually-hidden" type="file" accept="image/*" data-rich-upload="image">
+        <input class="visually-hidden" type="file" accept="video/*" data-rich-upload="video">
+      </div>
+      <div class="rich-body data-rich-body" contenteditable="true" data-placeholder="${esc(placeholder)}" data-rich-body data-rich-text-field="${esc(field.key)}" data-rich-html-field="${esc(htmlField)}" data-data-kind="${esc(kind)}" data-data-id="${esc(item.id)}">${richTextFieldInitialHtml(item, field.key)}</div>
+    </div>
+  `;
 }
 
 function normalizeExternalUrl(value) {
@@ -1207,11 +1608,11 @@ function renderHeroCustomerPreview(module) {
   const c = module.content || defaultContent(module);
   const palette = getActiveSitePalette();
   const params = new URLSearchParams({
-    title: c.title || module.name,
-    subtitle: c.subtitle || "",
+    title: previewPlainText(c.title, module.name),
+    subtitle: previewPlainText(c.subtitle),
     imageKey: c.imagePreviewKey || "",
     imageUrl: c.imagePreviewKey ? "" : c.imagePreviewUrl || "",
-    cta: module.linkText || "查看更多",
+    cta: previewPlainText(module.linkText, "查看更多"),
     linkEnabled: module.linkEnabled ? "1" : "0",
     primary: palette.primary,
     accent: palette.accent,
@@ -1282,8 +1683,8 @@ function renderIntroCustomerPreview(module) {
   const c = module.content || defaultContent(module);
   const palette = getActiveSitePalette();
   const params = new URLSearchParams({
-    title: c.title || module.name,
-    subtitle: c.subtitle || "",
+    title: previewPlainText(c.title, module.name),
+    subtitle: previewPlainText(c.subtitle),
     imageKey: c.imagePreviewKey || "",
     imageUrl: c.imagePreviewKey ? "" : c.imagePreviewUrl || "",
     primary: palette.primary,
@@ -1355,20 +1756,20 @@ function renderStatsCustomerPreview(module) {
   const c = module.content || defaultContent(module);
   const palette = getActiveSitePalette();
   const params = new URLSearchParams({
-    title: c.title || module.name,
-    subtitle: c.subtitle || "",
-    stat1Value: c.stat1Value || "",
-    stat1Unit: c.stat1Unit || "",
-    stat1Label: c.stat1Label || "",
-    stat2Value: c.stat2Value || "",
-    stat2Unit: c.stat2Unit || "",
-    stat2Label: c.stat2Label || "",
-    stat3Value: c.stat3Value || "",
-    stat3Unit: c.stat3Unit || "",
-    stat3Label: c.stat3Label || "",
-    stat4Value: c.stat4Value || "",
-    stat4Unit: c.stat4Unit || "",
-    stat4Label: c.stat4Label || "",
+    title: previewPlainText(c.title, module.name),
+    subtitle: previewPlainText(c.subtitle),
+    stat1Value: previewPlainText(c.stat1Value),
+    stat1Unit: previewPlainText(c.stat1Unit),
+    stat1Label: previewPlainText(c.stat1Label),
+    stat2Value: previewPlainText(c.stat2Value),
+    stat2Unit: previewPlainText(c.stat2Unit),
+    stat2Label: previewPlainText(c.stat2Label),
+    stat3Value: previewPlainText(c.stat3Value),
+    stat3Unit: previewPlainText(c.stat3Unit),
+    stat3Label: previewPlainText(c.stat3Label),
+    stat4Value: previewPlainText(c.stat4Value),
+    stat4Unit: previewPlainText(c.stat4Unit),
+    stat4Label: previewPlainText(c.stat4Label),
     primary: palette.primary,
     accent: palette.accent,
     bg: palette.bg,
@@ -1396,7 +1797,7 @@ function renderCardsVariantWorkbench(module) {
       <div class="section-head compact">
         <div>
           <h3>卡片內容與呈現方式</h3>
-          <p>此模塊會沿用整站官網模板的色系與風格；這裡只設定卡片列表的排列方式與 4 張卡片內容。</p>
+          <p>此模塊會沿用整站官網模板的色系與風格；先選呈現方式，再選此版型可承載的卡片數量。</p>
         </div>
         <div class="tabs">
           <button class="tab ${activeTab === "edit" ? "is-active" : ""}" type="button" data-hero-editor-tab="edit">呈現方式與內容</button>
@@ -1436,26 +1837,11 @@ function renderCardsVariantWorkbench(module) {
 function renderCardsCustomerPreview(module) {
   const variant = getVariant(module);
   const c = module.content || defaultContent(module);
+  const count = currentItemCount(module);
   const palette = getActiveSitePalette();
   const params = new URLSearchParams({
-    title: c.title || module.name,
-    subtitle: c.subtitle || "",
-    item1: c.item1 || "",
-    item1Subtitle: c.item1Subtitle || "",
-    item1LinkEnabled: c.item1LinkEnabled ? "1" : "0",
-    item1LinkText: c.item1LinkText || "",
-    item2: c.item2 || "",
-    item2Subtitle: c.item2Subtitle || "",
-    item2LinkEnabled: c.item2LinkEnabled ? "1" : "0",
-    item2LinkText: c.item2LinkText || "",
-    item3: c.item3 || "",
-    item3Subtitle: c.item3Subtitle || "",
-    item3LinkEnabled: c.item3LinkEnabled ? "1" : "0",
-    item3LinkText: c.item3LinkText || "",
-    item4: c.item4 || "",
-    item4Subtitle: c.item4Subtitle || "",
-    item4LinkEnabled: c.item4LinkEnabled ? "1" : "0",
-    item4LinkText: c.item4LinkText || "",
+    title: previewPlainText(c.title, module.name),
+    subtitle: previewPlainText(c.subtitle),
     primary: palette.primary,
     accent: palette.accent,
     bg: palette.bg,
@@ -1463,6 +1849,7 @@ function renderCardsCustomerPreview(module) {
     text: palette.text,
     muted: palette.muted
   });
+  appendItemParams(params, c, count, 6);
   if (variant.entry) {
     return `
       <div class="hero-real-template-preview cards-real-template-preview">
@@ -1523,21 +1910,13 @@ function renderNewsVariantWorkbench(module) {
 function renderNewsCustomerPreview(module) {
   const variant = getVariant(module);
   const c = module.content || defaultContent(module);
+  const count = currentItemCount(module);
   const palette = getActiveSitePalette();
   const params = new URLSearchParams({
-    title: c.title || module.name,
-    subtitle: c.subtitle || "",
-    category: c.newsCategory || "",
-    cta: module.linkText || "查看更多",
-    item1: c.item1 || "",
-    item1Subtitle: c.item1Subtitle || "",
-    item1Date: c.item1Date || "",
-    item2: c.item2 || "",
-    item2Subtitle: c.item2Subtitle || "",
-    item2Date: c.item2Date || "",
-    item3: c.item3 || "",
-    item3Subtitle: c.item3Subtitle || "",
-    item3Date: c.item3Date || "",
+    title: previewPlainText(c.title, module.name),
+    subtitle: previewPlainText(c.subtitle),
+    category: previewPlainText(c.newsCategory),
+    cta: previewPlainText(module.linkText, "查看更多"),
     primary: palette.primary,
     accent: palette.accent,
     bg: palette.bg,
@@ -1545,6 +1924,7 @@ function renderNewsCustomerPreview(module) {
     text: palette.text,
     muted: palette.muted
   });
+  appendItemParams(params, c, count, 6);
   if (variant.entry) {
     return `
       <div class="hero-real-template-preview news-real-template-preview">
@@ -1565,7 +1945,7 @@ function renderFaqVariantWorkbench(module) {
       <div class="section-head compact">
         <div>
           <h3>FAQ 內容與呈現方式</h3>
-          <p>此模塊會沿用整站官網模板的色系與風格；這裡設定 4 組常見問題與答案。</p>
+          <p>此模塊會沿用整站官網模板的色系與風格；首頁只放精選問題，完整題庫可交給 FAQ 頁。</p>
         </div>
         <div class="tabs">
           <button class="tab ${activeTab === "edit" ? "is-active" : ""}" type="button" data-hero-editor-tab="edit">呈現方式與內容</button>
@@ -1605,19 +1985,12 @@ function renderFaqVariantWorkbench(module) {
 function renderFaqCustomerPreview(module) {
   const variant = getVariant(module);
   const c = module.content || defaultContent(module);
+  const count = currentItemCount(module);
   const palette = getActiveSitePalette();
   const params = new URLSearchParams({
-    title: c.title || module.name,
-    subtitle: c.subtitle || "",
-    category: c.newsCategory || "FAQ",
-    item1: c.item1 || "",
-    item1Subtitle: c.item1Subtitle || "",
-    item2: c.item2 || "",
-    item2Subtitle: c.item2Subtitle || "",
-    item3: c.item3 || "",
-    item3Subtitle: c.item3Subtitle || "",
-    item4: c.item4 || "",
-    item4Subtitle: c.item4Subtitle || "",
+    title: previewPlainText(c.title, module.name),
+    subtitle: previewPlainText(c.subtitle),
+    category: previewPlainText(c.newsCategory, "FAQ"),
     primary: palette.primary,
     accent: palette.accent,
     bg: palette.bg,
@@ -1625,6 +1998,7 @@ function renderFaqCustomerPreview(module) {
     text: palette.text,
     muted: palette.muted
   });
+  appendItemParams(params, c, count, 8);
   if (variant.entry) {
     return `
       <div class="hero-real-template-preview faq-real-template-preview">
@@ -1722,7 +2096,7 @@ function renderStatsContentFields(module) {
 function renderCardsContentFields(module) {
   const c = module.content || defaultContent(module);
   module.content = c;
-  const rows = [1, 2, 3, 4].map((index) => `
+  const rows = itemNumbers(module).map((index) => `
     <div class="card-input-row">
       <div class="field">
         <label>卡片 ${index} 標題 <span class="required">必填</span></label>
@@ -1754,6 +2128,7 @@ function renderCardsContentFields(module) {
           <label>副標題 <span class="optional">可不填</span></label>
           <input type="text" value="${esc(c.subtitle)}" data-content-field="subtitle">
         </div>
+        ${renderItemCountField(module, "顯示卡片數量")}
       </div>
       <div class="cards-input-list">
         ${rows}
@@ -1765,7 +2140,7 @@ function renderCardsContentFields(module) {
 function renderNewsContentFields(module) {
   const c = module.content || defaultContent(module);
   module.content = c;
-  const rows = [1, 2, 3].map((index) => `
+  const rows = itemNumbers(module).map((index) => `
     <div class="news-input-row">
       <div class="field news-date-field">
         <label>文章 ${index} 日期 <span class="optional">可不填</span></label>
@@ -1800,6 +2175,7 @@ function renderNewsContentFields(module) {
           <label>查看更多按鈕文字 <span class="optional">可不填</span></label>
           <input type="text" value="${esc(module.linkText || "")}" data-field="linkText">
         </div>
+        ${renderItemCountField(module, "顯示文章數量")}
       </div>
       <div class="news-input-list">
         ${rows}
@@ -1811,7 +2187,7 @@ function renderNewsContentFields(module) {
 function renderFaqContentFields(module) {
   const c = module.content || defaultContent(module);
   module.content = c;
-  const rows = [1, 2, 3, 4].map((index) => `
+  const rows = itemNumbers(module).map((index) => `
     <div class="faq-input-row">
       <div class="field">
         <label>問題 ${index} <span class="required">必填</span></label>
@@ -1838,6 +2214,7 @@ function renderFaqContentFields(module) {
           <label>分類顯示文字 <span class="optional">可不填</span></label>
           <input type="text" value="${esc(c.newsCategory || "FAQ")}" data-content-field="newsCategory">
         </div>
+        ${renderItemCountField(module, "顯示問題數量")}
       </div>
       <div class="faq-input-list">
         ${rows}
@@ -1886,10 +2263,12 @@ function renderContentFields(module) {
   `;
 
   if (["cards", "news", "steps", "faq", "stats"].includes(module.type)) {
+    const count = itemCountRule(module) ? currentItemCount(module) : 3;
     return `
       ${common}
+      ${module.type === "steps" ? renderItemCountField(module, "顯示步驟數量") : ""}
       <div class="item-field-list">
-        ${[1, 2, 3].map((index) => `
+        ${Array.from({ length: count }, (_, itemIndex) => itemIndex + 1).map((index) => `
           <div class="item-field-row">
             <div class="field">
               <label>項目 ${index} 主標題 <span class="required">必填</span></label>
@@ -1928,10 +2307,11 @@ function renderFolderPicker(module) {
 function renderLinkSettings(module) {
   if (isMultiItemModule(module)) {
     module.content = module.content || defaultContent(module);
+    const count = itemCountRule(module) ? currentItemCount(module) : 3;
     return `
       <p class="field-help">此模塊有多個內容項目，可分別設定每個項目的頁面連結。</p>
       <div class="item-link-list">
-        ${[1, 2, 3].map((index) => `
+        ${Array.from({ length: count }, (_, itemIndex) => itemIndex + 1).map((index) => `
           <section class="item-link-row">
             <label class="check-line">
               <input type="checkbox" ${module.content[`item${index}LinkEnabled`] ? "checked" : ""} data-content-field="item${index}LinkEnabled">
@@ -1989,7 +2369,7 @@ function renderVariantMiniPreview(module) {
           </div>
         </div>
         <div class="module-real-preview">
-          <iframe class="module-preview-frame" title="${esc(module.name)}版型 ${esc(variant.id)} 預覽" src="${esc(variant.entry)}"></iframe>
+          <iframe class="module-preview-frame" scrolling="no" title="${esc(module.name)}版型 ${esc(variant.id)} 預覽" src="${esc(variant.entry)}"></iframe>
           <img src="${esc(variant.thumbnail || "")}" alt="${esc(variant.name)}預覽備援圖">
         </div>
       </div>
@@ -2014,10 +2394,12 @@ function renderVariantMiniPreview(module) {
     return `<div class="mini-preview"><div class="mini-split ${isB ? "layout-b" : ""}">${isB ? `${copy}${image}` : `${image}${copy}`}</div><p>${isB ? "版型 B：文字在左、圖片在右。" : "版型 A：圖片在左、文字在右。"}</p></div>`;
   }
   if (module.type === "news" || module.type === "steps" || module.type === "faq") {
-    const items = [c.item1, c.item2, c.item3].map((item, index) => esc(item || `內容項目 ${index + 1}`));
+    const count = itemCountRule(module) ? currentItemCount(module) : 3;
+    const items = Array.from({ length: count }, (_, index) => esc(c[`item${index + 1}`] || `內容項目 ${index + 1}`));
     return `<div class="mini-preview"><div class="${isB ? "mini-grid" : "mini-list"}">${isB ? items.map((item) => `<div class="mini-card"><strong>${item}</strong><span>範例摘要</span>${button}</div>`).join("") : items.map((item) => `<div class="mini-row"><strong>${item}</strong>${button}</div>`).join("")}</div><p>${isB ? "版型 B：卡片或表格式呈現，按鈕固定在項目下方。" : "版型 A：列表或手風琴式呈現，按鈕固定在列尾或列表下方。"}</p></div>`;
   }
-  const items = [c.item1, c.item2, c.item3, "內容項目 4"].slice(0, isB ? 4 : 3);
+  const count = itemCountRule(module) ? currentItemCount(module) : (isB ? 4 : 3);
+  const items = Array.from({ length: count }, (_, index) => c[`item${index + 1}`] || `內容項目 ${index + 1}`);
   return `<div class="mini-preview"><div class="mini-grid ${isB ? "layout-b" : ""}">${items.map((item) => `<div class="mini-card"><strong>${esc(item)}</strong><span>${esc(c.imageLabel || "圖片")}</span>${button}</div>`).join("")}</div><p>${isB ? "版型 B：四欄網格，按鈕固定在卡片底部。" : "版型 A：三欄卡片，按鈕固定在卡片底部。"}</p></div>`;
 }
 
@@ -2031,6 +2413,9 @@ function updateField(module, input) {
       title: module.content?.title || module.name
     };
   }
+  if (key === "variant" && module.content && itemCountRule(module)) {
+    currentItemCount(module);
+  }
   markDirty();
   render();
 }
@@ -2040,7 +2425,7 @@ function updateContentField(module, input) {
   const key = input.dataset.contentField;
   module.content[key] = input.type === "checkbox" ? input.checked : input.value;
   markDirty();
-  if (key.endsWith("LinkEnabled")) {
+  if (key === "itemCount" || key.endsWith("LinkEnabled")) {
     render();
     return;
   }
@@ -2152,10 +2537,70 @@ function updateSaveState() {
   });
 }
 
+function previewImageFallbackSrc(label = "預覽圖片") {
+  const displayLabel = String(label || "預覽圖片").trim();
+  const safeLabel = (displayLabel.length > 24 ? `${displayLabel.slice(0, 24)}...` : displayLabel)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="960" height="640" viewBox="0 0 960 640">
+      <defs>
+        <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0%" stop-color="#e9f6f8"/>
+          <stop offset="52%" stop-color="#f7fbfc"/>
+          <stop offset="100%" stop-color="#d7ecef"/>
+        </linearGradient>
+      </defs>
+      <rect width="960" height="640" fill="url(#bg)"/>
+      <circle cx="724" cy="142" r="92" fill="#ffffff" opacity=".58"/>
+      <circle cx="218" cy="480" r="154" fill="#0e6a8c" opacity=".1"/>
+      <path d="M166 390c86-106 172-110 258-12 48 54 92 82 132 84 56 2 102-44 152-122 28-44 56-68 84-72v256H166z" fill="#0e6a8c" opacity=".2"/>
+      <rect x="80" y="84" width="800" height="472" rx="28" fill="#ffffff" opacity=".5" stroke="#0e6a8c" stroke-opacity=".22"/>
+      <text x="480" y="305" text-anchor="middle" font-family="Arial, 'Microsoft JhengHei', sans-serif" font-size="32" font-weight="700" fill="#04384c">${safeLabel}</text>
+      <text x="480" y="350" text-anchor="middle" font-family="Arial, 'Microsoft JhengHei', sans-serif" font-size="18" fill="#64747b">預覽圖片</text>
+    </svg>
+  `;
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
+
+function repairPreviewDocument(frame, resize) {
+  const doc = frame.contentDocument;
+  if (!doc) return;
+  doc.querySelectorAll(".material-symbols-outlined").forEach((icon) => {
+    const name = icon.textContent.trim();
+    if (name === "arrow_forward") icon.textContent = "→";
+  });
+  doc.querySelectorAll("img").forEach((image, index) => {
+    const repairImage = () => {
+      if (image.dataset.previewFallbackApplied) return;
+      image.dataset.previewFallbackApplied = "true";
+      image.src = previewImageFallbackSrc(image.alt || image.dataset.alt || `預覽圖片 ${index + 1}`);
+      resize();
+    };
+    image.addEventListener("load", resize, { once: true });
+    image.addEventListener("error", repairImage, { once: true });
+    if (image.complete && image.naturalWidth === 0) repairImage();
+  });
+  doc.querySelectorAll("[style*='background-image']").forEach((element, index) => {
+    const background = element.style.backgroundImage || "";
+    const match = background.match(/url\(["']?([^"')]+)["']?\)/);
+    const src = match?.[1];
+    if (!src || src.startsWith("data:")) return;
+    const tester = new Image();
+    tester.onerror = () => {
+      element.style.backgroundImage = `url("${previewImageFallbackSrc(element.dataset.alt || `背景預覽 ${index + 1}`)}")`;
+      resize();
+    };
+    tester.src = src;
+  });
+}
+
 function expandFrontPreviewFrames() {
   const getPreviewFrames = () => [
-    ...els.previewRoot.querySelectorAll(".front-live-module iframe"),
-    ...els.settingsRoot.querySelectorAll(".hero-real-preview-frame")
+    ...(els.previewRoot?.querySelectorAll(".front-live-module iframe") || []),
+    ...els.settingsRoot.querySelectorAll(".hero-real-preview-frame, .module-preview-frame, .real-preview-frame"),
+    ...els.managerPanel.querySelectorAll(".real-preview-frame, .page-real-preview-frame")
   ];
 
   if (!window.__frontPreviewHeightListener) {
@@ -2174,7 +2619,11 @@ function expandFrontPreviewFrames() {
   getPreviewFrames().forEach((frame) => {
     const moduleClass = [...(frame.closest(".front-live-module")?.classList || [])]
       .find((name) => name.startsWith("front-live-module-"));
-    const minimumHeight = 320;
+    const minimumHeight = frame.classList.contains("page-real-preview-frame")
+      ? 900
+      : frame.classList.contains("real-preview-frame")
+        ? 900
+        : 420;
     const resize = () => {
       try {
         const documentRoot = frame.contentDocument?.documentElement;
@@ -2212,9 +2661,36 @@ function expandFrontPreviewFrames() {
             }
             .h-screen {
               height: auto !important;
+              min-height: 520px !important;
             }
             .min-h-screen {
-              min-height: 0 !important;
+              min-height: 520px !important;
+            }
+            body > section:first-of-type,
+            body > main:first-of-type {
+              min-height: 520px !important;
+              padding-top: 48px !important;
+              padding-bottom: 48px !important;
+              align-items: flex-start !important;
+            }
+            body > section:first-of-type > .grid,
+            body > main:first-of-type > .grid {
+              align-items: flex-start !important;
+            }
+            section,
+            main,
+            footer {
+              overflow: visible !important;
+            }
+            .opacity-0,
+            [data-aos] {
+              opacity: 1 !important;
+            }
+            .translate-y-10,
+            .-translate-y-10,
+            .translate-x-10,
+            .-translate-x-10 {
+              transform: none !important;
             }
           `;
           frame.contentDocument.head?.appendChild(documentStyle);
@@ -2230,15 +2706,14 @@ function expandFrontPreviewFrames() {
         requestAnimationFrame(resize);
         requestAnimationFrame(() => requestAnimationFrame(resize));
       });
-      frame.contentDocument?.querySelectorAll("img").forEach((image) => {
-        image.addEventListener("load", resize, { once: true });
-      });
+      repairPreviewDocument(frame, resize);
     }, { once: true });
     resize();
   });
 }
 
 function renderPreview() {
+  if (!els.previewPanel || !els.previewRoot) return;
   const template = getActiveSiteTemplate();
   const palette = getActiveSitePalette();
   const previewVars = {
@@ -2327,7 +2802,7 @@ function renderPreviewPage(page) {
   const intro = esc(page.content?.field1 || template.description);
   const fields = template.fields.map((field, index) => esc(page.content?.[`field${index}`] || field));
 
-  if (["article", "case", "service"].includes(page.template)) {
+  if (["article", "faq", "product", "resource"].includes(page.template)) {
     return `
       <section class="home-section page-hero">
         <div>
@@ -2538,15 +3013,13 @@ function renderPreviewModule(module) {
   `;
 }
 
-function setView(view) {
-  state.view = view;
-  document.querySelectorAll("[data-view]").forEach((button) => {
-    button.classList.toggle("is-active", button.dataset.view === view);
-  });
-  els.workspace.classList.toggle("preview-only", view === "preview");
-  els.workspace.classList.toggle("admin-only", view === "admin");
-  els.previewPanel.classList.toggle("hidden", view === "admin");
-  els.adminPanel.classList.toggle("hidden", view === "preview");
+function setView() {
+  state.view = "admin";
+  els.workspace.classList.remove("preview-only");
+  els.workspace.classList.add("admin-only");
+  els.previewPanel?.classList.add("hidden");
+  els.previewPanel?.setAttribute("aria-hidden", "true");
+  els.adminPanel.classList.remove("hidden");
 }
 
 function managerHeader(title, description, actions = []) {
@@ -2983,7 +3456,8 @@ function renderSiteStylePreview(template, palette) {
       bg: palette.bg,
       surface: palette.surface,
       text: palette.text,
-      muted: palette.muted
+      muted: palette.muted,
+      preview: "admin"
     });
     return `
       <div class="site-style-preview real-template-preview" style="--preview-primary:${esc(palette.primary)};--preview-accent:${esc(palette.accent)};--preview-bg:${esc(palette.bg)};--preview-text:${esc(palette.text)}">
@@ -2992,7 +3466,7 @@ function renderSiteStylePreview(template, palette) {
           <strong>官網預覽</strong>
         </div>
         <div class="real-preview-stage">
-          <iframe class="real-preview-frame" title="${esc(template.name)}官網預覽" src="${esc(template.entry)}?${esc(params.toString())}"></iframe>
+          <iframe class="real-preview-frame" scrolling="no" title="${esc(template.name)}官網預覽" src="${esc(template.entry)}?${esc(params.toString())}"></iframe>
         </div>
       </div>
     `;
@@ -3316,10 +3790,401 @@ function renderSiteBasicInfoManager() {
   `;
 }
 
+function getSeoSetting(pageId) {
+  return state.pageSeoSettings.find((item) => item.pageId === pageId) || state.pageSeoSettings[0];
+}
+
+function seoStatus(setting) {
+  return setting.seoTitle?.trim() && setting.seoDescription?.trim() ? "設定完成" : "尚未完成";
+}
+
+function ogImageStatus(setting) {
+  return setting.useDefaultOgImage || !setting.ogImageUrl ? "使用全站預設圖" : "已上傳";
+}
+
+function robotsText(setting) {
+  return `${setting.indexable ? "index" : "noindex"}, ${setting.followable ? "follow" : "nofollow"}`;
+}
+
+function canonicalForSetting(setting) {
+  return setting.canonicalMode === "custom" ? setting.canonicalUrl : pageCanonicalUrl(setting.slug);
+}
+
+function effectiveOgTitle(setting) {
+  return setting.syncOg ? setting.seoTitle : setting.ogTitle;
+}
+
+function effectiveOgDescription(setting) {
+  return setting.syncOg ? setting.seoDescription : setting.ogDescription;
+}
+
+function effectiveOgImage(setting) {
+  return setting.useDefaultOgImage || !setting.ogImageUrl
+    ? previewImageFallbackSrc("全站預設分享圖")
+    : setting.ogImageUrl;
+}
+
+function formatFileSize(bytes) {
+  const size = Number(bytes) || 0;
+  if (!size) return "尚未取得";
+  if (size < 1024 * 1024) return `${Math.round(size / 1024)} KB`;
+  return `${(size / 1024 / 1024).toFixed(1)} MB`;
+}
+
+function keywordsText(setting) {
+  return (setting.keywords || []).join("、");
+}
+
+function parseKeywords(value) {
+  return String(value || "")
+    .split(/[,\n，、]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function renderError(name) {
+  const message = state.seoErrors?.[name];
+  return message ? `<div class="field-error" data-error-for="${esc(name)}">${esc(message)}</div>` : "";
+}
+
+function renderCount(value, min, max) {
+  const count = String(value || "").trim().length;
+  const ok = count >= min && count <= max;
+  return `<span class="char-count ${ok ? "is-ok" : ""}">${count} 字，建議 ${min}～${max} 個中文字</span>`;
+}
+
+function openSeoModal(pageId) {
+  state.activeSeoPageId = pageId;
+  state.seoDraft = clone(getSeoSetting(pageId));
+  state.seoErrors = {};
+  state.seoSavedNotice = "";
+  render();
+}
+
+function closeSeoModal() {
+  state.activeSeoPageId = "";
+  state.seoDraft = null;
+  state.seoErrors = {};
+  render();
+}
+
+function updateSeoDraft(field, value) {
+  if (!state.seoDraft) return;
+  if (field === "keywords") {
+    state.seoDraft.keywords = parseKeywords(value);
+  } else if (["syncOg", "useDefaultOgImage", "indexable", "followable"].includes(field)) {
+    state.seoDraft[field] = Boolean(value);
+  } else {
+    state.seoDraft[field] = value;
+  }
+  if (field === "slug" && state.seoDraft.canonicalMode === "auto") {
+    state.seoDraft.canonicalUrl = pageCanonicalUrl(state.seoDraft.slug);
+  }
+  if (field === "seoTitle" && state.seoDraft.syncOg) state.seoDraft.ogTitle = value;
+  if (field === "seoDescription" && state.seoDraft.syncOg) state.seoDraft.ogDescription = value;
+}
+
+function validateSeoDraft() {
+  const draft = state.seoDraft;
+  const errors = {};
+  if (!draft.seoTitle?.trim()) errors.seoTitle = "SEO 標題不可空白。";
+  if (!draft.seoDescription?.trim()) errors.seoDescription = "SEO 描述不可空白。";
+  if (draft.pageId !== "home" && !/^[a-zA-Z0-9-]+$/.test(draft.slug || "")) {
+    errors.slug = "Slug 只能輸入英文字母、數字及連字號。";
+  }
+  if (draft.pageId !== "home" && /(^-|-$|--)/.test(draft.slug || "")) {
+    errors.slug = "Slug 不可連續使用連字號，也不可放在開頭或結尾。";
+  }
+  if (draft.canonicalMode === "custom" && !/^https:\/\/[^ ]+\.[^ ]+/.test(draft.canonicalUrl || "")) {
+    errors.canonicalUrl = "自訂 Canonical URL 必須是完整的 HTTPS URL。";
+  }
+  if (!draft.useDefaultOgImage && draft.ogImageUrl && !["image/jpeg", "image/png", "image/webp"].includes(draft.ogImageType)) {
+    errors.ogImage = "分享圖片僅支援 JPG、PNG、WebP。";
+  }
+  state.seoErrors = errors;
+  return Object.keys(errors).length === 0;
+}
+
+function focusFirstSeoError() {
+  requestAnimationFrame(() => {
+    const firstError = els.managerPanel.querySelector(".field-error");
+    const field = firstError?.closest(".field")?.querySelector("input, textarea, select, button");
+    firstError?.scrollIntoView({ block: "center", behavior: "smooth" });
+    field?.focus();
+  });
+}
+
+function saveSeoDraft() {
+  if (!state.seoDraft) return;
+  if (!validateSeoDraft()) {
+    render();
+    focusFirstSeoError();
+    return;
+  }
+  state.pageSeoSettings = state.pageSeoSettings.map((item) =>
+    item.pageId === state.seoDraft.pageId ? clone(state.seoDraft) : item
+  );
+  persistSeoSettings();
+  state.activeSeoPageId = "";
+  state.seoDraft = null;
+  state.seoErrors = {};
+  state.seoSavedNotice = "SEO／分享設定已儲存";
+  render();
+}
+
+function handleSeoImageUpload(input) {
+  const file = input.files?.[0];
+  if (!state.seoDraft || !file) return;
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+  state.seoDraft.ogImageName = file.name;
+  state.seoDraft.ogImageType = file.type;
+  state.seoDraft.ogImageSize = file.size;
+  if (!allowedTypes.includes(file.type)) {
+    state.seoDraft.ogImageUrl = "";
+    state.seoErrors = { ...state.seoErrors, ogImage: "分享圖片僅支援 JPG、PNG、WebP。" };
+    render();
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    const imageUrl = String(reader.result || "");
+    const image = new Image();
+    image.onload = () => {
+      state.seoDraft.ogImageUrl = imageUrl;
+      state.seoDraft.ogImageWidth = image.naturalWidth;
+      state.seoDraft.ogImageHeight = image.naturalHeight;
+      state.seoDraft.useDefaultOgImage = false;
+      delete state.seoErrors.ogImage;
+      render();
+    };
+    image.onerror = () => {
+      state.seoErrors = { ...state.seoErrors, ogImage: "無法讀取圖片尺寸，請更換圖片。" };
+      render();
+    };
+    image.src = imageUrl;
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeSeoImage() {
+  if (!state.seoDraft) return;
+  state.seoDraft.ogImageUrl = "";
+  state.seoDraft.ogImageName = "";
+  state.seoDraft.ogImageType = "";
+  state.seoDraft.ogImageSize = 0;
+  state.seoDraft.ogImageWidth = 0;
+  state.seoDraft.ogImageHeight = 0;
+  state.seoDraft.useDefaultOgImage = true;
+  render();
+}
+
+function renderSeoOutputPreview(setting) {
+  const title = setting.seoTitle || "";
+  const description = setting.seoDescription || "";
+  const canonical = canonicalForSetting(setting);
+  const ogTitle = effectiveOgTitle(setting) || "";
+  const ogDescription = effectiveOgDescription(setting) || "";
+  const ogImage = effectiveOgImage(setting);
+  return esc(`<title>${title}</title>
+<meta name="description" content="${description}">
+<meta name="robots" content="${robotsText(setting)}">
+<link rel="canonical" href="${canonical}">
+<meta property="og:title" content="${ogTitle}">
+<meta property="og:description" content="${ogDescription}">
+<meta property="og:image" content="${ogImage}">
+<meta property="og:url" content="${canonical}">
+<meta property="og:type" content="website">`);
+}
+
+function renderSeoModal() {
+  const draft = state.seoDraft;
+  if (!draft) return "";
+  const canonical = canonicalForSetting(draft);
+  const ogTitle = effectiveOgTitle(draft);
+  const ogDescription = effectiveOgDescription(draft);
+  const imageCheck = draft.ogImageUrl
+    ? `${esc(draft.ogImageType || "未知格式")}，${formatFileSize(draft.ogImageSize)}，${draft.ogImageWidth || 0} × ${draft.ogImageHeight || 0}px${draft.ogImageWidth === 1200 && draft.ogImageHeight === 630 ? "，尺寸符合建議" : "，建議 1200 × 630 px"}`
+    : "目前使用全站預設分享圖。";
+  return `
+    <div class="modal-backdrop seo-modal-backdrop" role="presentation" data-close-seo-modal>
+      <section class="quick-modal seo-modal" role="dialog" aria-modal="true" aria-labelledby="seoModalTitle" data-modal-panel>
+        <div class="quick-modal-head">
+          <div>
+            <h3 id="seoModalTitle">編輯 SEO／分享設定－${esc(draft.pageName)}</h3>
+            <p>設定搜尋結果、社群預覽與搜尋引擎收錄方式。</p>
+          </div>
+          <button class="btn" type="button" data-close-seo-modal>取消</button>
+        </div>
+        <div class="quick-modal-body seo-modal-body">
+          <section class="seo-edit-section">
+            <h4>A. 搜尋結果設定</h4>
+            <div class="field-grid">
+              <div class="field">
+                <label>SEO 標題（必填）</label>
+                <div class="field-help">顯示於 Google 搜尋結果標題與瀏覽器頁籤。</div>
+                <input type="text" value="${esc(draft.seoTitle)}" data-seo-field="seoTitle">
+                ${renderCount(draft.seoTitle, 25, 35)}
+                ${renderError("seoTitle")}
+              </div>
+              <div class="field full">
+                <label>SEO 描述（必填）</label>
+                <div class="field-help">顯示於搜尋結果標題下方，用來簡述頁面內容。</div>
+                <textarea data-seo-field="seoDescription">${esc(draft.seoDescription)}</textarea>
+                ${renderCount(draft.seoDescription, 70, 100)}
+                ${renderError("seoDescription")}
+              </div>
+              <div class="field">
+                <label>網址路徑 Slug</label>
+                <div class="field-help">${draft.pageId === "home" ? "首頁不可修改。" : "只能輸入英文字母、數字及連字號。"}</div>
+                <input type="text" value="${esc(draft.slug)}" data-seo-field="slug" ${draft.pageId === "home" ? "disabled" : ""}>
+                ${draft.pageId !== "home" ? `<div class="field-warning">修改網址可能造成原連結失效，正式環境應設定 301 Redirect。</div>` : ""}
+                ${renderError("slug")}
+              </div>
+              <div class="field">
+                <label>主要關鍵字（選填）</label>
+                <div class="field-help">可用逗號或頓號分隔；僅供內容規劃及後台管理，不輸出 meta keywords。</div>
+                <input type="text" value="${esc(keywordsText(draft))}" data-seo-field="keywords">
+              </div>
+            </div>
+          </section>
+
+          <section class="seo-edit-section">
+            <h4>B. 社群分享設定</h4>
+            <div class="field-grid">
+              <label class="check-line full"><input type="checkbox" ${draft.syncOg ? "checked" : ""} data-seo-check="syncOg"> 分享標題與描述沿用 SEO 設定</label>
+              <div class="field">
+                <label>分享標題（OG Title）</label>
+                <div class="field-help">用於 LINE、Facebook 等平台的網址預覽標題。</div>
+                <input type="text" value="${esc(ogTitle || "")}" data-seo-field="ogTitle" ${draft.syncOg ? "disabled" : ""}>
+              </div>
+              <div class="field full">
+                <label>分享描述（OG Description）</label>
+                <div class="field-help">用於社群網址預覽摘要。</div>
+                <textarea data-seo-field="ogDescription" ${draft.syncOg ? "disabled" : ""}>${esc(ogDescription || "")}</textarea>
+              </div>
+              <label class="check-line full"><input type="checkbox" ${draft.useDefaultOgImage ? "checked" : ""} data-seo-check="useDefaultOgImage"> 使用全站預設分享圖</label>
+              <div class="field full">
+                <label>分享圖片（OG Image）</label>
+                <div class="field-help">支援 JPG、PNG、WebP；建議尺寸 1200 × 630 px。</div>
+                <div class="og-image-editor">
+                  <img src="${esc(effectiveOgImage(draft))}" alt="分享圖片預覽">
+                  <div>
+                    <div class="file-upload-row">
+                      <label class="btn ${draft.useDefaultOgImage ? "disabled" : ""}">上傳 / 更換<input class="sr-only" type="file" accept="image/jpeg,image/png,image/webp" data-seo-image ${draft.useDefaultOgImage ? "disabled" : ""}></label>
+                      ${draft.ogImageUrl ? `<button class="btn" type="button" data-remove-seo-image>移除</button>` : ""}
+                    </div>
+                    <p class="hint">${esc(draft.ogImageName || "尚未選擇頁面專屬圖片")}</p>
+                    <p class="hint">${imageCheck}</p>
+                  </div>
+                </div>
+                ${renderError("ogImage")}
+              </div>
+            </div>
+          </section>
+
+          <section class="seo-edit-section">
+            <h4>C. 搜尋引擎設定</h4>
+            <div class="field-grid">
+              <label class="check-line"><input type="checkbox" ${draft.indexable ? "checked" : ""} data-seo-check="indexable"> 允許搜尋引擎收錄</label>
+              <label class="check-line"><input type="checkbox" ${draft.followable ? "checked" : ""} data-seo-check="followable"> 允許搜尋引擎追蹤頁面連結</label>
+              <div class="field full">
+                <label>Canonical URL</label>
+                <div class="field-help">用來指定此頁面的正式版本網址，避免重複內容問題。</div>
+                <div class="segmented-control">
+                  <label><input type="radio" name="canonicalMode" value="auto" ${draft.canonicalMode === "auto" ? "checked" : ""} data-seo-radio="canonicalMode"> 使用自動網址</label>
+                  <label><input type="radio" name="canonicalMode" value="custom" ${draft.canonicalMode === "custom" ? "checked" : ""} data-seo-radio="canonicalMode"> 自訂網址</label>
+                </div>
+                <input type="text" value="${esc(draft.canonicalMode === "auto" ? pageCanonicalUrl(draft.slug) : draft.canonicalUrl)}" data-seo-field="canonicalUrl" ${draft.canonicalMode === "auto" ? "disabled" : ""}>
+                ${renderError("canonicalUrl")}
+              </div>
+            </div>
+          </section>
+
+          <section class="seo-preview-grid">
+            <div class="seo-preview-card">
+              <h4>Google 搜尋結果預覽</h4>
+              <div class="google-preview">
+                <cite>${esc(canonical)}</cite>
+                <strong>${esc(draft.seoTitle || "請輸入 SEO 標題")}</strong>
+                <p>${esc(draft.seoDescription || "請輸入 SEO 描述")}</p>
+              </div>
+            </div>
+            <div class="seo-preview-card">
+              <h4>LINE／Facebook 分享預覽</h4>
+              <div class="social-preview">
+                <img src="${esc(effectiveOgImage(draft))}" alt="社群分享圖片預覽">
+                <div>
+                  <strong>${esc(ogTitle || "請輸入分享標題")}</strong>
+                  <p>${esc(ogDescription || "請輸入分享描述")}</p>
+                  <span>${esc(new URL(defaultSiteMeta.productionBaseUrl).hostname)}</span>
+                </div>
+              </div>
+            </div>
+            <div class="seo-preview-card full">
+              <h4>HTML 輸出模擬</h4>
+              <pre>${renderSeoOutputPreview(draft)}</pre>
+            </div>
+          </section>
+        </div>
+        <div class="quick-modal-actions">
+          <button class="btn" type="button" data-close-seo-modal>取消</button>
+          <button class="btn primary" type="button" data-save-seo-modal>儲存設定</button>
+        </div>
+      </section>
+    </div>
+  `;
+}
+
+function renderSeoRows() {
+  return state.pageSeoSettings.map((setting) => `
+    <tr>
+      <td data-label="頁面名稱"><strong>${esc(setting.pageName)}</strong></td>
+      <td data-label="SEO 狀態"><span class="status-pill ${seoStatus(setting) === "設定完成" ? "green" : "unsaved"}">${seoStatus(setting)}</span></td>
+      <td data-label="分享圖">${ogImageStatus(setting)}</td>
+      <td data-label="搜尋引擎收錄">${setting.indexable ? "允許收錄" : "不允許收錄"}</td>
+      <td data-label="操作"><button class="btn" type="button" data-edit-seo="${esc(setting.pageId)}">編輯 SEO／分享設定</button></td>
+    </tr>
+  `).join("");
+}
+
+function refreshSeoLivePreview() {
+  const draft = state.seoDraft;
+  const modal = els.managerPanel.querySelector(".seo-modal");
+  if (!draft || !modal) return;
+  const canonical = canonicalForSetting(draft);
+  const ogTitle = effectiveOgTitle(draft) || "請輸入分享標題";
+  const ogDescription = effectiveOgDescription(draft) || "請輸入分享描述";
+  const google = modal.querySelector(".google-preview");
+  if (google) {
+    google.querySelector("cite").textContent = canonical;
+    google.querySelector("strong").textContent = draft.seoTitle || "請輸入 SEO 標題";
+    google.querySelector("p").textContent = draft.seoDescription || "請輸入 SEO 描述";
+  }
+  const social = modal.querySelector(".social-preview");
+  if (social) {
+    social.querySelector("img").src = effectiveOgImage(draft);
+    social.querySelector("strong").textContent = ogTitle;
+    social.querySelector("p").textContent = ogDescription;
+  }
+  const output = modal.querySelector(".seo-preview-card pre");
+  if (output) output.textContent = renderSeoOutputPreview(draft).replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, "&");
+  modal.querySelectorAll("[data-seo-field='seoTitle'], [data-seo-field='seoDescription']").forEach((field) => {
+    const count = field.closest(".field")?.querySelector(".char-count");
+    if (!count) return;
+    const isTitle = field.dataset.seoField === "seoTitle";
+    const min = isTitle ? 25 : 70;
+    const max = isTitle ? 35 : 100;
+    const length = String(field.value || "").trim().length;
+    count.textContent = `${length} 字，建議 ${min}～${max} 個中文字`;
+    count.classList.toggle("is-ok", length >= min && length <= max);
+  });
+}
+
 function renderBannerMetaManager() {
   return `
     <section class="settings-stack">
       ${managerHeader("Banner / Meta", "管理頁面曝光、SEO 與社群分享資訊；品牌與聯絡資料請回到官網基本資訊填寫。", [])}
+      ${state.seoSavedNotice ? `<div class="save-toast">${esc(state.seoSavedNotice)}</div>` : ""}
       <section class="settings-card">
         <div class="section-title">
           <div>
@@ -3359,18 +4224,8 @@ function renderBannerMetaManager() {
           </div>
         </div>
         <table class="admin-table responsive-table">
-          <thead><tr><th>頁面</th><th>SEO 狀態</th><th>分享圖</th><th>索引</th><th>操作</th></tr></thead>
-          <tbody>
-            ${["首頁", "品牌故事", "最新消息", "FAQ", "聯絡我們"].map((page, index) => `
-              <tr>
-                <td data-label="頁面"><strong>${page}</strong></td>
-                <td data-label="SEO 狀態"><span class="status-pill">${index < 2 ? "已填" : "待補"}</span></td>
-                <td data-label="分享圖">${index === 0 ? "已上傳" : "沿用預設"}</td>
-                <td data-label="索引">允許索引</td>
-                <td data-label="操作"><button class="btn" type="button">編輯 Meta</button></td>
-              </tr>
-            `).join("")}
-          </tbody>
+          <thead><tr><th>頁面名稱</th><th>SEO 狀態</th><th>分享圖</th><th>搜尋引擎收錄</th><th>操作</th></tr></thead>
+          <tbody>${renderSeoRows()}</tbody>
         </table>
       </section>
       <section class="settings-card">
@@ -3391,6 +4246,7 @@ function renderBannerMetaManager() {
           </div>
         </div>
       </section>
+      ${renderSeoModal()}
     </section>
   `;
 }
@@ -3503,10 +4359,10 @@ const dataManagerConfig = {
     columns: ["案例", "案例類型", "分類", "狀態", "成果"],
     detailTitle: "案例內容",
     detailFields: [
-      { key: "clientBackground", label: "背景介紹", type: "textarea", help: "描述客戶、專案、作品或合作背景。" },
-      { key: "challenge", label: "需求 / 挑戰", type: "textarea", help: "描述原本遇到的需求、目標、限制或問題。" },
-      { key: "solution", label: "執行方式", type: "textarea", help: "描述提供的服務、流程、內容或解決方式。" },
-      { key: "result", label: "成果 / 亮點", type: "textarea", help: "描述成果數據、成效、亮點、客戶回饋或可展示的證明。" },
+      { key: "clientBackground", label: "背景介紹", type: "richtext", help: "描述客戶、專案、作品或合作背景。" },
+      { key: "challenge", label: "需求 / 挑戰", type: "richtext", help: "描述原本遇到的需求、目標、限制或問題。" },
+      { key: "solution", label: "執行方式", type: "richtext", help: "描述提供的服務、流程、內容或解決方式。" },
+      { key: "result", label: "成果 / 亮點", type: "richtext", help: "描述成果數據、成效、亮點、客戶回饋或可展示的證明。" },
       { key: "imageAlt", label: "圖片描述", type: "text", help: "填寫圖片內容，方便前台顯示與無障礙描述。" },
       { key: "linkUrl", label: "詳細頁連結", type: "text", help: "例如 /cases/sample-project，供首頁模塊或列表頁引用。" }
     ]
@@ -3521,9 +4377,9 @@ const dataManagerConfig = {
       { key: "summary", label: "簡短介紹", type: "textarea", help: "顯示在商品卡片、服務列表或頁首摘要。" },
       { key: "imageAlt", label: "代表圖 / 主圖描述", type: "text", help: "填寫圖片內容，方便前台顯示與無障礙描述。" },
       { key: "mainFileName", label: "上傳代表圖 / 主圖", type: "file", accept: "image/*", help: "用於列表卡片、詳細頁主圖或分享圖片。" },
-      { key: "body", label: "詳細內容", type: "textarea", help: "放完整介紹、圖片影片說明、服務細節或方案內容。" },
-      { key: "spec", label: "規格 / 服務內容", type: "textarea", help: "填寫規格、包含項目、適用對象、服務內容或方案細節。" },
-      { key: "benefit", label: "主要特色", type: "textarea", help: "整理使用者最在意的賣點、優勢或選擇理由。" },
+      { key: "body", label: "詳細內容", type: "richtext", help: "放完整介紹、圖片影片說明、服務細節或方案內容。" },
+      { key: "spec", label: "規格 / 服務內容", type: "richtext", help: "填寫規格、包含項目、適用對象、服務內容或方案細節。" },
+      { key: "benefit", label: "主要特色", type: "richtext", help: "整理使用者最在意的賣點、優勢或選擇理由。" },
       { key: "ctaText", label: "CTA 文字", type: "text", help: "例如 立即諮詢、索取簡報、查看方案。" },
       { key: "linkUrl", label: "CTA 連結", type: "text", help: "例如 /products/sample-item、/services/sample-service 或外部連結。" },
       { key: "seoTitle", label: "SEO 標題", type: "text", help: "未填時可沿用名稱。" },
@@ -3614,7 +4470,7 @@ function renderDataEditor(kind, item) {
           <input type="text" value="${esc(item.updated)}" data-data-field="updated" data-data-kind="${kind}" data-data-id="${item.id}">
         </div>
         ${config.detailFields.map((field) => `
-          <div class="field ${field.type === "textarea" ? "full" : ""}">
+          <div class="field ${["textarea", "richtext"].includes(field.type) ? "full" : ""}">
             <label>${esc(field.label)}</label>
             <div class="field-help">${esc(field.help)}</div>
             ${field.type === "file"
@@ -3623,6 +4479,13 @@ function renderDataEditor(kind, item) {
                   <span class="hint">${esc(item[field.key] || "尚未選擇檔案")}</span>
                   <input class="visually-hidden" id="${field.key}-${item.id}" type="file" accept="${esc(field.accept || "*")}" data-file-field="${field.key}" data-data-kind="${kind}" data-data-id="${item.id}">
                 </div>`
+              : field.type === "richtext"
+              ? renderRichTextEditor({
+                  kind,
+                  item,
+                  field,
+                  placeholder: "輸入內容，可調整粗細、字級、顏色，也可以插入圖片、影片或連結。"
+                })
               : field.type === "textarea"
               ? `<textarea data-data-field="${field.key}" data-data-kind="${kind}" data-data-id="${item.id}">${esc(item[field.key] || "")}</textarea>`
               : `<input type="text" value="${esc(item[field.key] || "")}" data-data-field="${field.key}" data-data-kind="${kind}" data-data-id="${item.id}">`}
@@ -4142,48 +5005,132 @@ function renderBlueprintCollection(kind, fixedType = "") {
   `;
 }
 
+const sharedSeoFields = [
+  {
+    name: "搜尋標題",
+    field: "seo_title",
+    input: "可留空，自動用頁面標題加品牌名",
+    output: "<title>、og:title、twitter:title、JSON-LD name/headline"
+  },
+  {
+    name: "搜尋摘要",
+    field: "seo_description",
+    input: "可留空，自動用頁面摘要或內文前段",
+    output: "meta description、og:description、twitter:description、JSON-LD description"
+  },
+  {
+    name: "分享圖片",
+    field: "share_image",
+    input: "可留空，自動用封面圖或全站預設圖",
+    output: "og:image、twitter:image、JSON-LD image"
+  },
+  {
+    name: "網址代稱",
+    field: "slug",
+    input: "建議用英文 kebab-case，系統產生預設值",
+    output: "頁面 URL、canonical、sitemap loc、breadcrumb URL"
+  },
+  {
+    name: "搜尋引擎收錄",
+    field: "indexable",
+    input: "預設允許收錄；草稿、測試頁才改為不收錄",
+    output: "robots meta、sitemap 是否列入"
+  }
+];
+
 const blueprintPagePlans = [
   {
+    id: "content",
     name: "一般內容頁",
     source: "手動撰寫",
-    use: "關於我們、品牌故事、公司介紹、理念說明。",
-    content: ["頁首標題", "頁首簡介", "主段落", "補充重點", "圖片 / CTA"],
-    data: "不一定需要資料集合；可用頁面內容區塊直接編輯。"
+    use: "品牌故事、公司介紹、理念說明、服務說明。",
+    note: "用途不同但資料結構相同；差異用內容範本、提示語與預設區塊處理，不另外長欄位。",
+    fields: [
+      ["頁面標題", "title", "必填", "頁面主標題", "<h1>、預設搜尋標題、breadcrumb name"],
+      ["頁面摘要", "summary", "選填", "一到兩句說明本頁重點", "頁面摘要區、預設搜尋摘要"],
+      ["內容區塊", "content_blocks", "必填", "段落、圖片、重點、CTA 等可視內容", "頁面主內容、搜尋摘要可抽取來源"],
+      ["封面圖片", "cover_image", "選填", "本頁代表圖", "頁面視覺、預設分享圖片"]
+    ],
+    jsonld: "WebPage + BreadcrumbList"
   },
   {
-    name: "服務列表頁",
-    source: "商品 / 服務資料",
-    use: "服務項目、方案介紹、流程說明。",
-    content: ["頁首標題", "頁首簡介", "服務列表", "服務連結", "CTA"],
-    data: "每筆資料需要名稱、分類、摘要、圖片、詳細連結與顯示狀態。"
-  },
-  {
+    id: "article",
     name: "文章列表頁",
     source: "內容資料",
     use: "最新消息、知識中心、活動公告與案例文章。",
-    content: ["頁首標題", "頁首簡介", "文章類型篩選", "文章卡片", "文章連結"],
-    data: "外部欄位只放會被系統拿來顯示、搜尋、排序、SEO、產生卡片的資訊；其餘內容都交給內文編輯器。"
+    note: "頁面只設定列表入口；文章標題、摘要、封面與發布日期來自文章資料。",
+    fields: [
+      ["列表標題", "title", "必填", "例如最新消息、知識中心", "<h1>、預設搜尋標題"],
+      ["列表說明", "description", "選填", "說明這個列表收錄哪些內容", "頁面介紹、預設搜尋摘要"],
+      ["文章來源", "list_source", "必填", "全部文章、指定分類或指定標籤", "文章查詢條件、ItemList 來源"],
+      ["每頁筆數", "items_per_page", "必填", "控制前台列表一次顯示幾筆", "分頁查詢、pagination"],
+      ["列表代表圖", "cover_image", "選填", "列表頁分享時使用的代表圖", "預設分享圖片"]
+    ],
+    jsonld: "CollectionPage + ItemList + BreadcrumbList"
   },
   {
-    name: "案例列表頁",
-    source: "案例資料",
-    use: "作品、成功案例、客戶成果、專案展示。",
-    content: ["頁首標題", "頁首簡介", "案例分類", "成果摘要", "詳細連結"],
-    data: "每筆資料需要名稱、類型、背景、需求、執行方式、成果與圖片。"
-  },
-  {
+    id: "contact",
     name: "聯絡表單頁",
     source: "手動撰寫 + 表單紀錄",
     use: "聯絡我們、預約諮詢、合作洽詢、表單詢問。",
-    content: ["頁面標題", "頁面簡介", "聯絡資訊", "表單欄位", "送出提示"],
-    data: "頁面內容手動填；送出的資料進聯絡表單紀錄管理。"
+    note: "使用者只需要填聯絡資訊與表單內容；防垃圾、通知、追蹤事件由系統設定處理。",
+    fields: [
+      ["頁面標題", "title", "必填", "例如聯絡我們、預約諮詢", "<h1>、預設搜尋標題"],
+      ["表單說明", "intro", "選填", "表單上方的說明文字", "頁面內容、預設搜尋摘要"],
+      ["表單欄位", "form_fields", "必填", "姓名、電話、Email、需求內容等", "前台表單、送出資料格式"],
+      ["通知信箱", "recipient_email", "必填", "表單送出後通知收件人", "後端寄信設定"],
+      ["成功訊息", "success_message", "必填", "送出後顯示給訪客的文字", "前台成功狀態"],
+      ["聯絡資訊", "contact_info", "選填", "電話、Email、LINE、地址、營業時間", "頁面顯示、ContactPage / LocalBusiness 可用資料"]
+    ],
+    jsonld: "ContactPage；有地址、電話、營業時間時加 Organization 或 LocalBusiness"
   },
   {
+    id: "faq",
     name: "FAQ 頁",
     source: "FAQ / 內容資料",
     use: "常見問題、購買說明、服務問答、使用教學。",
-    content: ["頁首標題", "頁首簡介", "問題分類", "問答列表", "排序"],
-    data: "可放在內容管理，類型選 FAQ；每筆需要問題、答案、分類、排序與狀態。"
+    note: "FAQ 結構化資料只能輸出頁面上看得到的問答；不要讓使用者另外填看不見的 SEO 問答。",
+    fields: [
+      ["頁面標題", "title", "必填", "例如常見問題、購買說明", "<h1>、預設搜尋標題、FAQPage name"],
+      ["頁面說明", "intro", "選填", "問答前的簡短說明", "頁面內容、預設搜尋摘要"],
+      ["問題分類", "faq_categories", "選填", "購買、服務、付款等分類", "前台分類導覽、錨點"],
+      ["問題", "question", "必填", "使用客戶真的會問的說法", "頁面內容、JSON-LD Question.name"],
+      ["答案", "answer", "必填", "清楚回答問題，可含連結", "頁面內容、JSON-LD acceptedAnswer.text"]
+    ],
+    jsonld: "FAQPage + Question + Answer + BreadcrumbList"
+  },
+  {
+    id: "product",
+    name: "商品 / 服務列表頁",
+    source: "商品 / 服務資料",
+    use: "商品方案、服務項目、方案比較或服務入口。",
+    note: "列表頁只控制集合呈現；單一商品或服務的名稱、摘要、圖片放在資料管理，避免每頁重複填。",
+    fields: [
+      ["列表標題", "title", "必填", "例如服務項目、方案比較", "<h1>、預設搜尋標題"],
+      ["列表說明", "description", "選填", "服務總覽或挑選說明", "頁面介紹、預設搜尋摘要"],
+      ["項目來源", "items", "必填", "商品、服務、方案或分類", "列表內容、JSON-LD ItemList"],
+      ["項目名稱", "item_name", "資料欄位", "商品或服務名稱", "卡片標題、ItemList item name"],
+      ["項目摘要", "item_summary", "資料欄位", "商品或服務簡短說明", "卡片摘要、ItemList item description"],
+      ["項目圖片 / 連結", "item_image_url", "資料欄位", "卡片圖片與詳細頁入口", "卡片圖片、ItemList item image/url"],
+      ["CTA", "cta", "選填", "按鈕文字與連結", "前台行動按鈕"]
+    ],
+    jsonld: "CollectionPage + ItemList；有價格庫存再升級 Product"
+  },
+  {
+    id: "resource",
+    name: "據點 / 資源列表頁",
+    source: "據點 / 資源資料",
+    use: "門市據點、服務站、水質報告、下載資源。",
+    note: "同一頁型支援多種資源；地址電話只在資源類型是據點時出現，檔案欄位只在下載資源時出現。",
+    fields: [
+      ["列表標題", "title", "必填", "例如找水站、水質報告", "<h1>、預設搜尋標題"],
+      ["列表說明", "description", "選填", "說明這批資源用途", "頁面介紹、預設搜尋摘要"],
+      ["資源類型", "resource_type", "必填", "據點、文件、報告、連結", "決定前台呈現方式與需要欄位"],
+      ["資源名稱", "item_name", "資料欄位", "據點或資源名稱", "卡片標題、ItemList item name"],
+      ["地址 / 電話", "item_address_phone", "視情況", "據點型資源才需要", "頁面顯示、Place / LocalBusiness 可用資料"],
+      ["檔案 / 連結", "item_file_url", "視情況", "文件、報告、外部資源入口", "下載連結、ItemList item url"]
+    ],
+    jsonld: "CollectionPage + ItemList；據點可用 Place 或 LocalBusiness"
   }
 ];
 
@@ -4216,23 +5163,115 @@ const blueprintDataPlans = [
 
 function renderBlueprintPages() {
   return `
-    ${managerHeader("公版規劃版｜頁面模板規劃", "先從前台頁面需要呈現什麼開始思考，再決定哪些內容手動填、哪些內容從資料集合帶入。", [])}
-    <div class="blueprint-grid">
+    ${managerHeader("公版規劃版｜頁面類型欄位設計", "頁型決定資料結構；品牌故事、公司介紹、理念說明這類用途差異，改用內容範本與提示語處理，不另外做欄位。SEO 技術標籤由系統從這些欄位自動輸出。", [])}
+    <section class="blueprint-intro-card">
+      <div>
+        <h3>使用者只填看得懂的內容</h3>
+        <p>後台欄位以「頁面標題、摘要、內容、圖片、資料來源」為主；OG、Twitter、JSON-LD、canonical、sitemap 不讓使用者手填。</p>
+      </div>
+      <div>
+        <h3>SEO 共用欄位</h3>
+        <p>每種頁型共用同一套搜尋與分享設定。留空時由系統自動繼承，進階使用者才需要覆寫。</p>
+      </div>
+    </section>
+    <div class="blueprint-page-stack">
       ${blueprintPagePlans.map((plan) => `
-        <article class="blueprint-card">
+        <article class="blueprint-card page-type-blueprint">
           <div class="blueprint-card-head">
-            <h3>${esc(plan.name)}</h3>
+            <div>
+              <h3>${esc(plan.name)}</h3>
+              <p>${esc(plan.use)}</p>
+            </div>
             <span class="status-pill">${esc(plan.source)}</span>
           </div>
-          <p>${esc(plan.use)}</p>
-          <div>
-            <strong>頁面需要內容</strong>
-            <ul>${plan.content.map((item) => `<li>${esc(item)}</li>`).join("")}</ul>
+          <div class="blueprint-note">${esc(plan.note)}</div>
+          <div class="blueprint-table-wrap">
+            <table class="blueprint-field-table">
+              <thead><tr><th>使用者看到的欄位</th><th>程式欄位</th><th>填寫</th><th>說明</th><th>程式輸出位置</th></tr></thead>
+              <tbody>
+                ${plan.fields.map(([label, field, required, help, output]) => `
+                  <tr>
+                    <td><strong>${esc(label)}</strong></td>
+                    <td><code>${esc(field)}</code></td>
+                    <td>${esc(required)}</td>
+                    <td>${esc(help)}</td>
+                    <td>${esc(output)}</td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
           </div>
-          <div class="blueprint-note">${esc(plan.data)}</div>
+          <details class="seo-field-details">
+            <summary>搜尋與分享欄位會輸出到哪裡</summary>
+            <div class="blueprint-table-wrap">
+              <table class="blueprint-field-table compact">
+                <thead><tr><th>欄位</th><th>程式欄位</th><th>建議填法</th><th>程式輸出位置</th></tr></thead>
+                <tbody>
+                  ${sharedSeoFields.map((field) => `
+                    <tr>
+                      <td><strong>${esc(field.name)}</strong></td>
+                      <td><code>${esc(field.field)}</code></td>
+                      <td>${esc(field.input)}</td>
+                      <td>${esc(field.output)}</td>
+                    </tr>
+                  `).join("")}
+                </tbody>
+              </table>
+            </div>
+          </details>
+          <p class="blueprint-jsonld">建議結構化資料：${esc(plan.jsonld)}</p>
         </article>
       `).join("")}
     </div>
+  `;
+}
+
+function getBlueprintPagePlan(templateId) {
+  return blueprintPagePlans.find((plan) => plan.id === templateId) || blueprintPagePlans[0];
+}
+
+function renderCompactPageTypePlan(templateId) {
+  const plan = getBlueprintPagePlan(templateId);
+  if (!plan) return "";
+  const keyFields = plan.fields.slice(0, 6);
+  return `
+    <section class="selected-page-type-guide">
+      <div class="section-head compact">
+        <div>
+          <h3>${esc(plan.name)}需要填什麼？</h3>
+          <p>${esc(plan.note)}</p>
+        </div>
+        <span class="pill green">${esc(plan.source)}</span>
+      </div>
+      <div class="page-type-guide-grid">
+        <div>
+          <strong>基本欄位</strong>
+          <div class="guide-field-list">
+            ${keyFields.map(([label, field, required, help]) => `
+              <div class="guide-field-item">
+                <span>${esc(label)}</span>
+                <small>${esc(required)}｜${esc(help)}</small>
+                <code>${esc(field)}</code>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+        <div>
+          <strong>搜尋與分享欄位</strong>
+          <p class="field-help">一般使用者可全部留空，系統會從標題、摘要、封面圖自動產生；懂 SEO 的人再覆寫。</p>
+          <div class="guide-field-list seo">
+            ${sharedSeoFields.slice(0, 4).map((field) => `
+              <div class="guide-field-item">
+                <span>${esc(field.name)}</span>
+                <small>${esc(field.input)}</small>
+                <code>${esc(field.output)}</code>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      </div>
+      <p class="blueprint-jsonld">程式自動產生：canonical、robots、OG / Twitter Card、sitemap、${esc(plan.jsonld)}。</p>
+    </section>
   `;
 }
 
@@ -4369,42 +5408,137 @@ function getPageTemplate(templateId) {
 }
 
 function recommendedPageSource(templateId) {
-  return ["article", "faq"].includes(templateId) ? "data" : "manual";
+  return ["article", "faq", "product", "resource"].includes(templateId) ? "data" : "manual";
+}
+
+function recommendedPageDataSource(templateId) {
+  const map = {
+    article: "articles",
+    faq: "faq",
+    product: "products",
+    resource: "resources"
+  };
+  return map[templateId] || "articles";
+}
+
+function getPageDataSource(sourceId) {
+  return pageDataSources.find((item) => item.id === sourceId) || pageDataSources[0];
+}
+
+function defaultPageDataCategory(sourceId) {
+  return getPageDataSource(sourceId).categories[0] || "全部";
+}
+
+function defaultPageDataFilter(sourceId) {
+  return `分類=${defaultPageDataCategory(sourceId)}；狀態=已發布；排序=最新優先；筆數=6`;
+}
+
+function hydratePageDataDefaults(page) {
+  if (!page || page.contentSource !== "data") return;
+  const sourceId = page.dataSource || recommendedPageDataSource(page.template);
+  const source = getPageDataSource(sourceId);
+  page.dataSource = source.id;
+  page.dataCategory = page.dataCategory || defaultPageDataCategory(source.id);
+  page.dataSort = page.dataSort || "最新優先";
+  page.dataLimit = page.dataLimit || "6";
+  page.dataFilter = `分類=${page.dataCategory || "全部"}；狀態=已發布；排序=${page.dataSort || "最新優先"}；筆數=${page.dataLimit || "6"}`;
+  page.dataFormat = "collection";
+  page.dataMapping = "";
+}
+
+function renderPageTemplatePreview(template) {
+  const kind = template.id;
+  if (kind === "article") {
+    return `<div class="page-template-preview article-preview"><span></span><strong></strong><i></i><i></i><i></i></div>`;
+  }
+  if (kind === "contact") {
+    return `<div class="page-template-preview contact-preview"><span></span><strong></strong><i></i></div>`;
+  }
+  if (kind === "faq") {
+    return `<div class="page-template-preview faq-preview"><span></span><i></i><i></i><i></i></div>`;
+  }
+  if (kind === "product") {
+    return `<div class="page-template-preview product-preview"><span></span><i></i><i></i><i></i></div>`;
+  }
+  if (kind === "resource") {
+    return `<div class="page-template-preview resource-preview"><span></span><i></i><i></i><i></i></div>`;
+  }
+  return `<div class="page-template-preview content-preview"><span></span><strong></strong><i></i><i></i></div>`;
+}
+
+function getPageLayout(page) {
+  const template = getPageTemplate(page.template);
+  return template.layouts.find((item) => item.id === page.layout) || template.layouts[0];
+}
+
+function pageLayoutPreviewParams(page) {
+  const template = getPageTemplate(page.template);
+  const source = page.contentSource === "data" ? getPageDataSource(page.dataSource || recommendedPageDataSource(page.template)) : null;
+  const palette = getActiveSitePalette();
+  const bodyText = page.content?.field2Html ? htmlToPlainText(page.content.field2Html) : page.content?.field2 || "主要段落內容";
+  return new URLSearchParams({
+    title: page.content?.field0 || page.name,
+    intro: page.content?.field1 || template.description,
+    body: bodyText,
+    note1: page.content?.field3 || "",
+    note2: page.content?.field4 || "",
+    phone: page.content?.field2 || state.siteInfo.phone || "",
+    email: page.content?.field3 || state.siteInfo.email || "",
+    line: page.content?.field4 || state.siteInfo.lineUrl || "",
+    category: page.dataCategory || "全部",
+    source: source?.name || template.name,
+    limit: page.dataLimit || "6",
+    primary: palette.primary,
+    accent: palette.accent,
+    bg: palette.bg,
+    surface: palette.surface,
+    text: palette.text,
+    muted: palette.muted
+  });
+}
+
+function htmlToPlainText(html) {
+  const div = document.createElement("div");
+  div.innerHTML = html || "";
+  return div.textContent || div.innerText || "";
 }
 
 function choosePageTemplate(templateId) {
   state.pendingPageTemplate = templateId;
-  state.pendingPageSource = recommendedPageSource(templateId);
-  state.isChoosingPageTemplate = true;
-  state.isChoosingPageSource = true;
   render();
 }
 
 function addPageFromTemplate(templateId, contentSource) {
   const template = getPageTemplate(templateId);
   const source = pageContentSources.find((item) => item.id === contentSource) || pageContentSources[0];
+  const dataSourceId = recommendedPageDataSource(template.id);
   state.customPageCount += 1;
   const page = createPage({
     id: `custom-page-${Date.now()}`,
     name: `${template.defaultName} ${state.customPageCount}`,
     template: template.id,
     contentSource: source.id,
-    dataSource: source.id === "data" ? (template.id === "faq" ? "FAQ 管理" : "文章管理") : "",
+    dataSource: source.id === "data" ? dataSourceId : "",
     dataFormat: "collection",
-    dataFilter: source.id === "data" ? "狀態=已發布；排序=最新優先" : "",
-    dataMapping: source.id === "data" ? template.fields.map((field, index) => `field${index} = ${field}`).join("\n") : "",
+    dataCategory: source.id === "data" ? defaultPageDataCategory(dataSourceId) : "",
+    dataSort: source.id === "data" ? "最新優先" : "",
+    dataLimit: source.id === "data" ? "6" : "",
+    dataFilter: source.id === "data" ? defaultPageDataFilter(dataSourceId) : "",
+    dataMapping: "",
     status: "草稿",
     visible: "尚未顯示"
   });
+  hydratePageDataDefaults(page);
   state.pages.push(page);
+  state.pageSeoSettings.push(createSeoSetting({ id: page.id, name: page.name }));
+  persistSeoSettings();
   state.activePageId = page.id;
   state.activePreviewPageId = page.id;
   state.pageMode = "edit";
   state.pageSavedNotice = "";
+  state.newPageDraftId = page.id;
   state.isChoosingPageTemplate = false;
-  state.isChoosingPageSource = false;
   state.pendingPageTemplate = "";
-  state.pendingPageSource = "";
   render();
 }
 
@@ -4413,6 +5547,8 @@ function deletePage(pageId) {
     if (page.parentId === pageId) page.parentId = "";
   });
   state.pages = state.pages.filter((page) => page.id !== pageId);
+  state.pageSeoSettings = state.pageSeoSettings.filter((setting) => setting.pageId !== pageId);
+  persistSeoSettings();
   if (state.activePageId === pageId) {
     state.activePageId = state.pages[0]?.id || "";
   }
@@ -4427,6 +5563,24 @@ function deletePage(pageId) {
 function savePage() {
   const page = state.pages.find((item) => item.id === state.activePageId);
   state.pageSavedNotice = page ? `已儲存「${page.name}」` : "已儲存頁面";
+  if (page && state.newPageDraftId === page.id) state.newPageDraftId = "";
+  render();
+}
+
+function cancelPageEdit() {
+  if (state.newPageDraftId && state.activePageId === state.newPageDraftId) {
+    const draftId = state.newPageDraftId;
+    state.pages = state.pages.filter((page) => page.id !== draftId);
+    state.pageSeoSettings = state.pageSeoSettings.filter((setting) => setting.pageId !== draftId);
+    persistSeoSettings();
+    state.activePageId = state.pages[0]?.id || "";
+    state.activePreviewPageId = "";
+    state.newPageDraftId = "";
+  }
+  state.pageMode = "list";
+  state.isChoosingPageTemplate = false;
+  state.pendingPageTemplate = "";
+  state.pageSavedNotice = "";
   render();
 }
 
@@ -4468,24 +5622,21 @@ function renderPageManager() {
   const activeTemplate = activePage ? getPageTemplate(activePage.template) : pageTemplates[0];
   const displayPages = orderedPages();
   const parentOptions = activePage ? parentPageOptions(activePage) : [];
-  const isAddingPageFlow = state.isChoosingPageTemplate || state.isChoosingPageSource;
+  const isAddingPageFlow = state.isChoosingPageTemplate;
+  const selectedPageTemplateId = state.pendingPageTemplate || pageTemplates[0].id;
   const templateChooser = `
     <section class="settings-card template-panel">
       <div class="flow-step-head">
         <div>
           <h2>1. 選擇頁面類型</h2>
-          <p>先決定頁面用途；案例、活動與知識內容都由「文章管理」統一提供。</p>
+          <p>先決定頁面用途；內容來源可在建立後的頁面基本設定中調整。</p>
         </div>
         <button class="btn" type="button" data-cancel-page-template>取消新增</button>
       </div>
       <div class="template-grid">
         ${pageTemplates.map((template) => `
-          <button class="template-card ${state.pendingPageTemplate === template.id ? "is-selected" : ""}" type="button" data-page-template="${template.id}">
-            <div class="template-preview">
-              <span class="line short"></span>
-              <span class="line"></span>
-              <span class="line"></span>
-            </div>
+          <button class="template-card ${selectedPageTemplateId === template.id ? "is-selected" : ""}" type="button" data-page-template="${template.id}">
+            ${renderPageTemplatePreview(template)}
             <strong>${esc(template.name)}</strong>
             <p>${esc(template.description)}</p>
             <span class="pill">${template.fields.length} 個內容欄位</span>
@@ -4493,29 +5644,10 @@ function renderPageManager() {
           </button>
         `).join("")}
       </div>
-    </section>
-  `;
-  const pendingTemplate = getPageTemplate(state.pendingPageTemplate);
-  const sourceChooser = `
-    <section class="settings-card template-panel source-step ${state.pendingPageTemplate ? "is-ready" : "is-disabled"}">
-      <div class="flow-step-head">
-        <div>
-          <h2>2. 選擇內容來源</h2>
-          <p>${state.pendingPageTemplate ? `已選「${esc(pendingTemplate.name)}」；決定要手動撰寫，或從文章／FAQ 管理帶入內容。` : "請先完成第 1 步，這裡會顯示適合的內容來源。"}</p>
-        </div>
-      </div>
-      <div class="template-grid source-grid">
-        ${pageContentSources.map((source) => `
-          <button class="template-card source-card ${state.pendingPageSource === source.id ? "is-selected" : ""}" type="button" data-page-source="${source.id}" ${state.pendingPageTemplate ? "" : "disabled"}>
-            <strong>${esc(source.name)}</strong>
-            <p>${source.id === "data" && state.pendingPageTemplate === "faq" ? "從 FAQ 管理帶入問題與答案，適合建立常見問題頁。" : source.id === "data" && state.pendingPageTemplate === "article" ? "從文章管理帶入最新消息、知識文章、活動公告或案例文章。" : esc(source.description)}</p>
-            <span class="pill">${source.id === "data" ? "可串接資料庫 / 匯入資料" : "直接填寫內容欄位"}</span>
-          </button>
-        `).join("")}
-      </div>
-      <div class="source-step-actions">
-        <span class="hint">${state.pendingPageSource ? `目前選擇：${pageContentSources.find((source) => source.id === state.pendingPageSource)?.name || ""}` : "請選擇一種內容來源"}</span>
-        <button class="btn primary" type="button" data-confirm-page-source ${state.pendingPageTemplate && state.pendingPageSource ? "" : "disabled"}>確定建立頁面</button>
+      ${renderCompactPageTypePlan(selectedPageTemplateId)}
+      <div class="page-template-confirm">
+        <span class="hint">先看清楚欄位，再建立頁面；建立後仍可切換版型與內容來源。</span>
+        <button class="btn primary" type="button" data-confirm-page-template>下一步：建立頁面</button>
       </div>
     </section>
   `;
@@ -4565,108 +5697,7 @@ function renderPageManager() {
     </section>
   `;
 
-  const editPanel = activePage ? `
-    <section class="page-edit-panel">
-      <div class="section-head page-edit-head">
-        <div>
-          <h3>編輯頁面內容</h3>
-          <p>目前編輯：${esc(activePage.name)}｜${esc(activeTemplate.name)}</p>
-        </div>
-        <div class="actions">
-          ${state.pageSavedNotice ? `<span class="pill green">${esc(state.pageSavedNotice)}</span>` : ""}
-          <button class="btn primary" type="button" data-save-page>儲存頁面</button>
-          <button class="btn" type="button" data-back-page-list>返回頁面列表</button>
-        </div>
-      </div>
-
-      <div class="settings-card">
-        <div class="section-head">
-          <div>
-            <h3>選擇頁面模板</h3>
-            <p>先決定這個前台頁面的用途；切換模板會重置版型與內容欄位。</p>
-          </div>
-        </div>
-        <div class="field compact-select">
-          <label>頁面模板</label>
-          <select data-page-field="template">
-            ${pageTemplates.map((template) => `<option value="${template.id}" ${activePage.template === template.id ? "selected" : ""}>${template.name}｜${template.description}</option>`).join("")}
-          </select>
-        </div>
-      </div>
-
-      <div class="settings-card variant-settings">
-        <div class="section-head">
-          <div>
-            <h3>選擇版型</h3>
-            <p>選擇這個頁面的內容呈現方式，確認畫面時可切換到版面預覽。</p>
-          </div>
-          <div class="tabs" role="tablist" aria-label="頁面版面設定">
-            <button class="tab ${state.pageLayoutTab === "settings" ? "is-active" : ""}" type="button" data-page-layout-tab="settings">方案設定</button>
-            <button class="tab ${state.pageLayoutTab === "preview" ? "is-active" : ""}" type="button" data-page-layout-tab="preview">版面預覽</button>
-          </div>
-        </div>
-        ${state.pageLayoutTab === "preview" ? renderPageLayoutPreview(activePage) : `
-          <div class="field compact-select">
-            <label>選擇版面方案</label>
-            <div class="field-help">版型只決定內容排列方式，不會改變整站品牌樣式。</div>
-            <select data-page-field="layout">
-              ${activeTemplate.layouts.map((layout) => `<option value="${layout.id}" ${activePage.layout === layout.id ? "selected" : ""}>方案 ${layout.id}：${layout.name}｜${layout.description}</option>`).join("")}
-            </select>
-          </div>
-        `}
-      </div>
-
-      <div class="settings-card">
-        <div class="section-head">
-          <div>
-            <h3>頁面基本設定</h3>
-            <p>${esc(activeTemplate.description)}</p>
-          </div>
-          <button class="btn danger" type="button" data-delete-page="${activePage.id}">刪除頁面</button>
-        </div>
-        <div class="field-grid">
-          <div class="field">
-            <label>頁面名稱</label>
-            <div class="field-help">顯示在後台與前台選單中的頁面名稱。</div>
-            <input type="text" value="${esc(activePage.name)}" data-page-field="name">
-          </div>
-          <div class="field">
-            <label>頁面狀態</label>
-            <div class="field-help">控制頁面是否對外發布。</div>
-            <select data-page-field="status">
-              ${["已發布", "草稿", "停用"].map((status) => `<option ${activePage.status === status ? "selected" : ""}>${status}</option>`).join("")}
-            </select>
-          </div>
-          <div class="field">
-            <label>顯示位置</label>
-            <div class="field-help">控制頁面出現在主選單、Footer 或 CTA。</div>
-            <select data-page-field="visible">
-              ${["主選單 / Footer", "主選單", "Footer", "CTA", "尚未顯示"].map((visible) => `<option ${activePage.visible === visible ? "selected" : ""}>${visible}</option>`).join("")}
-            </select>
-          </div>
-          <div class="field">
-            <label>內容來源</label>
-            <div class="field-help">決定這個頁面內容是手動撰寫，或從背景資料帶入。</div>
-            <select data-page-field="contentSource">
-              ${pageContentSources.map((source) => `<option value="${source.id}" ${activePage.contentSource === source.id ? "selected" : ""}>${source.name}</option>`).join("")}
-            </select>
-          </div>
-          <div class="field full">
-            <label>上層頁面</label>
-            <div class="field-help">最多兩階：不選就是主頁；選擇一個主頁後，這頁會成為它的子頁面。</div>
-            <select data-page-field="parentId">
-              <option value="" ${activePage.parentId ? "" : "selected"}>無，作為主頁</option>
-              ${parentOptions.map((page) => `<option value="${page.id}" ${activePage.parentId === page.id ? "selected" : ""}>${page.name}</option>`).join("")}
-            </select>
-          </div>
-        </div>
-      </div>
-
-      ${renderPageDataSettings(activePage)}
-      ${renderPageContentEditor(activePage, activeTemplate)}
-      ${renderPageMetaSettings(activePage)}
-    </section>
-  ` : `<section class="settings-card">尚未建立頁面，請先新增頁面。</section>`;
+  const editPanel = activePage ? renderPageUnifiedEditor(activePage, activeTemplate, parentOptions) : `<section class="settings-card">尚未建立頁面，請先新增頁面。</section>`;
 
   return `
     ${managerHeader("前台頁面管理", "基於目前整站官網模板，管理首頁以外的頁面內容、選單階層、導覽顯示與 Footer 摘要。", [])}
@@ -4678,8 +5709,7 @@ function renderPageManager() {
     ` : `
       ${isAddingPageFlow ? `
         <div class="page-add-flow">
-          ${state.isChoosingPageTemplate ? templateChooser : ""}
-          ${state.isChoosingPageSource ? sourceChooser : ""}
+          ${templateChooser}
         </div>
       ` : `
         <div class="page-actions">
@@ -4692,50 +5722,180 @@ function renderPageManager() {
   `;
 }
 
-function renderPageDataSettings(page) {
-  if (page.contentSource !== "data") return "";
+function renderPageUnifiedEditor(page, template, parentOptions) {
+  const isPreview = state.pageLayoutTab === "preview";
   return `
-    <div class="settings-card">
-      <div class="section-head">
+    <section class="page-edit-panel">
+      <div class="section-head page-edit-head">
         <div>
-          <h3>背景資料設定</h3>
-          <p>用資料集合產生頁面內容，例如最新消息、案例列表、FAQ 或服務項目。</p>
+          <h3>編輯頁面內容</h3>
+          <p>目前編輯：${esc(page.name)}｜${esc(template.name)}</p>
+        </div>
+        <div class="actions">
+          ${state.pageSavedNotice ? `<span class="pill green">${esc(state.pageSavedNotice)}</span>` : ""}
+          <button class="btn primary" type="button" data-save-page>儲存頁面</button>
+          <button class="btn" type="button" data-back-page-list>${state.newPageDraftId === page.id ? "取消新增返回列表" : "返回頁面列表"}</button>
+        </div>
+      </div>
+      <div class="settings-card page-unified-card ${isPreview ? "is-preview" : ""}">
+        <div class="section-head page-unified-head">
+          <div>
+            <h3>${isPreview ? "版面預覽" : "頁面設定"}</h3>
+            <p>${isPreview ? "預覽目前內容套用在實際 HTML 版型中的樣子；可直接切換版型比較。" : "設定頁面模板、導覽、內容來源、頁面內容與搜尋分享資訊。"}</p>
+          </div>
+          <div class="tabs" role="tablist" aria-label="頁面編輯模式">
+            <button class="tab ${!isPreview ? "is-active" : ""}" type="button" data-page-layout-tab="settings">頁面設定</button>
+            <button class="tab ${isPreview ? "is-active" : ""}" type="button" data-page-layout-tab="preview">版面預覽</button>
+          </div>
+        </div>
+        ${isPreview ? renderPagePreviewWorkspace(page, template) : renderPageSettingsWorkspace(page, template, parentOptions)}
+      </div>
+    </section>
+  `;
+}
+
+function renderPageSettingsWorkspace(page, template, parentOptions) {
+  return `
+    <section class="page-subsection">
+      <div class="section-head compact">
+        <div>
+          <h3>頁面模板與版型</h3>
+          <p>先決定這個前台頁面的用途，再選擇實際套用的 HTML 版型。</p>
+        </div>
+      </div>
+      <div class="field-grid template-layout-fields">
+        <div class="field">
+          <label>頁面模板</label>
+          <select data-page-field="template">
+            ${pageTemplates.map((item) => `<option value="${item.id}" ${page.template === item.id ? "selected" : ""}>${item.name}｜${item.description}</option>`).join("")}
+          </select>
+        </div>
+        <div class="field">
+          <label>版型</label>
+          <select data-page-field="layout">
+            ${template.layouts.map((layout) => `<option value="${layout.id}" ${page.layout === layout.id ? "selected" : ""}>方案 ${layout.id}：${layout.name}｜${layout.description}</option>`).join("")}
+          </select>
+        </div>
+      </div>
+    </section>
+    <section class="page-subsection">
+      <div class="section-head compact">
+        <div>
+          <h3>頁面基本設定</h3>
+          <p>${esc(template.description)}</p>
         </div>
       </div>
       <div class="field-grid">
         <div class="field">
-          <label>資料格式</label>
-          <div class="field-help">通常選後台資料集合；CSV / JSON 可作為匯入或外部 API 預留。</div>
-          <select data-page-field="dataFormat">
-            ${pageDataFormats.map((format) => `<option value="${format.id}" ${page.dataFormat === format.id ? "selected" : ""}>${format.name}｜${format.description}</option>`).join("")}
+          <label>頁面名稱</label>
+          <div class="field-help">顯示在後台與前台選單中的頁面名稱。</div>
+          <input type="text" value="${esc(page.name)}" data-page-field="name">
+        </div>
+        <div class="field">
+          <label>頁面狀態</label>
+          <div class="field-help">控制頁面是否對外發布。</div>
+          <select data-page-field="status">
+            ${["已發布", "草稿", "停用"].map((status) => `<option ${page.status === status ? "selected" : ""}>${status}</option>`).join("")}
           </select>
         </div>
         <div class="field">
-          <label>資料集合</label>
-            <div class="field-help">文章、活動、知識文章與案例統一從文章管理帶入；FAQ 頁則從 FAQ 管理帶入。</div>
-          <select data-page-field="dataSource">
-            ${["文章管理", "FAQ 管理", "商品 / 服務管理", "據點 / 資源管理", "自訂資料來源"].map((source) => `<option value="${source}" ${page.dataSource === source ? "selected" : ""}>${source}</option>`).join("")}
+          <label>顯示位置</label>
+          <div class="field-help">控制頁面出現在主選單、Footer 或 CTA。</div>
+          <select data-page-field="visible">
+            ${["主選單 / Footer", "主選單", "Footer", "CTA", "尚未顯示"].map((visible) => `<option ${page.visible === visible ? "selected" : ""}>${visible}</option>`).join("")}
           </select>
         </div>
         <div class="field">
-          <label>篩選 / 排序 / 筆數</label>
-          <div class="field-help">最新資訊範例：文章類型=最新消息；狀態=已發布；排序=發布日期新到舊；筆數=6。</div>
-          <input type="text" value="${esc(page.dataFilter || "")}" data-page-field="dataFilter">
+          <label>內容來源</label>
+          <div class="field-help">決定這個頁面內容是手動撰寫，或從背景資料帶入。</div>
+          <select data-page-field="contentSource">
+            ${pageContentSources.map((source) => `<option value="${source.id}" ${page.contentSource === source.id ? "selected" : ""}>${source.name}</option>`).join("")}
+          </select>
         </div>
-        <div class="field">
-          <label>欄位對應</label>
-          <div class="field-help">把資料欄位對應到頁面欄位，例如標題、摘要、圖片、連結。</div>
-          <textarea data-page-field="dataMapping">${esc(page.dataMapping || "")}</textarea>
+        <div class="field full">
+          <label>上層頁面</label>
+          <div class="field-help">最多兩階：不選就是主頁；選擇一個主頁後，這頁會成為它的子頁面。</div>
+          <select data-page-field="parentId">
+            <option value="" ${page.parentId ? "" : "selected"}>無，作為主頁</option>
+            ${parentOptions.map((item) => `<option value="${item.id}" ${page.parentId === item.id ? "selected" : ""}>${item.name}</option>`).join("")}
+          </select>
         </div>
       </div>
-    </div>
+    </section>
+    ${renderPageDataSettings(page)}
+    ${renderPageContentEditor(page, template)}
+    ${renderPageMetaSettings(page)}
+  `;
+}
+
+function renderPagePreviewWorkspace(page, template) {
+  return `
+    <section class="page-subsection page-preview-toolbar">
+      <div class="field compact-select">
+        <label>版型</label>
+        <select data-page-field="layout">
+          ${template.layouts.map((layout) => `<option value="${layout.id}" ${page.layout === layout.id ? "selected" : ""}>方案 ${layout.id}：${layout.name}｜${layout.description}</option>`).join("")}
+        </select>
+      </div>
+    </section>
+    ${renderPageLayoutPreview(page)}
+  `;
+}
+
+function renderPageDataSettings(page) {
+  if (page.contentSource !== "data") return "";
+  hydratePageDataDefaults(page);
+  const selectedSource = getPageDataSource(page.dataSource);
+  return `
+    <section class="page-subsection">
+      <div class="section-head compact">
+        <div>
+          <h3>背景資料設定</h3>
+          <p>選擇這個頁面要呈現的系統資料，並決定分類篩選或全部顯示。</p>
+        </div>
+      </div>
+      <div class="field-grid">
+        <div class="field">
+          <label>資料類型</label>
+          <div class="field-help">使用目前系統中已建立的內容，不提供檔案上傳建立頁面。</div>
+          <select data-page-field="dataSource">
+            ${pageDataSources.map((source) => `<option value="${source.id}" ${page.dataSource === source.id ? "selected" : ""}>${source.name}｜${source.description}</option>`).join("")}
+          </select>
+        </div>
+        <div class="field">
+          <label>分類篩選</label>
+          <div class="field-help">選擇「全部」會顯示此資料類型下所有已發布資料。</div>
+          <select data-page-field="dataCategory">
+            ${selectedSource.categories.map((category) => `<option value="${category}" ${page.dataCategory === category ? "selected" : ""}>${category}</option>`).join("")}
+          </select>
+        </div>
+        <div class="field">
+          <label>排序方式</label>
+          <div class="field-help">列表型頁面預設顯示已發布資料。</div>
+          <select data-page-field="dataSort">
+            ${["最新優先", "排序值小到大", "熱門優先", "手動排序"].map((sort) => `<option value="${sort}" ${page.dataSort === sort ? "selected" : ""}>${sort}</option>`).join("")}
+          </select>
+        </div>
+        <div class="field">
+          <label>顯示筆數</label>
+          <div class="field-help">可控制列表一次呈現的資料量。</div>
+          <select data-page-field="dataLimit">
+            ${["6", "9", "12", "全部"].map((limit) => `<option value="${limit}" ${page.dataLimit === limit ? "selected" : ""}>${limit}</option>`).join("")}
+          </select>
+        </div>
+      </div>
+      <div class="data-source-summary">
+        <strong>目前設定</strong>
+        <span>${esc(selectedSource.manager)}｜分類：${esc(page.dataCategory || "全部")}｜排序：${esc(page.dataSort || "最新優先")}｜筆數：${esc(page.dataLimit || "6")}</span>
+      </div>
+    </section>
   `;
 }
 
 function renderPageMetaSettings(page) {
   return `
-    <div class="settings-card page-meta-settings">
-      <div class="section-head">
+    <section class="page-subsection page-meta-settings">
+      <div class="section-head compact">
         <div>
           <h3>搜尋與分享設定</h3>
           <p>這些設定只套用在「${esc(page.name)}」；未特別修改時會沿用全站 SEO 預設值。</p>
@@ -4781,14 +5941,14 @@ function renderPageMetaSettings(page) {
           </select>
         </div>
       </div>
-    </div>
+    </section>
   `;
 }
 
 function renderPageContentEditor(page, template) {
   if (page.contentSource === "data") {
     return `
-      <div class="settings-card">
+      <section class="page-subsection">
         <h3>頁面顯示文案</h3>
         <p class="field-help">列表資料會由「背景資料設定」帶入；這裡只填頁面最上方給訪客看的頁首標題與說明。例：標題填「成功案例」，簡介填「看看不同社區與企業如何導入智慧富氫水站」。</p>
         <div class="field-grid">
@@ -4803,12 +5963,13 @@ function renderPageContentEditor(page, template) {
             <input type="text" value="${esc(page.content?.field1 || "")}" data-page-content="field1">
           </div>
         </div>
-      </div>
+      </section>
     `;
   }
 
+  const mainContent = page.content?.field2Html || esc(page.content?.field2 || "");
   return `
-    <div class="settings-card">
+    <section class="page-subsection">
       <h3>頁面內容</h3>
       <p class="field-help">手動撰寫此頁內容。適合關於我們、品牌故事、聯絡頁或單一活動頁。</p>
       <div class="page-content-editor">
@@ -4827,54 +5988,77 @@ function renderPageContentEditor(page, template) {
         </section>
         <section>
           <h4>${page.template === "contact" ? "聯絡資訊" : "主要內容"}</h4>
-          <div class="field-grid">
-            ${template.fields.slice(2).map((field, offset) => {
-              const index = offset + 2;
-              const isLong = page.template === "content" && index === 2;
-              return `
-                <div class="field ${isLong ? "full" : ""}">
-                  <label>${esc(field)}</label>
-                  ${isLong ? `<textarea data-page-content="field${index}">${esc(page.content?.[`field${index}`] || "")}</textarea>` : `<input type="text" value="${esc(page.content?.[`field${index}`] || "")}" data-page-content="field${index}">`}
+          ${page.template === "contact" ? `
+            <div class="field-grid">
+              ${template.fields.slice(2).map((field, offset) => {
+                const index = offset + 2;
+                return `
+                  <div class="field">
+                    <label>${esc(field)}</label>
+                    <input type="text" value="${esc(page.content?.[`field${index}`] || "")}" data-page-content="field${index}">
+                  </div>
+                `;
+              }).join("")}
+            </div>
+          ` : `
+            <div class="field full rich-editor-field">
+              <label>主要內容</label>
+              <div class="rich-editor page-rich-editor" data-rich-editor="page-${esc(page.id)}">
+                <div class="rich-toolbar" aria-label="頁面內容編輯工具列">
+                  <button class="btn compact" type="button" data-rich-command="bold" title="粗體"><strong>B</strong></button>
+                  <button class="btn compact" type="button" data-rich-command="foreColor" data-rich-value="#0e6a8c" title="品牌色文字">品牌色</button>
+                  <label class="btn compact color-chip" title="自訂文字顏色">
+                    色彩
+                    <input type="color" value="#0e6a8c" data-rich-color>
+                  </label>
+                  <button class="btn compact" type="button" data-rich-insert="link" title="插入連結">連結</button>
+                  <button class="btn compact" type="button" data-rich-upload-trigger="image" title="上傳圖片">圖片</button>
+                  <button class="btn compact" type="button" data-rich-upload-trigger="video" title="上傳影片">影片</button>
+                  <input class="visually-hidden" type="file" accept="image/*" data-rich-upload="image">
+                  <input class="visually-hidden" type="file" accept="video/*" data-rich-upload="video">
                 </div>
-              `;
-            }).join("")}
-          </div>
+                <div class="rich-body page-rich-body" contenteditable="true" data-placeholder="輸入頁面主要內容，可加入格式、圖片、影片或連結。" data-rich-body data-page-rich-content="field2">${mainContent}</div>
+              </div>
+              <div class="field-help">主要內容會作為此頁的正式內文；不再另外填補充重點欄位。</div>
+            </div>
+          `}
         </section>
       </div>
-    </div>
+    </section>
   `;
 }
 
 function renderPageLayoutPreview(page) {
   const template = getPageTemplate(page.template);
-  const isB = page.layout === "B";
-  const title = esc(page.content?.field0 || page.name);
-  const intro = esc(page.content?.field1 || template.description);
-  if (["article", "case", "service"].includes(page.template)) {
+  const layout = getPageLayout(page);
+  if (layout.entry) {
+    const params = pageLayoutPreviewParams(page);
     return `
-      <div class="mini-preview">
-        <div class="${isB ? "mini-list" : "mini-grid"}">
-          ${isB ? `
-            <div class="mini-row"><strong>${title}</strong><span>主項目</span></div>
-            <div class="mini-row"><strong>${esc(page.content?.field2 || template.fields[2])}</strong><span>列表項目</span></div>
-            <div class="mini-row"><strong>${esc(page.content?.field3 || template.fields[3])}</strong><span>列表項目</span></div>
-          ` : `
-            <div class="mini-card"><strong>${title}</strong><span>${intro}</span></div>
-            <div class="mini-card"><strong>${esc(page.content?.field2 || template.fields[2])}</strong><span>卡片內容</span></div>
-            <div class="mini-card"><strong>${esc(page.content?.field3 || template.fields[3])}</strong><span>卡片內容</span></div>
-          `}
+      <div class="page-layout-preview-card">
+        <div class="section-head compact">
+          <div>
+            <h3>版面預覽</h3>
+            <p>目前套用：${esc(template.name)}｜方案 ${esc(layout.id)}：${esc(layout.name)}</p>
+          </div>
+          <span class="pill">HTML 版型</span>
         </div>
-        <p>方案 ${esc(page.layout)}：${esc(template.layouts.find((item) => item.id === page.layout)?.description || "")}</p>
+        <div class="page-real-template-preview">
+          <iframe class="page-real-preview-frame" scrolling="no" title="${esc(template.name)}方案 ${esc(layout.id)} 預覽" src="${esc(layout.entry)}?${esc(params.toString())}"></iframe>
+        </div>
       </div>
     `;
   }
+  const title = esc(page.content?.field0 || page.name);
+  const intro = esc(page.content?.field1 || template.description);
   return `
-    <div class="mini-preview">
-      <div class="mini-split ${isB ? "layout-b" : ""}">
-        <div class="mini-copy"><strong>${title}</strong><span>${intro}</span><small>${esc(page.content?.field2 || template.fields[2] || "主要內容")}</small></div>
-        <div class="mini-image">${esc(template.name)}</div>
+    <div class="page-layout-preview-card">
+      <div class="mini-preview">
+        <div class="mini-split">
+          <div class="mini-copy"><strong>${title}</strong><span>${intro}</span><small>${esc(page.content?.field2 || template.fields[2] || "主要內容")}</small></div>
+          <div class="mini-image">${esc(template.name)}</div>
+        </div>
+        <p>方案 ${esc(page.layout)}：${esc(layout.description || "")}</p>
       </div>
-      <p>方案 ${esc(page.layout)}：${esc(template.layouts.find((item) => item.id === page.layout)?.description || "")}</p>
     </div>
   `;
 }
@@ -4895,16 +6079,23 @@ function updatePageField(page, input) {
       page.content[`field${index}`] = index === 0 ? page.name : field;
     });
     if (page.contentSource === "data") {
-      page.dataSource = `${template.name}資料來源`;
-      page.dataMapping = template.fields.map((field, index) => `field${index} = ${field}`).join("\n");
+      page.dataSource = recommendedPageDataSource(page.template);
+      page.dataCategory = "";
+      page.dataSort = "";
+      page.dataLimit = "";
+      hydratePageDataDefaults(page);
     }
   }
   if (input.dataset.pageField === "contentSource" && page.contentSource === "data") {
-    const template = getPageTemplate(page.template);
-    page.dataFormat = page.dataFormat || "collection";
-    page.dataSource = page.dataSource || (page.template === "faq" ? "FAQ 管理" : "文章管理");
-    page.dataFilter = page.dataFilter || "文章類型=最新消息；狀態=已發布；排序=發布日期新到舊；筆數=6";
-    page.dataMapping = page.dataMapping || template.fields.map((field, index) => `field${index} = ${field}`).join("\n");
+    page.dataSource = page.dataSource || recommendedPageDataSource(page.template);
+    hydratePageDataDefaults(page);
+  }
+  if (input.dataset.pageField === "dataSource") {
+    page.dataCategory = defaultPageDataCategory(page.dataSource);
+    hydratePageDataDefaults(page);
+  }
+  if (["dataCategory", "dataSort", "dataLimit"].includes(input.dataset.pageField)) {
+    hydratePageDataDefaults(page);
   }
   render();
 }
@@ -4960,9 +6151,7 @@ function switchAdminSection(section) {
   }
   if (state.adminSection !== "pages") {
     state.isChoosingPageTemplate = false;
-    state.isChoosingPageSource = false;
     state.pendingPageTemplate = "";
-    state.pendingPageSource = "";
     state.pageMode = "list";
     state.pageSavedNotice = "";
   }
@@ -5451,10 +6640,21 @@ function renderManagerPanel() {
     });
     els.managerPanel.querySelectorAll("[data-rich-body]").forEach((body) => {
       body.addEventListener("input", () => {
+        if (body.dataset.pageRichContent !== undefined) {
+          const page = state.pages.find((item) => item.id === state.activePageId);
+          if (!page) return;
+          page.content = page.content || {};
+          page.content[`${body.dataset.pageRichContent}Html`] = body.innerHTML;
+          page.content[body.dataset.pageRichContent] = body.innerText;
+          state.pageSavedNotice = "";
+          return;
+        }
         const item = state.dataCollections[body.dataset.dataKind].find((entry) => entry.id === body.dataset.dataId);
         if (item) {
-          item.bodyHtml = body.innerHTML;
-          item.body = body.innerText;
+          const textField = body.dataset.richTextField || "body";
+          const htmlField = body.dataset.richHtmlField || `${textField}Html`;
+          item[htmlField] = body.innerHTML;
+          item[textField] = body.innerText;
         }
         if (state.activeDataEditor) state.activeDataEditor.isDirty = true;
       });
@@ -5475,6 +6675,17 @@ function renderManagerPanel() {
         body?.focus();
         document.execCommand("foreColor", false, input.value);
         body?.dispatchEvent(new Event("input", { bubbles: true }));
+      });
+    });
+    els.managerPanel.querySelectorAll("[data-rich-font-size]").forEach((select) => {
+      select.addEventListener("change", () => {
+        if (!select.value) return;
+        const editor = select.closest("[data-rich-editor]");
+        const body = editor?.querySelector("[data-rich-body]");
+        body?.focus();
+        document.execCommand("fontSize", false, select.value);
+        body?.dispatchEvent(new Event("input", { bubbles: true }));
+        select.value = "";
       });
     });
     els.managerPanel.querySelectorAll("[data-rich-insert]").forEach((button) => {
@@ -5768,6 +6979,45 @@ function renderManagerPanel() {
     });
   }
 
+  if (state.adminSection === "seo") {
+    els.managerPanel.querySelectorAll("[data-edit-seo]").forEach((button) => {
+      button.addEventListener("click", () => openSeoModal(button.dataset.editSeo));
+    });
+    els.managerPanel.querySelectorAll("[data-close-seo-modal]").forEach((button) => {
+      button.addEventListener("click", () => closeSeoModal());
+    });
+    els.managerPanel.querySelector("[data-modal-panel]")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+    });
+    els.managerPanel.querySelectorAll("[data-seo-field]").forEach((input) => {
+      input.addEventListener("input", () => {
+        updateSeoDraft(input.dataset.seoField, input.value);
+        refreshSeoLivePreview();
+      });
+      input.addEventListener("change", () => {
+        updateSeoDraft(input.dataset.seoField, input.value);
+        render();
+      });
+    });
+    els.managerPanel.querySelectorAll("[data-seo-check]").forEach((input) => {
+      input.addEventListener("change", () => {
+        updateSeoDraft(input.dataset.seoCheck, input.checked);
+        render();
+      });
+    });
+    els.managerPanel.querySelectorAll("[data-seo-radio]").forEach((input) => {
+      input.addEventListener("change", () => {
+        updateSeoDraft(input.dataset.seoRadio, input.value);
+        render();
+      });
+    });
+    els.managerPanel.querySelector("[data-seo-image]")?.addEventListener("change", (event) => {
+      handleSeoImageUpload(event.currentTarget);
+    });
+    els.managerPanel.querySelector("[data-remove-seo-image]")?.addEventListener("click", removeSeoImage);
+    els.managerPanel.querySelector("[data-save-seo-modal]")?.addEventListener("click", saveSeoDraft);
+  }
+
   if (state.adminSection === "siteBasicInfo") {
     els.managerPanel.querySelectorAll("[data-site-info-preview-tab]").forEach((button) => {
       button.addEventListener("click", () => {
@@ -5804,32 +7054,21 @@ function renderManagerPanel() {
   if (state.adminSection === "pages") {
     els.managerPanel.querySelector("[data-add-page]")?.addEventListener("click", () => {
       state.isChoosingPageTemplate = true;
-      state.isChoosingPageSource = false;
-      state.pendingPageTemplate = "";
-      state.pendingPageSource = "";
+      state.pendingPageTemplate = pageTemplates[0]?.id || "";
       state.pageMode = "list";
       render();
     });
     els.managerPanel.querySelector("[data-cancel-page-template]")?.addEventListener("click", () => {
       state.isChoosingPageTemplate = false;
-      state.isChoosingPageSource = false;
       state.pendingPageTemplate = "";
-      state.pendingPageSource = "";
       render();
     });
     els.managerPanel.querySelectorAll("[data-page-template]").forEach((button) => {
       button.addEventListener("click", () => choosePageTemplate(button.dataset.pageTemplate));
     });
-    els.managerPanel.querySelectorAll("[data-page-source]").forEach((button) => {
-      button.addEventListener("click", () => {
-        state.pendingPageSource = button.dataset.pageSource;
-        render();
-      });
-    });
-    els.managerPanel.querySelector("[data-confirm-page-source]")?.addEventListener("click", () => {
-      if (state.pendingPageTemplate && state.pendingPageSource) {
-        addPageFromTemplate(state.pendingPageTemplate, state.pendingPageSource);
-      }
+    els.managerPanel.querySelector("[data-confirm-page-template]")?.addEventListener("click", () => {
+      const templateId = state.pendingPageTemplate || pageTemplates[0]?.id || "content";
+      addPageFromTemplate(templateId, recommendedPageSource(templateId));
     });
     els.managerPanel.querySelectorAll("[data-delete-page]").forEach((button) => {
       button.addEventListener("click", () => deletePage(button.dataset.deletePage));
@@ -5845,15 +7084,7 @@ function renderManagerPanel() {
       });
     });
     els.managerPanel.querySelectorAll("[data-back-page-list]").forEach((button) => {
-      button.addEventListener("click", () => {
-        state.pageMode = "list";
-        state.isChoosingPageTemplate = false;
-        state.isChoosingPageSource = false;
-        state.pendingPageTemplate = "";
-        state.pendingPageSource = "";
-        state.pageSavedNotice = "";
-        render();
-      });
+      button.addEventListener("click", cancelPageEdit);
     });
     els.managerPanel.querySelector("[data-save-page]")?.addEventListener("click", savePage);
     els.managerPanel.querySelectorAll("[data-page-layout-tab]").forEach((button) => {
@@ -5890,6 +7121,86 @@ function renderManagerPanel() {
     els.managerPanel.querySelectorAll("[data-page-meta-image]").forEach((input) => {
       input.addEventListener("change", () => updatePageMeta(activePage, input));
     });
+    els.managerPanel.querySelectorAll("[data-page-rich-content]").forEach((body) => {
+      body.addEventListener("input", () => {
+        if (!activePage) return;
+        activePage.content = activePage.content || {};
+        activePage.content[`${body.dataset.pageRichContent}Html`] = body.innerHTML;
+        activePage.content[body.dataset.pageRichContent] = body.innerText;
+        state.pageSavedNotice = "";
+      });
+    });
+    els.managerPanel.querySelectorAll("[data-rich-command]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const editor = button.closest("[data-rich-editor]");
+        const body = editor?.querySelector("[data-page-rich-content]");
+        if (!body) return;
+        body.focus();
+        document.execCommand(button.dataset.richCommand, false, button.dataset.richValue || null);
+        body.dispatchEvent(new Event("input", { bubbles: true }));
+      });
+    });
+    els.managerPanel.querySelectorAll("[data-rich-color]").forEach((input) => {
+      input.addEventListener("input", () => {
+        const editor = input.closest("[data-rich-editor]");
+        const body = editor?.querySelector("[data-page-rich-content]");
+        if (!body) return;
+        body.focus();
+        document.execCommand("foreColor", false, input.value);
+        body.dispatchEvent(new Event("input", { bubbles: true }));
+      });
+    });
+    els.managerPanel.querySelectorAll("[data-rich-font-size]").forEach((select) => {
+      select.addEventListener("change", () => {
+        if (!select.value) return;
+        const editor = select.closest("[data-rich-editor]");
+        const body = editor?.querySelector("[data-page-rich-content]");
+        if (!body) return;
+        body.focus();
+        document.execCommand("fontSize", false, select.value);
+        body.dispatchEvent(new Event("input", { bubbles: true }));
+        select.value = "";
+      });
+    });
+    els.managerPanel.querySelectorAll("[data-rich-insert]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const editor = button.closest("[data-rich-editor]");
+        const body = editor?.querySelector("[data-page-rich-content]");
+        if (!body) return;
+        body.focus();
+        if (button.dataset.richInsert === "link") {
+          const url = prompt("請輸入連結網址");
+          if (!url) return;
+          document.execCommand("createLink", false, normalizeExternalUrl(url));
+        }
+        body.dispatchEvent(new Event("input", { bubbles: true }));
+      });
+    });
+    els.managerPanel.querySelectorAll(".page-rich-editor [data-rich-upload-trigger]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const editor = button.closest("[data-rich-editor]");
+        const input = editor?.querySelector(`[data-rich-upload="${button.dataset.richUploadTrigger}"]`);
+        input?.click();
+      });
+    });
+    els.managerPanel.querySelectorAll(".page-rich-editor [data-rich-upload]").forEach((input) => {
+      input.addEventListener("change", () => {
+        const file = input.files?.[0];
+        if (!file) return;
+        const editor = input.closest("[data-rich-editor]");
+        const body = editor?.querySelector("[data-page-rich-content]");
+        const fileUrl = URL.createObjectURL(file);
+        body?.focus();
+        if (input.dataset.richUpload === "image") {
+          document.execCommand("insertHTML", false, `<figure><img src="${esc(fileUrl)}" alt="${esc(file.name)}"><figcaption>${esc(file.name)}</figcaption></figure>`);
+        }
+        if (input.dataset.richUpload === "video") {
+          document.execCommand("insertHTML", false, `<figure class="rich-video"><video src="${esc(fileUrl)}" controls></video><figcaption>${esc(file.name)}</figcaption></figure>`);
+        }
+        body?.dispatchEvent(new Event("input", { bubbles: true }));
+        input.value = "";
+      });
+    });
   }
 }
 
@@ -5905,8 +7216,9 @@ function render() {
   renderManagerPanel();
   renderHeaderSiteTemplateNotice();
   renderPreview();
-  setView(state.view);
+  setView();
   updateSaveState();
+  expandFrontPreviewFrames();
 }
 
 els.addModuleBtn.addEventListener("click", toggleModuleTemplateChooser);
@@ -5918,6 +7230,7 @@ els.backHomeOverviewBtn.addEventListener("click", () => {
   render();
 });
 els.saveBtn.addEventListener("click", saveDraft);
+els.themeToggle?.addEventListener("click", toggleAdminTheme);
 document.querySelectorAll("[data-admin-section]").forEach((button) => {
   button.addEventListener("click", () => {
     switchAdminSection(button.dataset.adminSection);
@@ -5930,9 +7243,5 @@ document.querySelectorAll("[data-nav-group-toggle]").forEach((button) => {
     updateNavGroups();
   });
 });
-document.querySelectorAll("[data-view]").forEach((button) => {
-  button.addEventListener("click", () => setView(button.dataset.view));
-});
-
 render();
 
