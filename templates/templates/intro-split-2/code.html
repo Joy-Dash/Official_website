@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="zh-TW"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LuxeTech - Immersive Overlapping Layout</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;family=Geist:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "secondary-fixed-dim": "#c6c6c7",
+                "surface-variant": "#e1e1ef",
+                "surface-container": "#ededfb",
+                "inverse-surface": "#2e303a",
+                "surface-container-highest": "#e1e1ef",
+                "on-surface-variant": "#434656",
+                "outline-variant": "#c3c5d9",
+                "tertiary-fixed": "#ffdbd1",
+                "on-primary-fixed-variant": "#0039b3",
+                "on-tertiary-container": "#ffe1d9",
+                "error": "#ba1a1a",
+                "error-container": "#ffdad6",
+                "primary-fixed": "#dce1ff",
+                "primary": "#0041c8",
+                "surface-tint": "#004dea",
+                "surface-container-lowest": "#ffffff",
+                "secondary": "#5d5f5f",
+                "on-primary-container": "#e3e6ff",
+                "tertiary": "#972500",
+                "outline": "#737688",
+                "inverse-primary": "#b6c4ff",
+                "surface-dim": "#d9d9e6",
+                "surface-bright": "#faf8ff",
+                "primary-container": "#0055ff",
+                "on-error-container": "#93000a",
+                "on-tertiary-fixed-variant": "#872100",
+                "on-secondary-fixed": "#1a1c1c",
+                "on-surface": "#191b25",
+                "surface": "#faf8ff",
+                "on-secondary": "#ffffff",
+                "on-primary": "#ffffff",
+                "background": "#faf8ff",
+                "secondary-fixed": "#e2e2e2",
+                "on-primary-fixed": "#001551",
+                "on-tertiary": "#ffffff",
+                "on-secondary-container": "#616363",
+                "surface-container-high": "#e7e7f5",
+                "inverse-on-surface": "#f0f0fd",
+                "secondary-container": "#dfe0e0",
+                "on-secondary-fixed-variant": "#454747",
+                "tertiary-fixed-dim": "#ffb5a0",
+                "on-error": "#ffffff",
+                "tertiary-container": "#c13301",
+                "surface-container-low": "#f3f2ff",
+                "primary-fixed-dim": "#b6c4ff",
+                "on-background": "#191b25",
+                "on-tertiary-fixed": "#3b0900"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+            },
+            "spacing": {
+                "margin-mobile": "20px",
+                "md": "24px",
+                "xs": "4px",
+                "gutter": "24px",
+                "lg": "48px",
+                "sm": "12px",
+                "margin-desktop": "64px",
+                "xl": "80px",
+                "base": "8px"
+            },
+            "fontFamily": {
+                "label-md": ["Geist"],
+                "headline-lg-mobile": ["Geist"],
+                "label-sm": ["Geist"],
+                "headline-md": ["Geist"],
+                "headline-lg": ["Geist"],
+                "body-md": ["Inter"],
+                "display": ["Geist"],
+                "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                "label-md": ["14px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                "headline-lg-mobile": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                "label-sm": ["12px", {"lineHeight": "1", "fontWeight": "600"}],
+                "headline-md": ["32px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                "headline-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                "display": ["72px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700"}],
+                "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .parallax-text {
+            transform: translateX(0);
+            transition: transform 0.1s ease-out;
+        }
+        
+        .mask-reveal {
+            clip-path: inset(0 0 0 100%);
+            animation: revealMask 1.2s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+        }
+
+        @keyframes revealMask {
+            0% { clip-path: inset(0 0 0 100%); }
+            100% { clip-path: inset(0 0 0 0%); }
+        }
+
+        .fade-stagger {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Organic Curve Mask for Desktop */
+        @media (min-width: 768px) {
+            .organic-mask {
+                clip-path: url(#organic-path);
+            }
+        }
+
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
+        .delay-3 { animation-delay: 0.6s; }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased overflow-x-hidden">
+<!-- Main Content Section -->
+<main class="relative min-h-screen flex items-center overflow-hidden">
+<!-- SVG Mask Definition (Invisible) -->
+<svg aria-hidden="true" class="absolute w-0 h-0 overflow-hidden">
+<defs>
+<clippath clippathunits="objectBoundingBox" id="organic-path">
+<path d="M1,0 H0.25 C0.15,0,0,0.1,0,0.25 V0.75 C0,0.9,0.1,1,0.25,1 H1 V0 Z"></path>
+<!-- Refined organic curve logic: Starts with a sharp vertical edge but uses a smooth transition on the inner side -->
+<path d="M1,0 H0.2 C0.05,0.1 0.1,0.4 0,0.5 C-0.1,0.6 0.1,0.9 0.2,1 H1 V0 Z"></path>
+</clippath>
+</defs>
+</svg>
+<div class="w-full max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop py-xl relative">
+<div class="flex flex-col md:flex-row items-center md:items-start gap-gutter">
+<!-- Text Container (30% on Desktop) -->
+<div class="w-full md:w-[35%] z-20 order-1 md:order-1 pt-xl md:pt-32">
+<div class="max-w-md">
+<span class="inline-block font-label-md text-label-md text-primary tracking-[0.2em] uppercase mb-base fade-stagger delay-1">
+                            ABOUT THE BRAND
+                        </span>
+<!-- Desktop Overlapping Headline -->
+<h1 class="hidden md:block font-headline-lg text-headline-lg text-on-surface leading-tight mb-md fade-stagger delay-2 parallax-text relative whitespace-nowrap" id="parallaxHeadline" style="margin-right: -15vw;">
+                            讓好的設計與服務，<br/>自然走進日常生活
+                        </h1>
+<!-- Mobile Headline -->
+<h1 class="md:hidden font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-md fade-stagger delay-2">
+                            讓好的設計與服務，自然走進日常生活
+                        </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-sm fade-stagger delay-3">
+                            我們從使用者的實際需求出發，結合產品、技術與服務，打造簡單、安心且能夠長期使用的生活體驗。每一項細節，都來自對品質與使用情境的理解。
+                        </p>
+</div>
+</div>
+<!-- Image Container (70% on Desktop) -->
+<div class="w-full md:w-[65%] order-2 md:order-2 h-[450px] md:h-[750px] relative">
+<div class="mask-reveal h-full w-full">
+<div class="organic-mask w-full h-full relative overflow-hidden">
+<img alt="Lifestyle showcase" class="absolute inset-0 w-full h-full object-cover scale-105 transition-transform duration-700 hover:scale-100" src="https://lh3.googleusercontent.com/aida/AP1WRLtdsDzoCIVKOMptftsrgNeNAaSJtJavCXfO-PYAPivwEQqpNaxoawVe8BrNvJnLB--4OXxlnrm05odwATur6UjiSv1wd4yFug_G79rSYvuAjn4UjxQlV8kxb7V746JOJ-Gm-5QBAUBziIFGdS1XmsRZBZ0zFdlsouwtyz2eCjS577XWBV2SxJYsr8HCbsak77p9rKz21pglV8V5K_75plLBjFND6oAvMKTB4UhAK4NHvP0vVzP_8tNkD7o"/>
+<!-- Subtle brand aesthetic overlay -->
+<div class="absolute inset-0 bg-primary/5 pointer-events-none"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<script>
+        // Simple parallax effect for the headline
+        window.addEventListener('scroll', () => {
+            const headline = document.getElementById('parallaxHeadline');
+            if (!headline) return;
+            
+            const scrolled = window.scrollY;
+            const threshold = 100;
+            
+            if (scrolled < 1000) { // Only animate near the top
+                const movement = scrolled * 0.15;
+                headline.style.transform = `translateX(-${movement}px)`;
+            }
+        });
+
+        // Entrance animation logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const elements = document.querySelectorAll('.fade-stagger');
+            elements.forEach((el, index) => {
+                el.style.animationDelay = `${(index + 1) * 0.2}s`;
+            });
+        });
+    </script>
+<script id="module-preview-bridge">
+(() => {
+  const params = new URLSearchParams(window.location.search);
+  const pick = (key, fallback = "") => params.get(key) || fallback;
+  const setAllText = (selector, value) => {
+    if (!value) return;
+    document.querySelectorAll(selector).forEach((node) => {
+      node.textContent = value;
+    });
+  };
+  const applyImage = (imageUrl) => {
+    if (!imageUrl) return;
+    const image = document.querySelector("main img");
+    if (image) image.src = imageUrl;
+  };
+  const applyPalette = () => {
+    const palette = {
+      primary: pick("primary"),
+      accent: pick("accent"),
+      bg: pick("bg"),
+      surface: pick("surface"),
+      text: pick("text"),
+      muted: pick("muted")
+    };
+    if (!palette.primary) return;
+    document.body.style.background = palette.bg;
+    document.body.style.color = palette.text;
+    document.querySelectorAll(".bg-background, .bg-surface-bright").forEach((el) => { el.style.background = palette.bg; });
+    document.querySelectorAll(".bg-primary").forEach((el) => { el.style.background = palette.primary; });
+    document.querySelectorAll(".text-primary").forEach((el) => { el.style.color = palette.primary; });
+    document.querySelectorAll(".text-on-surface").forEach((el) => { el.style.color = palette.text; });
+    document.querySelectorAll(".text-on-surface-variant").forEach((el) => { el.style.color = palette.muted; });
+    document.querySelectorAll(".border-primary").forEach((el) => { el.style.borderColor = palette.primary; });
+  };
+  applyPalette();
+
+  setAllText("main h1", pick("title"));
+  setAllText("main p.font-body-lg", pick("subtitle"));
+
+  let imageUrl = pick("imageUrl");
+  const imageKey = pick("imageKey");
+  if (!imageUrl && imageKey) {
+    try {
+      imageUrl = sessionStorage.getItem(imageKey) || "";
+    } catch (error) {}
+  }
+  applyImage(imageUrl);
+
+  window.addEventListener("message", (event) => {
+    if (event.data?.type !== "hero-preview-image" || !event.data.imageUrl) return;
+    applyImage(event.data.imageUrl);
+  });
+})();
+</script>
+<script>
+(() => {
+  const reportHeight = () => parent.postMessage({ type: "front-preview-height", height: Math.max(document.body.scrollHeight, document.documentElement.scrollHeight) }, "*");
+  window.addEventListener("load", reportHeight);
+  window.addEventListener("resize", reportHeight);
+  new ResizeObserver(reportHeight).observe(document.documentElement);
+  document.querySelectorAll("img").forEach((image) => image.addEventListener("load", reportHeight));
+  reportHeight();
+})();
+</script>
+</body></html>
