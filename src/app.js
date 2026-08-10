@@ -357,14 +357,29 @@ function seoSlugFromId(id) {
     .replace(/^-|-$/g, "");
 }
 
+function seoSlugFromName(name, fallbackId = "") {
+  const slug = String(name || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[\/\\?#&=+%:"'<>|{}[\]^`]+/g, "-")
+    .replace(/-{2,}/g, "-")
+    .replace(/^-|-$/g, "");
+  return slug || seoSlugFromId(fallbackId);
+}
+
 function pageCanonicalUrl(slug) {
   const base = defaultSiteMeta.productionBaseUrl.replace(/\/$/, "");
   return slug ? `${base}/${slug}` : `${base}/`;
 }
 
+function defaultSeoTitleForName(name) {
+  return `${name || "未命名頁面"}｜${defaultSiteMeta.titleSuffix}`;
+}
+
 function createSeoSetting({ id, name }) {
-  const slug = seoSlugFromId(id);
-  const seoTitle = `${name}｜${defaultSiteMeta.titleSuffix}`;
+  const slug = id === "home" ? "" : seoSlugFromName(name, id);
+  const seoTitle = defaultSeoTitleForName(name);
   return {
     pageId: id,
     pageName: name,
@@ -387,6 +402,35 @@ function createSeoSetting({ id, name }) {
     canonicalMode: "auto",
     canonicalUrl: pageCanonicalUrl(slug)
   };
+}
+
+function syncSeoDefaultsFromPage(page, previousName = "") {
+  if (!page) return;
+  const setting = state.pageSeoSettings.find((item) => item.pageId === page.id);
+  if (!setting) return;
+  const oldName = previousName || setting.pageName || page.name;
+  const oldTitle = defaultSeoTitleForName(oldName);
+  const nextTitle = defaultSeoTitleForName(page.name);
+  const oldSlugFromName = seoSlugFromName(oldName, page.id);
+  const oldSlugFromId = seoSlugFromId(page.id);
+  const nextSlug = seoSlugFromName(page.name, page.id);
+  const slugLooksDefault = !setting.slug || setting.slug === oldSlugFromName || setting.slug === oldSlugFromId;
+  const titleLooksDefault = !setting.seoTitle || setting.seoTitle === oldTitle || setting.seoTitle === defaultSeoTitleForName(setting.pageName);
+  const ogTitleLooksDefault = !setting.ogTitle || setting.ogTitle === setting.seoTitle || setting.ogTitle === oldTitle || setting.syncOg;
+
+  setting.pageName = page.name;
+  if (slugLooksDefault) setting.slug = nextSlug;
+  if (titleLooksDefault) setting.seoTitle = nextTitle;
+  if (ogTitleLooksDefault) setting.ogTitle = setting.syncOg ? setting.seoTitle : nextTitle;
+  if (setting.syncOg) setting.ogDescription = setting.seoDescription;
+  if (setting.canonicalMode === "auto" || !setting.canonicalUrl || setting.canonicalUrl === pageCanonicalUrl(oldSlugFromName) || setting.canonicalUrl === pageCanonicalUrl(oldSlugFromId)) {
+    setting.canonicalUrl = pageCanonicalUrl(setting.slug);
+  }
+
+  const pageSeoLooksDefault = !page.seoTitle || page.seoTitle === oldTitle;
+  const pageShareLooksDefault = !page.shareTitle || page.shareTitle === oldTitle;
+  if (pageSeoLooksDefault) page.seoTitle = nextTitle;
+  if (pageShareLooksDefault) page.shareTitle = nextTitle;
 }
 
 function initialSeoSettings() {
@@ -510,17 +554,19 @@ function currentItemCount(module) {
   return normalized;
 }
 
-function renderItemCountField(module, label = "顯示項目數量") {
+function renderItemCountField(module, label = "顯示項目數量", options = {}) {
   const rule = itemCountRule(module);
   if (!rule) return "";
   const count = currentItemCount(module);
+  const compactNote = options.compactNote || "";
+  const note = options.hideNote ? "" : (compactNote || rule.note);
   return `
-    <div class="field item-count-field">
+    <div class="field item-count-field ${compactNote ? "compact-note" : ""}">
       <label>${esc(label)}</label>
-      <div class="field-help">${esc(rule.note)}</div>
       <select data-content-field="itemCount">
         ${itemCountOptions(module).map((value) => `<option value="${value}" ${count === value ? "selected" : ""}>${value} 個</option>`).join("")}
       </select>
+      ${note ? `<div class="field-help">${esc(note)}</div>` : ""}
     </div>
   `;
 }
@@ -535,8 +581,10 @@ function appendItemParams(params, c, count, max) {
     params.set(`item${index}`, previewPlainText(c[`item${index}`] || ""));
     params.set(`item${index}Subtitle`, previewPlainText(c[`item${index}Subtitle`] || ""));
     params.set(`item${index}Date`, previewPlainText(c[`item${index}Date`] || ""));
-    params.set(`item${index}LinkEnabled`, c[`item${index}LinkEnabled`] ? "1" : "0");
-    params.set(`item${index}LinkText`, previewPlainText(c[`item${index}LinkText`] || ""));
+    const linkText = previewPlainText(c[`item${index}LinkText`] || "");
+    params.set(`item${index}LinkEnabled`, linkText ? "1" : "0");
+    params.set(`item${index}LinkText`, linkText);
+    params.set(`item${index}LinkTarget`, previewPlainText(c[`item${index}LinkTarget`] || ""));
   }
 }
 
@@ -617,7 +665,88 @@ const initialSupportMessages = [
   { id: "message-3", name: "黃小姐", channel: "Email", subject: "售後服務詢問", lastMessage: "設備安裝後若有問題如何報修？", status: "已結案", owner: "客服 A", updatedAt: "2026/07/18 16:40", note: "已提供客服信箱與報修流程。" }
 ];
 
-const adminRoleOptions = ["最高管理者", "管理員", "編輯者", "檢視者"];
+const adminPermissionTree = [
+  {
+    id: "siteSettings",
+    name: "網站設定",
+    children: [
+      { id: "brandStyle", name: "品牌樣式設定" },
+      { id: "siteBasicInfo", name: "基本資訊" },
+      { id: "seo", name: "SEO 管理" },
+      { id: "tracking", name: "追蹤碼設定" },
+      { id: "site", name: "網站設定" }
+    ]
+  },
+  {
+    id: "content",
+    name: "內容管理",
+    children: [
+      { id: "home", name: "首頁模組" },
+      { id: "pages", name: "前台頁面" },
+      { id: "blueprintArticles", name: "文章內容" },
+      { id: "blueprintFaq", name: "FAQ 內容" },
+      { id: "blueprintProducts", name: "商品 / 服務資料" },
+      { id: "blueprintResources", name: "據點 / 資源資料" }
+    ]
+  },
+  {
+    id: "interaction",
+    name: "互動與客服",
+    children: [
+      { id: "contactRecords", name: "聯絡表單紀錄" },
+      { id: "supportMessages", name: "客服訊息內容" }
+    ]
+  },
+  {
+    id: "accounts",
+    name: "帳號權限",
+    children: [
+      { id: "adminRoles", name: "角色權限管理" },
+      { id: "adminUsers", name: "後台帳號管理" }
+    ]
+  },
+  {
+    id: "maintenance",
+    name: "系統維運",
+    children: [
+      { id: "logs", name: "操作紀錄" }
+    ]
+  }
+];
+
+const allAdminPermissionIds = adminPermissionTree.flatMap((group) => group.children.map((item) => item.id));
+
+const initialAdminRoles = [
+  {
+    id: "role-super-admin",
+    name: "最高管理者",
+    description: "擁有所有後台功能與角色權限設定能力。",
+    permissions: clone(allAdminPermissionIds),
+    isSuperAdmin: true,
+    updated: "2026/07/21"
+  },
+  {
+    id: "role-admin",
+    name: "管理員",
+    description: "可管理網站設定、內容、客服資料與操作紀錄。",
+    permissions: allAdminPermissionIds.filter((id) => id !== "adminRoles"),
+    updated: "2026/07/21"
+  },
+  {
+    id: "role-editor",
+    name: "編輯者",
+    description: "負責首頁、前台頁面與內容資料維護。",
+    permissions: ["home", "pages", "blueprintArticles", "blueprintFaq", "blueprintProducts", "blueprintResources"],
+    updated: "2026/07/21"
+  },
+  {
+    id: "role-viewer",
+    name: "檢視者",
+    description: "僅供檢視網站內容與操作紀錄。",
+    permissions: ["home", "pages", "blueprintArticles", "blueprintFaq", "blueprintProducts", "blueprintResources", "logs"],
+    updated: "2026/07/21"
+  }
+];
 
 const siteStyleTemplates = [
   {
@@ -768,6 +897,8 @@ const state = {
   adminSection: "brandStyle",
   homeMode: "overview",
   heroEditorTab: "edit",
+  expandedCtaModuleIds: [],
+  expandedItemCtaKeys: [],
   activeId: "hero",
   insertAfterId: "",
   pendingModuleTypeId: "",
@@ -785,6 +916,7 @@ const state = {
   activeDataEditor: null,
   activeArticleQuickAdd: null,
   activeOpsEditor: null,
+  activeAdminRoleEditor: null,
   activeAdminUserEditor: null,
   activePasswordResetUserId: "",
   passwordResetDraft: { password: "", confirm: "" },
@@ -809,6 +941,7 @@ const state = {
   articleCategories: clone(initialArticleCategories),
   contactRecords: clone(initialContactRecords),
   supportMessages: clone(initialSupportMessages),
+  adminRoles: clone(initialAdminRoles),
   adminUsers: clone(initialAdminUsers),
   adminUserFilters: { search: "", role: "", status: "" },
   pageSeoSettings: loadSeoSettings(),
@@ -850,6 +983,7 @@ const navSectionGroups = {
   blueprintResources: "content",
   contactRecords: "interaction",
   supportMessages: "interaction",
+  adminRoles: "accounts",
   adminUsers: "accounts",
   logs: "maintenance"
 };
@@ -1008,8 +1142,10 @@ function variantPill(module) {
 }
 
 function link(module, className = "secondary-link") {
-  if (!module.linkEnabled) return "";
-  return `<a class="${className}" href="#">${esc(module.linkText)}</a><span class="hint"> 前往：${esc(module.linkTarget)}</span>`;
+  const text = String(module.linkText || "").trim();
+  if (!text) return "";
+  const target = String(module.linkTarget || "#").trim() || "#";
+  return `<a class="${className}" href="${esc(target)}">${esc(text)}</a><span class="hint"> 前往：${esc(target)}</span>`;
 }
 
 function isMultiItemModule(module) {
@@ -1023,8 +1159,10 @@ function linkTargetOptions(selected) {
 }
 
 function itemLink(content, index, className = "secondary-link") {
-  if (!content?.[`item${index}LinkEnabled`]) return "";
-  return `<a class="${className}" href="#">${esc(content[`item${index}LinkText`] || "查看更多")}</a>`;
+  const text = String(content?.[`item${index}LinkText`] || "").trim();
+  if (!text) return "";
+  const target = String(content?.[`item${index}LinkTarget`] || "#").trim() || "#";
+  return `<a class="${className}" href="${esc(target)}">${esc(text)}</a>`;
 }
 
 function draftModules() {
@@ -1502,6 +1640,52 @@ function renderSettings() {
     input.addEventListener("change", () => updateField(module, input));
   });
 
+  els.settingsRoot.querySelectorAll("[data-add-module-cta]").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (!state.expandedCtaModuleIds.includes(button.dataset.addModuleCta)) {
+        state.expandedCtaModuleIds.push(button.dataset.addModuleCta);
+      }
+      renderSettings();
+    });
+  });
+
+  els.settingsRoot.querySelectorAll("[data-delete-module-cta]").forEach((button) => {
+    button.addEventListener("click", () => {
+      module.linkText = "";
+      module.linkTarget = "";
+      state.expandedCtaModuleIds = state.expandedCtaModuleIds.filter((id) => id !== button.dataset.deleteModuleCta);
+      markDirty();
+      renderSettings();
+      updateHeroLivePreview(module);
+      updateSaveState();
+    });
+  });
+
+  els.settingsRoot.querySelectorAll("[data-add-item-cta]").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (!state.expandedItemCtaKeys.includes(button.dataset.addItemCta)) {
+        state.expandedItemCtaKeys.push(button.dataset.addItemCta);
+      }
+      renderSettings();
+    });
+  });
+
+  els.settingsRoot.querySelectorAll("[data-delete-item-cta]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const index = Number(String(button.dataset.deleteItemCta || "").split(":").pop());
+      if (Number.isFinite(index)) {
+        module.content = module.content || defaultContent(module);
+        module.content[`item${index}LinkText`] = "";
+        module.content[`item${index}LinkTarget`] = "";
+      }
+      state.expandedItemCtaKeys = state.expandedItemCtaKeys.filter((key) => key !== button.dataset.deleteItemCta);
+      markDirty();
+      renderSettings();
+      updateHeroLivePreview(module);
+      updateSaveState();
+    });
+  });
+
   els.settingsRoot.querySelectorAll("[data-content-field]").forEach((input) => {
     input.addEventListener("input", () => updateContentField(module, input));
   });
@@ -1574,7 +1758,7 @@ function renderHeroVariantWorkbench(module) {
         </div>
       </div>
       <div class="hero-tab-panels">
-        <div class="hero-editor-panel ${activeTab === "edit" ? "" : "hidden"}" data-hero-editor-panel="edit">
+        <div class="hero-editor-panel" data-hero-editor-panel="edit">
           <div class="field hero-variant-select">
             <label>選擇首屏呈現方式</label>
             <div class="field-help">切換後，可到「套用預覽」查看目前內容放進整站模板後的樣子。</div>
@@ -1586,7 +1770,7 @@ function renderHeroVariantWorkbench(module) {
             ${renderHeroContentFields(module)}
           </div>
         </div>
-        <div class="hero-preview-panel ${activeTab === "preview" ? "" : "hidden"}" data-hero-editor-panel="preview">
+        <div class="hero-preview-panel" data-hero-editor-panel="preview">
           <div class="module-preview-toolbar">
             <div>
               <strong>目前套用預覽</strong>
@@ -1612,8 +1796,9 @@ function renderHeroCustomerPreview(module) {
     subtitle: previewPlainText(c.subtitle),
     imageKey: c.imagePreviewKey || "",
     imageUrl: c.imagePreviewKey ? "" : c.imagePreviewUrl || "",
-    cta: previewPlainText(module.linkText, "查看更多"),
-    linkEnabled: module.linkEnabled ? "1" : "0",
+    cta: previewPlainText(module.linkText),
+    ctaUrl: previewPlainText(module.linkTarget),
+    linkEnabled: previewPlainText(module.linkText) ? "1" : "0",
     primary: palette.primary,
     accent: palette.accent,
     bg: palette.bg,
@@ -1649,7 +1834,7 @@ function renderIntroVariantWorkbench(module) {
         </div>
       </div>
       <div class="hero-tab-panels">
-        <div class="hero-editor-panel ${activeTab === "edit" ? "" : "hidden"}" data-hero-editor-panel="edit">
+        <div class="hero-editor-panel" data-hero-editor-panel="edit">
           <div class="field hero-variant-select">
             <label>選擇圖文呈現方式</label>
             <div class="field-help">切換後，可到「套用預覽」查看目前內容放進整站模板後的樣子。</div>
@@ -1661,7 +1846,7 @@ function renderIntroVariantWorkbench(module) {
             ${renderIntroContentFields(module)}
           </div>
         </div>
-        <div class="hero-preview-panel ${activeTab === "preview" ? "" : "hidden"}" data-hero-editor-panel="preview">
+        <div class="hero-preview-panel" data-hero-editor-panel="preview">
           <div class="module-preview-toolbar">
             <div>
               <strong>目前套用預覽</strong>
@@ -1687,6 +1872,9 @@ function renderIntroCustomerPreview(module) {
     subtitle: previewPlainText(c.subtitle),
     imageKey: c.imagePreviewKey || "",
     imageUrl: c.imagePreviewKey ? "" : c.imagePreviewUrl || "",
+    cta: previewPlainText(module.linkText),
+    ctaUrl: previewPlainText(module.linkTarget),
+    linkEnabled: previewPlainText(module.linkText) ? "1" : "0",
     primary: palette.primary,
     accent: palette.accent,
     bg: palette.bg,
@@ -1722,7 +1910,7 @@ function renderStatsVariantWorkbench(module) {
         </div>
       </div>
       <div class="hero-tab-panels">
-        <div class="hero-editor-panel ${activeTab === "edit" ? "" : "hidden"}" data-hero-editor-panel="edit">
+        <div class="hero-editor-panel" data-hero-editor-panel="edit">
           <div class="field hero-variant-select">
             <label>選擇數據呈現方式</label>
             <div class="field-help">切換後，可到「套用預覽」查看目前數據放進整站模板後的樣子。</div>
@@ -1734,7 +1922,7 @@ function renderStatsVariantWorkbench(module) {
             ${renderStatsContentFields(module)}
           </div>
         </div>
-        <div class="hero-preview-panel ${activeTab === "preview" ? "" : "hidden"}" data-hero-editor-panel="preview">
+        <div class="hero-preview-panel" data-hero-editor-panel="preview">
           <div class="module-preview-toolbar">
             <div>
               <strong>目前套用預覽</strong>
@@ -1805,7 +1993,7 @@ function renderCardsVariantWorkbench(module) {
         </div>
       </div>
       <div class="hero-tab-panels">
-        <div class="hero-editor-panel ${activeTab === "edit" ? "" : "hidden"}" data-hero-editor-panel="edit">
+        <div class="hero-editor-panel" data-hero-editor-panel="edit">
           <div class="field hero-variant-select">
             <label>選擇卡片呈現方式</label>
             <div class="field-help">切換後，可到「套用預覽」查看目前卡片內容放進整站模板後的樣子。</div>
@@ -1817,7 +2005,7 @@ function renderCardsVariantWorkbench(module) {
             ${renderCardsContentFields(module)}
           </div>
         </div>
-        <div class="hero-preview-panel ${activeTab === "preview" ? "" : "hidden"}" data-hero-editor-panel="preview">
+        <div class="hero-preview-panel" data-hero-editor-panel="preview">
           <div class="module-preview-toolbar">
             <div>
               <strong>目前套用預覽</strong>
@@ -1878,7 +2066,7 @@ function renderNewsVariantWorkbench(module) {
         </div>
       </div>
       <div class="hero-tab-panels">
-        <div class="hero-editor-panel ${activeTab === "edit" ? "" : "hidden"}" data-hero-editor-panel="edit">
+        <div class="hero-editor-panel" data-hero-editor-panel="edit">
           <div class="field hero-variant-select">
             <label>選擇新聞呈現方式</label>
             <div class="field-help">切換後，可到「套用預覽」查看目前文章內容放進整站模板後的樣子。</div>
@@ -1890,7 +2078,7 @@ function renderNewsVariantWorkbench(module) {
             ${renderNewsContentFields(module)}
           </div>
         </div>
-        <div class="hero-preview-panel ${activeTab === "preview" ? "" : "hidden"}" data-hero-editor-panel="preview">
+        <div class="hero-preview-panel" data-hero-editor-panel="preview">
           <div class="module-preview-toolbar">
             <div>
               <strong>目前套用預覽</strong>
@@ -1916,7 +2104,9 @@ function renderNewsCustomerPreview(module) {
     title: previewPlainText(c.title, module.name),
     subtitle: previewPlainText(c.subtitle),
     category: previewPlainText(c.newsCategory),
-    cta: previewPlainText(module.linkText, "查看更多"),
+    cta: previewPlainText(module.linkText),
+    ctaUrl: previewPlainText(module.linkTarget),
+    linkEnabled: previewPlainText(module.linkText) ? "1" : "0",
     primary: palette.primary,
     accent: palette.accent,
     bg: palette.bg,
@@ -1953,7 +2143,7 @@ function renderFaqVariantWorkbench(module) {
         </div>
       </div>
       <div class="hero-tab-panels">
-        <div class="hero-editor-panel ${activeTab === "edit" ? "" : "hidden"}" data-hero-editor-panel="edit">
+        <div class="hero-editor-panel" data-hero-editor-panel="edit">
           <div class="field hero-variant-select">
             <label>選擇 FAQ 呈現方式</label>
             <div class="field-help">切換後，可到「套用預覽」查看目前問答放進整站模板後的樣子。</div>
@@ -1965,7 +2155,7 @@ function renderFaqVariantWorkbench(module) {
             ${renderFaqContentFields(module)}
           </div>
         </div>
-        <div class="hero-preview-panel ${activeTab === "preview" ? "" : "hidden"}" data-hero-editor-panel="preview">
+        <div class="hero-preview-panel" data-hero-editor-panel="preview">
           <div class="module-preview-toolbar">
             <div>
               <strong>目前套用預覽</strong>
@@ -2028,6 +2218,7 @@ function renderHeroContentFields(module) {
         <label>上傳主圖</label>
         ${renderImagePicker(module)}
       </div>
+      ${renderModuleCtaFields(module)}
     </div>
   `;
 }
@@ -2051,7 +2242,72 @@ function renderIntroContentFields(module) {
         <label>上傳主圖</label>
         ${renderImagePicker(module)}
       </div>
+      ${renderModuleCtaFields(module)}
     </div>
+  `;
+}
+
+function renderModuleCtaFields(module) {
+  const expanded = state.expandedCtaModuleIds.includes(module.id) || Boolean(String(module.linkText || "").trim());
+  if (!expanded) {
+    return `
+      <div class="module-cta-add">
+        <button class="btn compact" type="button" data-add-module-cta="${esc(module.id)}">新增按鈕</button>
+      </div>
+    `;
+  }
+  return `
+    <section class="cta-settings-block module-cta-fields">
+      <div class="cta-settings-head">
+        <h4>按鈕設定</h4>
+        <button class="btn danger compact ghost-danger" type="button" data-delete-module-cta="${esc(module.id)}">移除</button>
+      </div>
+      <div class="field-grid cta-field-grid">
+        <div class="field cta-text-field">
+          <label>按鈕文字 <span class="optional">可不填</span></label>
+          <input type="text" value="${esc(module.linkText || "")}" data-field="linkText" placeholder="例如：查看更多">
+        </div>
+        <div class="field cta-url-field">
+          <label>導向頁面 URL <span class="optional">可不填</span></label>
+          <input type="text" value="${esc(module.linkTarget || "")}" data-field="linkTarget" placeholder="/news">
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function itemCtaKey(module, index) {
+  return `${module.id}:${index}`;
+}
+
+function renderItemCtaFields(module, index, labelPrefix = `項目 ${index}`) {
+  module.content = module.content || defaultContent(module);
+  const key = itemCtaKey(module, index);
+  const expanded = state.expandedItemCtaKeys.includes(key) || Boolean(String(module.content[`item${index}LinkText`] || "").trim());
+  if (!expanded) {
+    return `
+      <div class="module-cta-add item-cta-add">
+        <button class="btn compact" type="button" data-add-item-cta="${esc(key)}">新增按鈕</button>
+      </div>
+    `;
+  }
+  return `
+    <section class="cta-settings-block item-cta-fields" data-item-cta-key="${esc(key)}">
+      <div class="cta-settings-head">
+        <h4>${esc(labelPrefix)} 按鈕設定</h4>
+        <button class="btn danger compact ghost-danger" type="button" data-delete-item-cta="${esc(key)}">移除</button>
+      </div>
+      <div class="field-grid cta-field-grid">
+        <div class="field">
+          <label>按鈕文字 <span class="optional">可不填</span></label>
+          <input type="text" value="${esc(module.content[`item${index}LinkText`] || "")}" data-content-field="item${index}LinkText" placeholder="例如：查看更多">
+        </div>
+        <div class="field">
+          <label>導向 URL <span class="optional">可不填</span></label>
+          <input type="text" value="${esc(module.content[`item${index}LinkTarget`] || "")}" data-content-field="item${index}LinkTarget" placeholder="/news/example">
+        </div>
+      </div>
+    </section>
   `;
 }
 
@@ -2106,15 +2362,7 @@ function renderCardsContentFields(module) {
         <label>卡片 ${index} 說明 <span class="optional">可不填</span></label>
         <input type="text" value="${esc(c[`item${index}Subtitle`] || "")}" data-content-field="item${index}Subtitle">
       </div>
-      <div class="field card-link-field">
-        <label class="check-line card-link-toggle">
-          <input type="checkbox" ${c[`item${index}LinkEnabled`] ? "checked" : ""} data-content-field="item${index}LinkEnabled">
-          顯示按鈕
-        </label>
-        ${c[`item${index}LinkEnabled`] ? `
-          <input class="card-link-input" type="text" required value="${esc(c[`item${index}LinkText`] || "查看更多")}" data-content-field="item${index}LinkText" aria-label="卡片 ${index} 按鈕文字" placeholder="按鈕文字（必填）">
-        ` : `<span class="field-help card-link-help">未勾選，不顯示按鈕，也不需要輸入文字。</span>`}
-      </div>
+      ${renderItemCtaFields(module, index, `卡片 ${index}`)}
     </div>
   `).join("");
   return `
@@ -2171,12 +2419,9 @@ function renderNewsContentFields(module) {
           <label>分類顯示文字 <span class="optional">可不填</span></label>
           <input type="text" value="${esc(c.newsCategory || "")}" data-content-field="newsCategory" placeholder="LATEST NEWS">
         </div>
-        <div class="field">
-          <label>查看更多按鈕文字 <span class="optional">可不填</span></label>
-          <input type="text" value="${esc(module.linkText || "")}" data-field="linkText">
-        </div>
-        ${renderItemCountField(module, "顯示文章數量")}
+        ${renderItemCountField(module, "顯示文章數量", { hideNote: true })}
       </div>
+      ${renderModuleCtaFields(module)}
       <div class="news-input-list">
         ${rows}
       </div>
@@ -2309,51 +2554,18 @@ function renderLinkSettings(module) {
     module.content = module.content || defaultContent(module);
     const count = itemCountRule(module) ? currentItemCount(module) : 3;
     return `
-      <p class="field-help">此模塊有多個內容項目，可分別設定每個項目的頁面連結。</p>
       <div class="item-link-list">
         ${Array.from({ length: count }, (_, itemIndex) => itemIndex + 1).map((index) => `
           <section class="item-link-row">
-            <label class="check-line">
-              <input type="checkbox" ${module.content[`item${index}LinkEnabled`] ? "checked" : ""} data-content-field="item${index}LinkEnabled">
-              項目 ${index} 需要頁面連結
-            </label>
-            <div class="field-grid">
-              <div class="field">
-                <label>項目 ${index} 連結文字</label>
-                <input type="text" value="${esc(module.content[`item${index}LinkText`] || "查看更多")}" data-content-field="item${index}LinkText">
-              </div>
-              <div class="field">
-                <label>項目 ${index} 連結目標</label>
-                <select data-content-field="item${index}LinkTarget">
-                  ${linkTargetOptions(module.content[`item${index}LinkTarget`])}
-                </select>
-              </div>
-            </div>
+            <h4>項目 ${index}</h4>
+            ${renderItemCtaFields(module, index, `項目 ${index}`)}
           </section>
         `).join("")}
       </div>
     `;
   }
 
-  return `
-    <label class="check-line"><input type="checkbox" ${module.linkEnabled ? "checked" : ""} data-field="linkEnabled"> 這個模塊需要放頁面連結</label>
-    ${module.linkEnabled ? `
-      <div class="field-grid">
-        <div class="field">
-          <label>連結顯示文字</label>
-          <div class="field-help">例如「查看更多」「加入 LINE」「查看全部消息」。</div>
-          <input type="text" value="${esc(module.linkText)}" data-field="linkText">
-        </div>
-        <div class="field">
-          <label>連結目標</label>
-          <div class="field-help">可選站內頁、LINE 導流或外部連結。</div>
-          <select data-field="linkTarget">
-            ${linkTargetOptions(module.linkTarget)}
-          </select>
-        </div>
-      </div>
-    ` : `<p>目前不顯示頁面連結。</p>`}
-  `;
+  return renderModuleCtaFields(module);
 }
 
 function renderVariantMiniPreview(module) {
@@ -2417,6 +2629,13 @@ function updateField(module, input) {
     currentItemCount(module);
   }
   markDirty();
+  if (key === "linkText" || key === "linkTarget") {
+    renderModuleList();
+    updateHeroLivePreview(module);
+    updateActiveModuleSaveStatus(module);
+    updateSaveState();
+    return;
+  }
   render();
 }
 
@@ -3632,10 +3851,6 @@ function renderSiteHeaderFooterPreview(info) {
             <p>${esc(info.lineUrl)}</p>
           </div>
         </div>
-        <div class="site-footer-seo">
-          <strong>${esc(info.seoTitleSuffix)}</strong>
-          <p>${esc(info.seoDescription)}</p>
-        </div>
       </div>
     </section>
   `;
@@ -3651,7 +3866,7 @@ function renderSiteBasicInfoManager() {
         <div class="brand-style-heading site-info-heading">
           <div>
             <h2>官網基本資訊</h2>
-            <p>這是建站第一步。Header、Footer、聯絡頁、SEO 與社群分享會優先沿用這裡的全站資料。</p>
+            <p>這是建站第一步。Header、Footer、聯絡頁與品牌顯示會優先沿用這裡的全站資料。</p>
           </div>
           <div class="actions">
             <span class="save-pill ${isDirty ? "unsaved" : ""}">${isDirty ? "尚未儲存" : "已儲存"}</span>
@@ -3723,33 +3938,6 @@ function renderSiteBasicInfoManager() {
             <div class="field full">
               <label>地址</label>
               <input type="text" value="${esc(info.address)}" data-site-info-field="address">
-            </div>
-          </div>
-        </section>
-
-        <section class="settings-card">
-          <div class="section-title">
-            <div>
-              <h3>全站 SEO</h3>
-              <p>作為各頁未填 SEO 時的預設值。</p>
-            </div>
-          </div>
-          <div class="field-grid">
-            <div class="field">
-              <label>預設 Title 後綴</label>
-              <input type="text" value="${esc(info.seoTitleSuffix)}" data-site-info-field="seoTitleSuffix">
-            </div>
-            <div class="field">
-              <label>社群分享圖</label>
-              <div class="file-upload-row">
-                <label class="btn" for="siteShareImage">選擇檔案</label>
-                <span class="hint">${esc(info.shareImageName)}</span>
-                <input class="visually-hidden" id="siteShareImage" type="file" accept="image/*" data-site-info-file="shareImageName">
-              </div>
-            </div>
-            <div class="field full">
-              <label>預設網站描述</label>
-              <textarea data-site-info-field="seoDescription">${esc(info.seoDescription)}</textarea>
             </div>
           </div>
         </section>
@@ -3889,8 +4077,8 @@ function validateSeoDraft() {
   const errors = {};
   if (!draft.seoTitle?.trim()) errors.seoTitle = "SEO 標題不可空白。";
   if (!draft.seoDescription?.trim()) errors.seoDescription = "SEO 描述不可空白。";
-  if (draft.pageId !== "home" && !/^[a-zA-Z0-9-]+$/.test(draft.slug || "")) {
-    errors.slug = "Slug 只能輸入英文字母、數字及連字號。";
+  if (draft.pageId !== "home" && !/^[\p{L}\p{N}-]+$/u.test(draft.slug || "")) {
+    errors.slug = "Slug 只能輸入文字、數字及連字號。";
   }
   if (draft.pageId !== "home" && /(^-|-$|--)/.test(draft.slug || "")) {
     errors.slug = "Slug 不可連續使用連字號，也不可放在開頭或結尾。";
@@ -4035,7 +4223,7 @@ function renderSeoModal() {
               </div>
               <div class="field">
                 <label>網址路徑 Slug</label>
-                <div class="field-help">${draft.pageId === "home" ? "首頁不可修改。" : "只能輸入英文字母、數字及連字號。"}</div>
+                <div class="field-help">${draft.pageId === "home" ? "首頁不可修改。" : "預設會依頁面名稱帶入；可改成中文或英文網址，只能使用文字、數字及連字號。"}</div>
                 <input type="text" value="${esc(draft.slug)}" data-seo-field="slug" ${draft.pageId === "home" ? "disabled" : ""}>
                 ${draft.pageId !== "home" ? `<div class="field-warning">修改網址可能造成原連結失效，正式環境應設定 301 Redirect。</div>` : ""}
                 ${renderError("slug")}
@@ -4147,6 +4335,193 @@ function renderSeoRows() {
   `).join("");
 }
 
+function seoPageType(setting) {
+  if (setting.pageId === "home") return "首頁模組";
+  const page = state.pages.find((item) => item.id === setting.pageId);
+  const template = page && getPageTemplate(page.template);
+  return template?.name || "前台功能頁";
+}
+
+function seoModulePackage(setting) {
+  if (setting.pageId === "home") return "全站核心";
+  const page = state.pages.find((item) => item.id === setting.pageId);
+  if (!page) return "獨立頁面";
+  const map = {
+    content: "品牌內容模組",
+    article: "文章 / 知識模組",
+    contact: "轉換表單模組",
+    faq: "FAQ 支援模組",
+    product: "商品服務模組",
+    resource: "據點資源模組"
+  };
+  return map[page.template] || "獨立頁面";
+}
+
+function seoModuleGroups() {
+  return [
+    {
+      id: "core",
+      name: "全站核心",
+      description: "首頁、站名尾綴、預設描述、預設分享圖與搜尋引擎基本規則。",
+      settings: state.pageSeoSettings.filter((setting) => setting.pageId === "home")
+    },
+    {
+      id: "brand",
+      name: "品牌內容模組",
+      description: "品牌故事、關於我們、一般內容頁。適合隨網站基礎模組一起販售。",
+      settings: state.pageSeoSettings.filter((setting) => {
+        const page = state.pages.find((item) => item.id === setting.pageId);
+        return page?.template === "content";
+      })
+    },
+    {
+      id: "content",
+      name: "文章 / FAQ 模組",
+      description: "最新消息、知識中心、FAQ 頁。支援列表頁 SEO 與社群分享覆寫。",
+      settings: state.pageSeoSettings.filter((setting) => {
+        const page = state.pages.find((item) => item.id === setting.pageId);
+        return ["article", "faq"].includes(page?.template);
+      })
+    },
+    {
+      id: "commerce",
+      name: "商品服務 / 轉換模組",
+      description: "商品、服務、方案與聯絡表單頁。適合獨立啟用成交導向頁面。",
+      settings: state.pageSeoSettings.filter((setting) => {
+        const page = state.pages.find((item) => item.id === setting.pageId);
+        return ["product", "contact"].includes(page?.template);
+      })
+    },
+    {
+      id: "local",
+      name: "據點資源模組",
+      description: "找水站、水質報告、下載資源等本地與資源型頁面。",
+      settings: state.pageSeoSettings.filter((setting) => {
+        const page = state.pages.find((item) => item.id === setting.pageId);
+        return page?.template === "resource";
+      })
+    }
+  ].filter((group) => group.settings.length);
+}
+
+function renderSeoModuleRows(settings) {
+  return settings.map((setting) => `
+    <tr>
+      <td data-label="功能頁">
+        <strong>${esc(setting.pageName)}</strong>
+        <small class="table-subtext">${esc(canonicalForSetting(setting))}</small>
+      </td>
+      <td data-label="頁面類型">${esc(seoPageType(setting))}</td>
+      <td data-label="模組歸屬">${esc(seoModulePackage(setting))}</td>
+      <td data-label="Meta 狀態"><span class="status-pill ${seoStatus(setting) === "設定完成" ? "green" : "unsaved"}">${seoStatus(setting)}</span></td>
+      <td data-label="分享圖">${ogImageStatus(setting)}</td>
+      <td data-label="Robots">${robotsText(setting)}</td>
+      <td data-label="操作"><button class="btn" type="button" data-edit-seo="${esc(setting.pageId)}">編輯 SEO</button></td>
+    </tr>
+  `).join("");
+}
+
+function renderSeoModuleGroups() {
+  return seoModuleGroups().map((group) => `
+    <section class="settings-card seo-module-card">
+      <div class="section-title">
+        <div>
+          <h3>${esc(group.name)}</h3>
+          <p>${esc(group.description)}</p>
+        </div>
+        <span class="status-pill">${group.settings.length} 個功能頁</span>
+      </div>
+      <table class="admin-table responsive-table">
+        <thead><tr><th>功能頁</th><th>頁面類型</th><th>模組歸屬</th><th>Meta 狀態</th><th>分享圖</th><th>Robots</th><th>操作</th></tr></thead>
+        <tbody>${renderSeoModuleRows(group.settings)}</tbody>
+      </table>
+    </section>
+  `).join("");
+}
+
+function orderedSeoPageTree() {
+  const topPages = state.pages.filter((page) => !page.parentId);
+  const childPages = state.pages.filter((page) => page.parentId);
+  const ordered = [{ kind: "home", level: 0, setting: getSeoSetting("home"), page: null }];
+  topPages.forEach((page) => {
+    ordered.push({ kind: "page", level: 0, setting: getSeoSetting(page.id), page });
+    childPages
+      .filter((child) => child.parentId === page.id)
+      .forEach((child) => ordered.push({ kind: "page", level: 1, setting: getSeoSetting(child.id), page: child }));
+  });
+  childPages
+    .filter((child) => !state.pages.some((page) => page.id === child.parentId))
+    .forEach((child) => ordered.push({ kind: "page", level: 0, setting: getSeoSetting(child.id), page: child }));
+  return ordered;
+}
+
+function renderSeoPageTreeRows() {
+  return orderedSeoPageTree().map((item) => {
+    const setting = item.setting;
+    const page = item.page;
+    const parentPage = page?.parentId ? state.pages.find((entry) => entry.id === page.parentId) : null;
+    const type = item.kind === "home" ? "首頁模組" : seoPageType(setting);
+    const visible = item.kind === "home" ? "首頁" : page?.visible || "尚未顯示";
+    const hierarchyClass = item.level ? "is-child" : "";
+    return `
+      <tr class="seo-page-row ${hierarchyClass}">
+        <td data-label="前台頁面">
+          <div class="seo-page-name level-${item.level}">
+            ${item.level ? `<span class="seo-tree-line" aria-hidden="true">↳</span>` : ""}
+            <div>
+              <strong>${esc(setting.pageName)}</strong>
+              <small>${item.level ? `子頁：${esc(parentPage?.name || "未指定上層")}` : esc(visible)}</small>
+            </div>
+          </div>
+        </td>
+        <td data-label="頁面類型">${esc(type)}</td>
+        <td data-label="網址">
+          <strong class="seo-url-slug">${setting.slug ? `/${esc(setting.slug)}` : "/"}</strong>
+          <small class="table-subtext">${esc(canonicalForSetting(setting))}</small>
+        </td>
+        <td data-label="Meta 狀態"><span class="status-pill ${seoStatus(setting) === "設定完成" ? "green" : "unsaved"}">${seoStatus(setting)}</span></td>
+        <td data-label="分享圖">${ogImageStatus(setting)}</td>
+        <td data-label="Robots">${robotsText(setting)}</td>
+        <td data-label="操作"><button class="btn" type="button" data-edit-seo="${esc(setting.pageId)}">編輯 SEO</button></td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function renderSeoPageTreeList() {
+  const total = orderedSeoPageTree().length;
+  return `
+    <section class="settings-card seo-page-tree-card">
+      <div class="section-title">
+        <div>
+          <h3>前台頁面 SEO 清單</h3>
+          <p>先依前台頁面階層找頁面，再編輯該頁的 Meta、分享圖、Canonical 與 Robots。</p>
+        </div>
+        <span class="status-pill">${total} 個頁面</span>
+      </div>
+      <table class="admin-table responsive-table seo-page-tree-table">
+        <thead><tr><th>前台頁面</th><th>頁面類型</th><th>網址</th><th>Meta 狀態</th><th>分享圖</th><th>Robots</th><th>操作</th></tr></thead>
+        <tbody>${renderSeoPageTreeRows()}</tbody>
+      </table>
+    </section>
+  `;
+}
+
+function renderSeoSummaryCards() {
+  const total = state.pageSeoSettings.length;
+  const completed = state.pageSeoSettings.filter((setting) => seoStatus(setting) === "設定完成").length;
+  const customOg = state.pageSeoSettings.filter((setting) => !setting.useDefaultOgImage && setting.ogImageUrl).length;
+  const noIndex = state.pageSeoSettings.filter((setting) => !setting.indexable).length;
+  return `
+    <div class="seo-summary-grid">
+      <div class="seo-summary-card"><span>功能頁總數</span><strong>${total}</strong><small>每個功能頁可獨立設定 Meta、OG、Canonical</small></div>
+      <div class="seo-summary-card"><span>Meta 完成</span><strong>${completed}/${total}</strong><small>標題與描述皆已填寫</small></div>
+      <div class="seo-summary-card"><span>專屬分享圖</span><strong>${customOg}</strong><small>其餘沿用全站預設圖</small></div>
+      <div class="seo-summary-card"><span>Noindex</span><strong>${noIndex}</strong><small>不開放搜尋引擎收錄的頁面</small></div>
+    </div>
+  `;
+}
+
 function refreshSeoLivePreview() {
   const draft = state.seoDraft;
   const modal = els.managerPanel.querySelector(".seo-modal");
@@ -4181,69 +4556,50 @@ function refreshSeoLivePreview() {
 }
 
 function renderBannerMetaManager() {
+  const homeSetting = getSeoSetting("home");
   return `
     <section class="settings-stack">
-      ${managerHeader("Banner / Meta", "管理頁面曝光、SEO 與社群分享資訊；品牌與聯絡資料請回到官網基本資訊填寫。", [])}
+      ${managerHeader("SEO 管理", "以功能頁為單位管理 Meta Title、Description、社群分享、Canonical 與搜尋引擎收錄；未啟用的模組可保留預設值。", [])}
       ${state.seoSavedNotice ? `<div class="save-toast">${esc(state.seoSavedNotice)}</div>` : ""}
       <section class="settings-card">
         <div class="section-title">
           <div>
-            <h3>首頁 Banner / Meta 預設</h3>
-            <p>作為首頁與未指定頁面的預設曝光資料。</p>
+            <h3>SEO 管理總覽</h3>
+            <p>新增或改名前台頁面時，系統會依頁面名稱預設 SEO 標題、網址 Slug、Canonical 與分享標題；需要時可在各功能頁覆寫。</p>
           </div>
-          <button class="btn primary" type="button">儲存 Meta</button>
+          <button class="btn primary" type="button" data-edit-seo="home">編輯首頁 SEO</button>
         </div>
-        <div class="field-grid">
-          <div class="field">
-            <label>首頁 Meta Title</label>
-            <input type="text" value="利每家智慧富氫水站｜智慧飲水與富氫水服務">
+        ${renderSeoSummaryCards()}
+        <div class="seo-default-strip">
+          <div>
+            <span>全站預設</span>
+            <strong>${esc(defaultSiteMeta.titleSuffix)}</strong>
+            <p>${esc(defaultSiteMeta.description)}</p>
           </div>
-          <div class="field">
-            <label>Canonical URL</label>
-            <input type="text" value="https://www.example.com/">
+          <div>
+            <span>首頁 Canonical</span>
+            <strong>${esc(canonicalForSetting(homeSetting))}</strong>
+            <p>${esc(robotsText(homeSetting))} · ${esc(ogImageStatus(homeSetting))}</p>
           </div>
-          <div class="field full">
-            <label>首頁 Meta Description</label>
-            <textarea>以智慧飲水科技與永續服務，打造更健康、更便利的生活體驗。</textarea>
-          </div>
-          <div class="field">
-            <label>社群分享圖</label>
-            <div class="file-upload-row"><label class="btn">選擇檔案</label><span class="hint">尚未選擇圖片</span></div>
-          </div>
-          <div class="field">
-            <label>搜尋引擎索引</label>
-            <select><option>允許索引</option><option>不允許索引</option></select>
-          </div>
+        </div>
+        <div class="seo-auto-note">
+          <strong>自動帶入規則</strong>
+          <span>頁面名稱 → SEO Title / OG Title；頁面名稱 → Slug → Canonical URL；描述與分享圖未設定時沿用全站預設。</span>
         </div>
       </section>
+      ${renderSeoPageTreeList()}
       <section class="settings-card">
         <div class="section-title">
           <div>
-            <h3>各頁 SEO / 社群分享</h3>
-            <p>針對前台頁面設定 title、description、OG 與 robots 狀態。</p>
+            <h3>技術輸出規則</h3>
+            <p>這些欄位由每個功能頁的設定輸出，工程端可依模組啟用狀態產生對應 head tags。</p>
           </div>
         </div>
-        <table class="admin-table responsive-table">
-          <thead><tr><th>頁面名稱</th><th>SEO 狀態</th><th>分享圖</th><th>搜尋引擎收錄</th><th>操作</th></tr></thead>
-          <tbody>${renderSeoRows()}</tbody>
-        </table>
-      </section>
-      <section class="settings-card">
-        <div class="section-title">
-          <div>
-            <h3>進階 SEO</h3>
-            <p>提供給需要自訂 robots、canonical、結構化資料的專案使用。</p>
-          </div>
-        </div>
-        <div class="field-grid">
-          <div class="field">
-            <label>Robots 預設</label>
-            <select><option>index, follow</option><option>noindex, nofollow</option></select>
-          </div>
-          <div class="field">
-            <label>結構化資料類型</label>
-            <select><option>Organization</option><option>LocalBusiness</option><option>Article</option></select>
-          </div>
+        <div class="seo-rule-grid">
+          <div><strong>Meta 基礎</strong><span>title、description、canonical、robots</span></div>
+          <div><strong>社群分享</strong><span>og:title、og:description、og:image、og:url</span></div>
+          <div><strong>模組化販售</strong><span>每個功能頁保有獨立 SEO 設定，可隨模組開關與權限拆分</span></div>
+          <div><strong>進階資料</strong><span>文章、FAQ、據點可於正式版再接 JSON-LD 結構化資料</span></div>
         </div>
       </section>
       ${renderSeoModal()}
@@ -4381,14 +4737,12 @@ const dataManagerConfig = {
       { key: "spec", label: "規格 / 服務內容", type: "richtext", help: "填寫規格、包含項目、適用對象、服務內容或方案細節。" },
       { key: "benefit", label: "主要特色", type: "richtext", help: "整理使用者最在意的賣點、優勢或選擇理由。" },
       { key: "ctaText", label: "CTA 文字", type: "text", help: "例如 立即諮詢、索取簡報、查看方案。" },
-      { key: "linkUrl", label: "CTA 連結", type: "text", help: "例如 /products/sample-item、/services/sample-service 或外部連結。" },
-      { key: "seoTitle", label: "SEO 標題", type: "text", help: "未填時可沿用名稱。" },
-      { key: "slug", label: "友善網址", type: "text", help: "例如 product-title、service-title 或 plan-title。" }
+      { key: "linkUrl", label: "CTA 連結", type: "text", help: "例如 /products/sample-item、/services/sample-service 或外部連結。" }
     ]
   },
   resources: {
     title: "據點 / 資源管理",
-    description: "管理 GEO 站點、水站、水質報告、下載文件與本地頁 SEO。",
+    description: "管理 GEO 站點、水站、水質報告、下載文件與本地頁內容資料。",
     addLabel: "新增據點 / 資源",
     columns: ["名稱", "資源類型", "分類 / 區域", "狀態", "資料"],
     detailTitle: "據點 / 資源內容",
@@ -4641,14 +4995,6 @@ function renderBlueprintArticleEditor(item) {
               <input class="visually-hidden" id="heroFile-${item.id}" type="file" accept="image/*" data-file-field="heroFileName" data-data-kind="articles" data-data-id="${item.id}">
             </div>
             <div class="field-help">&nbsp;</div>
-          </div>
-          <div class="field">
-            <label>SEO 標題</label>
-            <input type="text" value="${esc(item.seoTitle || "")}" placeholder="未填時可沿用標題" data-data-field="seoTitle" data-data-kind="articles" data-data-id="${item.id}">
-          </div>
-          <div class="field">
-            <label>友善網址</label>
-            <input type="text" value="${esc(item.slug || "")}" placeholder="例如 news-title 或 article-title" data-data-field="slug" data-data-kind="articles" data-data-id="${item.id}">
           </div>
         `}
         <div class="field full rich-editor-field">
@@ -5138,7 +5484,7 @@ const blueprintDataPlans = [
   {
     name: "內容資料",
     types: ["最新消息", "知識文章", "活動公告", "案例"],
-    fields: ["標題", "文章類型", "狀態", "發布日期", "摘要", "封面圖片", "SEO 標題", "友善網址", "內文編輯器"],
+    fields: ["標題", "文章類型", "狀態", "發布日期", "摘要", "封面圖片", "內文編輯器"],
     usedBy: "文章列表頁、FAQ 頁、首頁最新消息模塊"
   },
   {
@@ -5170,8 +5516,8 @@ function renderBlueprintPages() {
         <p>後台欄位以「頁面標題、摘要、內容、圖片、資料來源」為主；OG、Twitter、JSON-LD、canonical、sitemap 不讓使用者手填。</p>
       </div>
       <div>
-        <h3>SEO 共用欄位</h3>
-        <p>每種頁型共用同一套搜尋與分享設定。留空時由系統自動繼承，進階使用者才需要覆寫。</p>
+        <h3>SEO 集中管理</h3>
+        <p>頁型只定義前台可見內容；Meta、分享圖、Canonical、Robots 統一回到「網站設定 > SEO 管理」。</p>
       </div>
     </section>
     <div class="blueprint-page-stack">
@@ -5201,24 +5547,7 @@ function renderBlueprintPages() {
               </tbody>
             </table>
           </div>
-          <details class="seo-field-details">
-            <summary>搜尋與分享欄位會輸出到哪裡</summary>
-            <div class="blueprint-table-wrap">
-              <table class="blueprint-field-table compact">
-                <thead><tr><th>欄位</th><th>程式欄位</th><th>建議填法</th><th>程式輸出位置</th></tr></thead>
-                <tbody>
-                  ${sharedSeoFields.map((field) => `
-                    <tr>
-                      <td><strong>${esc(field.name)}</strong></td>
-                      <td><code>${esc(field.field)}</code></td>
-                      <td>${esc(field.input)}</td>
-                      <td>${esc(field.output)}</td>
-                    </tr>
-                  `).join("")}
-                </tbody>
-              </table>
-            </div>
-          </details>
+          <div class="blueprint-note">SEO 技術輸出由集中管理區產生，不在頁型內容欄位中重複設定。</div>
           <p class="blueprint-jsonld">建議結構化資料：${esc(plan.jsonld)}</p>
         </article>
       `).join("")}
@@ -5824,7 +6153,6 @@ function renderPageSettingsWorkspace(page, template, parentOptions) {
     </section>
     ${renderPageDataSettings(page)}
     ${renderPageContentEditor(page, template)}
-    ${renderPageMetaSettings(page)}
   `;
 }
 
@@ -5887,59 +6215,6 @@ function renderPageDataSettings(page) {
       <div class="data-source-summary">
         <strong>目前設定</strong>
         <span>${esc(selectedSource.manager)}｜分類：${esc(page.dataCategory || "全部")}｜排序：${esc(page.dataSort || "最新優先")}｜筆數：${esc(page.dataLimit || "6")}</span>
-      </div>
-    </section>
-  `;
-}
-
-function renderPageMetaSettings(page) {
-  return `
-    <section class="page-subsection page-meta-settings">
-      <div class="section-head compact">
-        <div>
-          <h3>搜尋與分享設定</h3>
-          <p>這些設定只套用在「${esc(page.name)}」；未特別修改時會沿用全站 SEO 預設值。</p>
-        </div>
-        <span class="pill">頁面層級</span>
-      </div>
-      <div class="field-grid">
-        <div class="field full">
-          <label>SEO 標題</label>
-          <div class="field-help">顯示在搜尋結果與瀏覽器分頁，建議清楚說明這個頁面的主題。</div>
-          <input type="text" value="${esc(page.seoTitle || "")}" data-page-meta="seoTitle" placeholder="例如：品牌故事｜利每家智慧富氫水站">
-        </div>
-        <div class="field full">
-          <label>Meta 描述</label>
-          <div class="field-help">用一到兩句話摘要頁面內容，讓訪客在搜尋結果中知道這頁提供什麼。</div>
-          <textarea data-page-meta="seoDescription" placeholder="輸入這個頁面的搜尋摘要">${esc(page.seoDescription || "")}</textarea>
-        </div>
-        <div class="field">
-          <label>分享標題</label>
-          <div class="field-help">分享到 LINE、Facebook 等平台時使用；可與 SEO 標題不同。</div>
-          <input type="text" value="${esc(page.shareTitle || "")}" data-page-meta="shareTitle" placeholder="未填寫時沿用 SEO 標題">
-        </div>
-        <div class="field">
-          <label>分享圖片</label>
-          <div class="field-help">社群分享預覽使用的圖片，建議準備 1200 × 630 px。</div>
-          <div class="file-upload-row">
-            <label class="btn compact" for="page-share-image-upload">上傳圖片</label>
-            <input class="hidden" id="page-share-image-upload" type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-page-meta-image>
-            <span class="file-name">${esc(page.shareImageUrl || "尚未上傳分享圖片")}</span>
-          </div>
-        </div>
-        <div class="field full">
-          <label>分享描述</label>
-          <div class="field-help">社群分享卡片顯示的補充說明；可留空並沿用 Meta 描述。</div>
-          <textarea data-page-meta="shareDescription" placeholder="未填寫時沿用 Meta 描述">${esc(page.shareDescription || "")}</textarea>
-        </div>
-        <div class="field">
-          <label>搜尋引擎收錄</label>
-          <div class="field-help">草稿、測試頁或不希望被搜尋的頁面可選擇不收錄。</div>
-          <select data-page-meta="indexable">
-            <option value="yes" ${page.indexable !== "no" ? "selected" : ""}>允許搜尋引擎收錄</option>
-            <option value="no" ${page.indexable === "no" ? "selected" : ""}>不要收錄此頁</option>
-          </select>
-        </div>
       </div>
     </section>
   `;
@@ -6066,7 +6341,12 @@ function renderPageLayoutPreview(page) {
 function updatePageField(page, input) {
   if (!page) return;
   state.pageSavedNotice = "";
+  const previousName = page.name;
   page[input.dataset.pageField] = input.value;
+  if (input.dataset.pageField === "name") {
+    syncSeoDefaultsFromPage(page, previousName);
+    persistSeoSettings();
+  }
   if (input.dataset.pageField === "parentId" && input.value === page.id) {
     page.parentId = "";
   }
@@ -6078,6 +6358,8 @@ function updatePageField(page, input) {
     template.fields.forEach((field, index) => {
       page.content[`field${index}`] = index === 0 ? page.name : field;
     });
+    syncSeoDefaultsFromPage(page, previousName);
+    persistSeoSettings();
     if (page.contentSource === "data") {
       page.dataSource = recommendedPageDataSource(page.template);
       page.dataCategory = "";
@@ -6105,31 +6387,6 @@ function updatePageContent(page, input) {
   page.content = page.content || {};
   page.content[input.dataset.pageContent] = input.value;
   renderPreview();
-}
-
-function updatePageMeta(page, input) {
-  if (!page) return;
-  state.pageSavedNotice = "";
-  if (input.dataset.pageMetaImage) {
-    const file = input.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.addEventListener("load", () => {
-      page.shareImageUrl = String(reader.result || "");
-      render();
-    });
-    reader.readAsDataURL(file);
-    return;
-  }
-  page[input.dataset.pageMeta] = input.value;
-  if (input.dataset.pageMeta === "seoTitle" && !page.shareTitle) {
-    page.shareTitle = input.value;
-  }
-  if (input.dataset.pageMeta === "seoDescription" && !page.shareDescription) {
-    page.shareDescription = input.value;
-  }
-  renderPreview();
-  updateSaveState();
 }
 
 function switchAdminSection(section) {
@@ -6221,7 +6478,7 @@ function renderPasswordResetModal() {
 function renderSuperAdminTransferModal() {
   const current = state.adminUsers.find((item) => item.id === state.activeSuperAdminTransferUserId);
   if (!current) return "";
-  const candidates = state.adminUsers.filter((user) => user.id !== current.id && user.role === "管理員" && user.status === "啟用");
+  const candidates = state.adminUsers.filter((user) => user.id !== current.id && !isSuperAdminUser(user) && user.status === "啟用");
   const selectedTarget = state.superAdminTransferTargetId || candidates[0]?.id || "";
   return `
     <div class="modal-backdrop" role="presentation" data-close-super-admin-transfer>
@@ -6244,11 +6501,11 @@ function renderSuperAdminTransferModal() {
                 ${candidates.map((user) => `<option value="${user.id}" ${selectedTarget === user.id ? "selected" : ""}>${esc(user.name)}｜${esc(user.email)}</option>`).join("")}
               </select>
             </div>
-            <p class="hint">轉移後，${esc(current.name)} 會變為一般管理員，之後就可以刪除。</p>
+            <p class="hint">轉移後，${esc(current.name)} 會改為一般管理角色，之後就可以刪除。</p>
           ` : `
             <div class="empty-state compact">
-              <strong>目前沒有可接手的管理員</strong>
-              <p>請先新增或編輯一位啟用中的管理員，再回來轉移最高權限。</p>
+              <strong>目前沒有可接手的啟用帳號</strong>
+              <p>請先新增或啟用另一位後台帳號，再回來轉移最高權限。</p>
             </div>
           `}
         </div>
@@ -6261,7 +6518,161 @@ function renderSuperAdminTransferModal() {
   `;
 }
 
+function getAdminRoleOptions() {
+  return state.adminRoles.map((role) => role.name);
+}
+
+function getAssignableAdminRoleOptions(user) {
+  return state.adminRoles
+    .filter((role) => !role.isSuperAdmin || user?.role === role.name)
+    .map((role) => role.name);
+}
+
+function findAdminRoleByName(name) {
+  return state.adminRoles.find((role) => role.name === name);
+}
+
+function getSuperAdminRole() {
+  return state.adminRoles.find((role) => role.isSuperAdmin) || state.adminRoles[0];
+}
+
+function isSuperAdminUser(user) {
+  return Boolean(user && findAdminRoleByName(user.role)?.isSuperAdmin);
+}
+
+function getFallbackAdminRoleName() {
+  return state.adminRoles.find((role) => !role.isSuperAdmin && role.permissions.includes("adminUsers"))?.name ||
+    state.adminRoles.find((role) => !role.isSuperAdmin)?.name ||
+    getSuperAdminRole()?.name ||
+    "";
+}
+
+function getRolePermissionSummary(role) {
+  if (!role) return "角色不存在";
+  if (role.isSuperAdmin) return "全部功能";
+  const count = role.permissions.length;
+  return `${count} / ${allAdminPermissionIds.length} 個功能`;
+}
+
+function renderRolePermissionTree(role) {
+  const rolePermissions = new Set(role.permissions);
+  const disabled = role.isSuperAdmin ? "disabled" : "";
+  return `
+    <div class="permission-tree">
+      ${adminPermissionTree.map((group) => {
+        const children = group.children;
+        const selectedCount = children.filter((item) => rolePermissions.has(item.id)).length;
+        const groupChecked = selectedCount === children.length;
+        return `
+          <details class="permission-group" open>
+            <summary>
+              <label class="permission-check">
+                <input type="checkbox" data-role-permission-group="${group.id}" ${groupChecked ? "checked" : ""} ${disabled}>
+                <span>${esc(group.name)}</span>
+              </label>
+              <small>${selectedCount}/${children.length}</small>
+            </summary>
+            <div class="permission-children">
+              ${children.map((item) => `
+                <label class="permission-check">
+                  <input type="checkbox" data-role-permission="${item.id}" ${rolePermissions.has(item.id) ? "checked" : ""} ${disabled}>
+                  <span>${esc(item.name)}</span>
+                </label>
+              `).join("")}
+            </div>
+          </details>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function renderAdminRoles() {
+  const editor = state.activeAdminRoleEditor;
+  if (editor) {
+    const role = state.adminRoles.find((item) => item.id === editor.id);
+    if (!role) {
+      state.activeAdminRoleEditor = null;
+      return renderAdminRoles();
+    }
+    return `
+      ${managerHeader("角色權限管理", "最高管理者可建立與編輯角色，再將角色賦予後台帳號。", [])}
+      <section class="settings-card">
+        <div class="section-title">
+          <div>
+            <span class="save-pill ${editor.isDirty ? "unsaved" : ""}">${editor.isDirty ? "尚未儲存" : "已儲存"}</span>
+            <h3>${esc(editor.isNew ? "新增角色" : `編輯角色｜${role.name}`)}</h3>
+            <p>以功能頁清單展開權限樹，勾選後套用到使用此角色的帳號。</p>
+          </div>
+          <div class="actions">
+            <button class="btn primary" type="button" data-save-admin-role>儲存角色</button>
+            <button class="btn" type="button" data-back-admin-roles>返回列表</button>
+          </div>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label>角色名稱</label>
+            <input type="text" value="${esc(role.name)}" data-admin-role-field="${role.id}:name" ${role.isSuperAdmin ? "disabled" : ""}>
+          </div>
+          <div class="field">
+            <label>權限範圍</label>
+            <div class="readonly-field">${esc(getRolePermissionSummary(role))}</div>
+          </div>
+          <div class="field full">
+            <label>角色說明</label>
+            <textarea data-admin-role-field="${role.id}:description">${esc(role.description)}</textarea>
+          </div>
+        </div>
+        ${role.isSuperAdmin ? `<p class="hint">最高管理者固定擁有全部權限，避免系統失去角色與帳號管理入口。</p>` : ""}
+        ${renderRolePermissionTree(role)}
+      </section>
+    `;
+  }
+
+  return `
+    ${managerHeader("角色權限管理", "用角色集中管理權限，再於帳號管理中指定每個使用者的角色。", [])}
+    <section class="cms-workbench">
+      <div class="list-controls">
+        <div class="list-control-fields">
+          <div class="info-box">
+            <strong>權限來源調整</strong>
+            <p>帳號不再直接設定單一權限；帳號會繼承所屬角色勾選的功能頁權限。</p>
+          </div>
+        </div>
+        <div class="list-control-actions">
+          <button class="btn primary" type="button" data-add-admin-role>新增角色</button>
+        </div>
+      </div>
+      <table class="admin-table">
+        <thead><tr><th>角色</th><th>權限範圍</th><th>使用帳號</th><th>最後更新</th><th>操作</th></tr></thead>
+        <tbody>
+          ${state.adminRoles.map((role) => {
+            const usageCount = state.adminUsers.filter((user) => user.role === role.name).length;
+            return `
+              <tr>
+                <td><strong>${esc(role.name)}</strong><p class="hint">${esc(role.description || "未填寫說明")}</p></td>
+                <td>${esc(getRolePermissionSummary(role))}</td>
+                <td>${usageCount} 位</td>
+                <td>${esc(role.updated || "尚未更新")}</td>
+                <td>
+                  <div class="actions">
+                    <button class="btn" type="button" data-edit-admin-role="${role.id}">編輯</button>
+                    ${role.isSuperAdmin || usageCount
+                      ? ""
+                      : `<button class="btn danger" type="button" data-delete-admin-role="${role.id}">刪除</button>`}
+                  </div>
+                </td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      </table>
+    </section>
+  `;
+}
+
 function renderAdminUsers() {
+  const adminRoleOptions = getAdminRoleOptions();
   const editor = state.activeAdminUserEditor;
   if (editor) {
     const user = state.adminUsers.find((item) => item.id === editor.id);
@@ -6269,6 +6680,7 @@ function renderAdminUsers() {
       state.activeAdminUserEditor = null;
       return renderAdminUsers();
     }
+    const assignableRoleOptions = getAssignableAdminRoleOptions(user);
     return `
       ${managerHeader("後台帳號管理", "管理可以登入後台的人員、角色與使用狀態。", [])}
       <section class="settings-card">
@@ -6295,7 +6707,8 @@ function renderAdminUsers() {
           <div class="field">
             <label>角色</label>
             <select data-admin-user-field="${user.id}:role">
-              ${adminRoleOptions.map((role) => `<option value="${role}" ${user.role === role ? "selected" : ""}>${role}</option>`).join("")}
+              ${assignableRoleOptions.includes(user.role) ? "" : `<option value="${esc(user.role)}" selected>${esc(user.role)}（角色不存在）</option>`}
+              ${assignableRoleOptions.map((role) => `<option value="${role}" ${user.role === role ? "selected" : ""}>${role}</option>`).join("")}
             </select>
           </div>
           <div class="field">
@@ -6358,15 +6771,15 @@ function renderAdminUsers() {
           ${users.length ? users.map((user) => `
             <tr>
               <td><strong>${esc(user.name)}</strong><p class="hint">${esc(user.email)}</p></td>
-              <td>${esc(user.role)}</td>
+              <td><strong>${esc(user.role)}</strong><p class="hint">${esc(getRolePermissionSummary(findAdminRoleByName(user.role)))}</p></td>
               <td><span class="status-pill">${esc(user.status)}</span></td>
               <td>${esc(user.lastLogin)}</td>
               <td>${esc(user.note || "未填寫")}</td>
               <td>
                 <div class="actions">
                   <button class="btn" type="button" data-edit-admin-user="${user.id}">編輯</button>
-                  ${user.role === "最高管理者" ? "" : `<button class="btn" type="button" data-reset-password="${user.id}">重置密碼</button>`}
-                  ${user.role === "最高管理者"
+                  ${isSuperAdminUser(user) ? "" : `<button class="btn" type="button" data-reset-password="${user.id}">重置密碼</button>`}
+                  ${isSuperAdminUser(user)
                     ? `<button class="btn" type="button" data-transfer-super-admin="${user.id}">轉移最高權限</button>`
                     : `<button class="btn danger" type="button" data-delete-admin-user="${user.id}">刪除</button>`}
                 </div>
@@ -6386,7 +6799,9 @@ function renderManagerPanel() {
   });
   updateNavGroups();
 
-  document.querySelector(".module-sidebar").classList.toggle("hidden", !isHome);
+  const isHomeEditing = isHome && state.homeMode === "edit";
+  document.querySelector(".admin-layout").classList.toggle("is-home-editing", isHomeEditing);
+  document.querySelector(".module-sidebar").classList.toggle("hidden", !isHome || isHomeEditing);
   document.querySelector(".settings-panel").classList.toggle("hidden", !isHome);
   els.managerPanel.classList.toggle("hidden", isHome);
   els.saveBtn.classList.add("hidden");
@@ -6395,6 +6810,7 @@ function renderManagerPanel() {
 
   const managerPages = {
     pages: renderPageManager(),
+    adminRoles: renderAdminRoles(),
     adminUsers: renderAdminUsers(),
     blueprintArticles: renderBlueprintCollection("articles"),
     blueprintFaq: renderBlueprintCollection("articles", "FAQ"),
@@ -6764,7 +7180,7 @@ function renderManagerPanel() {
         id: `admin-${Date.now()}`,
         name: "新使用者",
         email: "",
-        role: "編輯者",
+        role: getAdminRoleOptions().includes("編輯者") ? "編輯者" : getAdminRoleOptions()[0],
         status: "啟用",
         lastLogin: "尚未登入",
         note: ""
@@ -6782,7 +7198,7 @@ function renderManagerPanel() {
     els.managerPanel.querySelectorAll("[data-delete-admin-user]").forEach((button) => {
       button.addEventListener("click", () => {
         const user = state.adminUsers.find((item) => item.id === button.dataset.deleteAdminUser);
-        if (user?.role === "最高管理者") return;
+        if (isSuperAdminUser(user)) return;
         state.adminUsers = state.adminUsers.filter((item) => item.id !== button.dataset.deleteAdminUser);
         if (state.activeAdminUserEditor?.id === button.dataset.deleteAdminUser) state.activeAdminUserEditor = null;
         render();
@@ -6791,7 +7207,7 @@ function renderManagerPanel() {
     els.managerPanel.querySelectorAll("[data-transfer-super-admin]").forEach((button) => {
       button.addEventListener("click", () => {
         const current = state.adminUsers.find((user) => user.id === button.dataset.transferSuperAdmin);
-        const firstTarget = state.adminUsers.find((user) => user.id !== current?.id && user.role === "管理員" && user.status === "啟用");
+        const firstTarget = state.adminUsers.find((user) => user.id !== current?.id && !isSuperAdminUser(user) && user.status === "啟用");
         state.activeSuperAdminTransferUserId = button.dataset.transferSuperAdmin;
         state.superAdminTransferTargetId = firstTarget?.id || "";
         render();
@@ -6810,10 +7226,10 @@ function renderManagerPanel() {
     els.managerPanel.querySelector("[data-confirm-super-admin-transfer]")?.addEventListener("click", () => {
       const current = state.adminUsers.find((user) => user.id === state.activeSuperAdminTransferUserId);
       const target = state.adminUsers.find((user) => user.id === state.superAdminTransferTargetId);
-      if (!current || !target || current.id === target.id || target.role !== "管理員") return;
-      current.role = "管理員";
+      if (!current || !target || current.id === target.id || isSuperAdminUser(target)) return;
+      current.role = getFallbackAdminRoleName();
       current.note = "最高權限已轉移，現在為一般管理帳號。";
-      target.role = "最高管理者";
+      target.role = getSuperAdminRole()?.name || target.role;
       target.note = "已接手最高管理者權限。";
       state.activeSuperAdminTransferUserId = "";
       state.superAdminTransferTargetId = "";
@@ -6882,6 +7298,98 @@ function renderManagerPanel() {
     els.managerPanel.querySelector("[data-clear-admin-user-filter]")?.addEventListener("click", () => {
       state.adminUserFilters = { search: "", role: "", status: "" };
       render();
+    });
+  }
+
+  if (state.adminSection === "adminRoles") {
+    els.managerPanel.querySelector("[data-add-admin-role]")?.addEventListener("click", () => {
+      const role = {
+        id: `role-${Date.now()}`,
+        name: `自訂角色 ${state.adminRoles.length + 1}`,
+        description: "",
+        permissions: ["home", "pages"],
+        updated: "尚未儲存"
+      };
+      state.adminRoles.push(role);
+      state.activeAdminRoleEditor = { id: role.id, originalName: role.name, isNew: true, isDirty: true };
+      render();
+    });
+    els.managerPanel.querySelectorAll("[data-edit-admin-role]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const role = state.adminRoles.find((item) => item.id === button.dataset.editAdminRole);
+        state.activeAdminRoleEditor = { id: button.dataset.editAdminRole, originalName: role?.name || "", isNew: false, isDirty: false };
+        render();
+      });
+    });
+    els.managerPanel.querySelectorAll("[data-delete-admin-role]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const role = state.adminRoles.find((item) => item.id === button.dataset.deleteAdminRole);
+        const isUsed = role && state.adminUsers.some((user) => user.role === role.name);
+        if (!role || role.isSuperAdmin || isUsed) return;
+        state.adminRoles = state.adminRoles.filter((item) => item.id !== role.id);
+        render();
+      });
+    });
+    els.managerPanel.querySelector("[data-back-admin-roles]")?.addEventListener("click", () => {
+      state.activeAdminRoleEditor = null;
+      render();
+    });
+    els.managerPanel.querySelector("[data-save-admin-role]")?.addEventListener("click", () => {
+      const editor = state.activeAdminRoleEditor;
+      const role = editor && state.adminRoles.find((item) => item.id === editor.id);
+      if (!editor || !role) return;
+      const normalizedName = role.name.trim() || editor.originalName || "未命名角色";
+      const duplicate = state.adminRoles.some((item) => item.id !== role.id && item.name === normalizedName);
+      if (duplicate) return;
+      if (editor.originalName && editor.originalName !== normalizedName) {
+        state.adminUsers.forEach((user) => {
+          if (user.role === editor.originalName) user.role = normalizedName;
+        });
+      }
+      role.name = normalizedName;
+      role.updated = "剛剛";
+      editor.originalName = role.name;
+      editor.isDirty = false;
+      editor.isNew = false;
+      render();
+    });
+    els.managerPanel.querySelectorAll("[data-admin-role-field]").forEach((input) => {
+      const updateField = () => {
+        const [id, field] = input.dataset.adminRoleField.split(":");
+        const role = state.adminRoles.find((item) => item.id === id);
+        if (!role || role.isSuperAdmin && field === "name") return;
+        role[field] = input.value;
+        if (state.activeAdminRoleEditor) state.activeAdminRoleEditor.isDirty = true;
+      };
+      input.addEventListener("input", updateField);
+      input.addEventListener("change", updateField);
+    });
+    els.managerPanel.querySelectorAll("[data-role-permission-group]").forEach((input) => {
+      input.addEventListener("change", () => {
+        const role = state.activeAdminRoleEditor && state.adminRoles.find((item) => item.id === state.activeAdminRoleEditor.id);
+        const group = adminPermissionTree.find((item) => item.id === input.dataset.rolePermissionGroup);
+        if (!role || role.isSuperAdmin || !group) return;
+        const next = new Set(role.permissions);
+        group.children.forEach((child) => {
+          if (input.checked) next.add(child.id);
+          else next.delete(child.id);
+        });
+        role.permissions = Array.from(next);
+        state.activeAdminRoleEditor.isDirty = true;
+        render();
+      });
+    });
+    els.managerPanel.querySelectorAll("[data-role-permission]").forEach((input) => {
+      input.addEventListener("change", () => {
+        const role = state.activeAdminRoleEditor && state.adminRoles.find((item) => item.id === state.activeAdminRoleEditor.id);
+        if (!role || role.isSuperAdmin) return;
+        const next = new Set(role.permissions);
+        if (input.checked) next.add(input.dataset.rolePermission);
+        else next.delete(input.dataset.rolePermission);
+        role.permissions = Array.from(next);
+        state.activeAdminRoleEditor.isDirty = true;
+        render();
+      });
     });
   }
 
@@ -7113,13 +7621,6 @@ function renderManagerPanel() {
     els.managerPanel.querySelectorAll("[data-page-content]").forEach((input) => {
       input.addEventListener("input", () => updatePageContent(activePage, input));
       input.addEventListener("change", () => render());
-    });
-    els.managerPanel.querySelectorAll("[data-page-meta]").forEach((input) => {
-      input.addEventListener("input", () => updatePageMeta(activePage, input));
-      input.addEventListener("change", () => updatePageMeta(activePage, input));
-    });
-    els.managerPanel.querySelectorAll("[data-page-meta-image]").forEach((input) => {
-      input.addEventListener("change", () => updatePageMeta(activePage, input));
     });
     els.managerPanel.querySelectorAll("[data-page-rich-content]").forEach((body) => {
       body.addEventListener("input", () => {
