@@ -227,11 +227,11 @@ const pageTemplates = [
   },
   {
     id: "resource",
-    name: "據點 / 資源列表頁",
-    defaultName: "據點資源",
-    description: "適合門市據點、服務站、水質報告或下載資源；依資源類型顯示需要的欄位。",
-    fields: ["列表標題", "列表說明", "資源類型", "資源資料"],
-    bestFor: "門市據點、服務站、水質報告、下載資源",
+    name: "據點列表頁",
+    defaultName: "服務據點",
+    description: "適合門市據點、水站、服務處或合作據點；據點資料可被多個前台頁面重複引用。",
+    fields: ["列表標題", "列表說明", "縣市 / 區域", "據點資料"],
+    bestFor: "門市據點、水站、服務處、合作據點",
     layouts: [
       { id: "A", name: "據點卡片版", description: "以卡片呈現地址、狀態與行動入口。", preview: "resource-cards", entry: "templates/page-resource-cards/code.html" },
       { id: "B", name: "地區列表版", description: "依地區分組，適合大量據點或資源。", preview: "resource-list", entry: "templates/page-resource-list/code.html" }
@@ -257,7 +257,7 @@ const pageDataSources = [
   { id: "cases", name: "案例", manager: "案例資料管理", description: "成功案例、合作案例與導入成果。", categories: ["全部", "成功案例", "社區案例", "企業案例", "公共空間"] },
   { id: "products", name: "商品 / 服務", manager: "商品 / 服務管理", description: "商品、方案、服務項目與服務入口。", categories: ["全部", "商品", "服務", "方案"] },
   { id: "faq", name: "FAQ", manager: "FAQ 管理", description: "常見問題、購買說明與服務問答。", categories: ["全部", "購買說明", "服務問答", "設備保養", "付款配送"] },
-  { id: "resources", name: "據點 / 資源資料", manager: "據點 / 資源管理", description: "服務據點、水質報告、下載文件與資源資訊。", categories: ["全部", "服務據點", "水質報告", "下載資源", "合作資源"] }
+  { id: "resources", name: "據點資料", manager: "據點管理", description: "管理前台據點卡片使用的圖片、排序、縣市、名稱、地址與行動連結。", categories: ["全部", "桃園市", "台北市", "新北市"] }
 ];
 
 const moduleItemCountRules = {
@@ -639,9 +639,9 @@ const initialDataCollections = {
     { id: "product-3", title: "方案組合範例", type: "方案", category: "方案", status: "草稿", updated: "索取資訊" }
   ],
   resources: [
-    { id: "resource-1", title: "門市 / 據點範例", type: "據點", category: "據點", status: "顯示", updated: "地圖連結" },
-    { id: "resource-2", title: "下載文件範例", type: "檔案下載", category: "檔案下載", status: "待補", updated: "PDF" },
-    { id: "resource-3", title: "外部連結範例", type: "外部連結", category: "外部連結", status: "顯示", updated: "URL" }
+    { id: "resource-1", title: "茂榮大樓1樓", type: "據點", category: "桃園市", status: "顯示", updated: "桃園市桃園區復興路96號", sort: "01", summary: "案場地址", linkUrl: "Google 導航連結", ctaText: "LINE 詢問連結", mainFileName: "據點照片.jpg" },
+    { id: "resource-2", title: "新北板橋水站", type: "水站", category: "新北市", status: "顯示", updated: "新北市板橋區範例路 88 號", sort: "02", summary: "水站地址", linkUrl: "Google 導航連結", ctaText: "LINE 詢問連結", mainFileName: "據點照片.jpg" },
+    { id: "resource-3", title: "桃園合作據點", type: "合作據點", category: "桃園市", status: "待補", updated: "待補地址", sort: "03", summary: "合作據點地址", linkUrl: "", ctaText: "", mainFileName: "" }
   ]
 };
 
@@ -686,7 +686,7 @@ const adminPermissionTree = [
       { id: "blueprintArticles", name: "文章內容" },
       { id: "blueprintFaq", name: "FAQ 內容" },
       { id: "blueprintProducts", name: "商品 / 服務資料" },
-      { id: "blueprintResources", name: "據點 / 資源資料" }
+      { id: "blueprintResources", name: "據點資料" }
     ]
   },
   {
@@ -4394,8 +4394,8 @@ function seoModuleGroups() {
     },
     {
       id: "local",
-      name: "據點資源模組",
-      description: "找水站、水質報告、下載資源等本地與資源型頁面。",
+      name: "據點頁面",
+      description: "找水站、服務據點、合作據點等本地據點頁面。",
       settings: state.pageSeoSettings.filter((setting) => {
         const page = state.pages.find((item) => item.id === setting.pageId);
         return page?.template === "resource";
@@ -4741,16 +4741,17 @@ const dataManagerConfig = {
     ]
   },
   resources: {
-    title: "據點 / 資源管理",
-    description: "管理 GEO 站點、水站、水質報告、下載文件與本地頁內容資料。",
-    addLabel: "新增據點 / 資源",
-    columns: ["名稱", "資源類型", "分類 / 區域", "狀態", "資料"],
-    detailTitle: "據點 / 資源內容",
+    title: "據點管理",
+    description: "管理前台據點卡片使用的圖片、排序、縣市、名稱、地址與行動連結。",
+    addLabel: "新增據點",
+    columns: ["據點名稱", "縣市 / 區域", "狀態", "地址"],
+    detailTitle: "據點內容",
     detailFields: [
-      { key: "address", label: "位置 / 分類資訊", type: "text", help: "據點可填地址或區域；檔案與連結可填分類或適用頁面。" },
-      { key: "summary", label: "簡短說明", type: "textarea", help: "顯示在據點列表、資源列表或下載區摘要。" },
-      { key: "fileNote", label: "檔案 / 連結說明", type: "textarea", help: "例如檔案版本、更新日期、外部連結用途或注意事項。" },
-      { key: "linkUrl", label: "資源連結", type: "text", help: "例如 /locations/sample-place、/downloads/file.pdf 或外部 URL。" }
+      { key: "sort", label: "排序編號", type: "text", help: "顯示在卡片左上角，例如 01、02；也可用來控制前台排序。" },
+      { key: "mainFileName", label: "據點圖片", type: "file", accept: "image/*", help: "顯示在據點卡片左側的照片或設備情境圖。" },
+      { key: "summary", label: "地址標籤", type: "text", help: "顯示在地址上方，例如 案場地址、門市地址、水站地址。" },
+      { key: "linkUrl", label: "Google 導航連結", type: "text", help: "前台「Google 導航」按鈕使用的 Google Maps 連結。" },
+      { key: "ctaText", label: "LINE 詢問連結", type: "text", help: "前台「LINE 詢問」按鈕使用的 LINE 連結；若全站共用，可先留空。" }
     ]
   }
 };
@@ -4782,13 +4783,20 @@ function renderDataEditor(kind, item) {
   const config = dataManagerConfig[kind];
   const isDirty = Boolean(state.activeDataEditor?.isDirty);
   const shouldHideHeader = kind === "products" || kind === "resources";
+  const isLocationData = kind === "resources";
+  const editorDescription = isLocationData
+    ? "編輯完成後可回到列表；這筆資料會對應前台據點卡片的圖片、縣市、名稱、地址與按鈕連結。"
+    : "編輯完成後可回到列表；這筆資料可被首頁模塊與前台列表頁引用。";
+  const statusOptions = isLocationData
+    ? ["顯示", "隱藏", "待補", "即將開幕", "暫停服務"]
+    : ["已發布", "草稿", "顯示", "隱藏", "待補", "已上傳"];
   return `
     ${shouldHideHeader ? "" : managerHeader(config.title, config.description, [])}
     <div class="settings-card">
       <div class="section-title">
         <div>
           <h3>${esc(config.detailTitle)}</h3>
-          <p>編輯完成後可回到列表；這筆資料可被首頁模塊與前台列表頁引用。</p>
+          <p>${esc(editorDescription)}</p>
         </div>
         <div class="actions">
           <span class="save-pill ${isDirty ? "unsaved" : ""}">${isDirty ? "尚未儲存" : "已儲存"}</span>
@@ -4801,26 +4809,28 @@ function renderDataEditor(kind, item) {
           <label>${esc(config.columns[0])}</label>
           <input type="text" value="${esc(item.title)}" data-data-field="title" data-data-kind="${kind}" data-data-id="${item.id}">
         </div>
+        ${isLocationData ? "" : `
+          <div class="field">
+            <label>${esc(config.columns[1])}</label>
+            ${kind === "products"
+              ? `<select data-data-field="type" data-data-kind="${kind}" data-data-id="${item.id}">
+                  ${getCmsTypeOptions("products", state.dataCollections.products).map((option) => `<option value="${esc(option)}" ${item.type === option ? "selected" : ""}>${esc(option)}</option>`).join("")}
+                </select>`
+              : `<input type="text" value="${esc(item.type)}" data-data-field="type" data-data-kind="${kind}" data-data-id="${item.id}">`}
+          </div>
+        `}
         <div class="field">
-          <label>${esc(config.columns[1])}</label>
-          ${kind === "products"
-            ? `<select data-data-field="type" data-data-kind="${kind}" data-data-id="${item.id}">
-                ${getCmsTypeOptions("products", state.dataCollections.products).map((option) => `<option value="${esc(option)}" ${item.type === option ? "selected" : ""}>${esc(option)}</option>`).join("")}
-              </select>`
-            : `<input type="text" value="${esc(item.type)}" data-data-field="type" data-data-kind="${kind}" data-data-id="${item.id}">`}
-        </div>
-        <div class="field">
-          <label>${esc(config.columns[2])}</label>
+          <label>${esc(isLocationData ? config.columns[1] : config.columns[2])}</label>
           <input type="text" value="${esc(item.category)}" data-data-field="category" data-data-kind="${kind}" data-data-id="${item.id}">
         </div>
         <div class="field">
-          <label>${esc(config.columns[3])}</label>
+          <label>${esc(isLocationData ? config.columns[2] : config.columns[3])}</label>
           <select data-data-field="status" data-data-kind="${kind}" data-data-id="${item.id}">
-            ${["已發布", "草稿", "顯示", "隱藏", "待補", "已上傳"].map((status) => `<option value="${status}" ${item.status === status ? "selected" : ""}>${status}</option>`).join("")}
+            ${statusOptions.map((status) => `<option value="${status}" ${item.status === status ? "selected" : ""}>${status}</option>`).join("")}
           </select>
         </div>
         <div class="field full">
-          <label>${esc(config.columns[4])}</label>
+          <label>${esc(isLocationData ? config.columns[3] : config.columns[4])}</label>
           <input type="text" value="${esc(item.updated)}" data-data-field="updated" data-data-kind="${kind}" data-data-id="${item.id}">
         </div>
         ${config.detailFields.map((field) => `
@@ -5051,7 +5061,7 @@ const cmsTypeOptions = {
   faq: ["一般問題", "服務問題", "付款問題"],
   cases: ["案例"],
   products: ["商品", "服務", "方案", "加值項目"],
-  resources: ["據點", "檔案下載", "外部連結", "常用資源"]
+  resources: ["據點"]
 };
 
 function renderCmsDataManager(kind) {
@@ -5228,13 +5238,19 @@ function renderBlueprintCollection(kind, fixedType = "") {
     : items;
   const isFaqPage = kind === "articles" && fixedType === "FAQ";
   const isProductPage = kind === "products";
+  const isLocationPage = kind === "resources";
   const visibleItems = filterDataItems(kind, sourceItems, isFaqPage ? "category" : isProductPage ? "type" : undefined);
   const categoryOptions = isFaqPage ? getCmsCategoryOptions("faq", sourceItems) : isProductPage ? getCmsTypeOptions("products", items) : getCmsCategoryOptions(kind, items);
   const statusOptions = getDataFilterOptions(items, "status");
   const typeOptions = cmsTypeOptions[kind] || ["一般資料"];
   const title = fixedType ? fixedType : kind === "articles" ? "文章" : config.title.replace("管理", "");
-  const categoryLabel = isFaqPage ? "FAQ 類型" : kind === "articles" ? "文章類型" : isProductPage ? "類型" : "分類";
-  const categoryAllLabel = isFaqPage ? "全部 FAQ 類型" : kind === "articles" ? "全部文章類型" : isProductPage ? "全部類型" : "全部分類";
+  const categoryLabel = isFaqPage ? "FAQ 類型" : kind === "articles" ? "文章類型" : isProductPage ? "類型" : isLocationPage ? "縣市 / 區域" : "分類";
+  const categoryAllLabel = isFaqPage ? "全部 FAQ 類型" : kind === "articles" ? "全部文章類型" : isProductPage ? "全部類型" : isLocationPage ? "全部縣市 / 區域" : "全部分類";
+  const searchPlaceholder = isProductPage
+    ? "搜尋名稱、類型、分類、狀態或備註"
+    : isLocationPage
+      ? "搜尋據點名稱、縣市、區域、地址或狀態"
+      : "搜尋文章名稱、分類、狀態或備註";
 
   return `
     <section class="cms-workbench">
@@ -5244,7 +5260,7 @@ function renderBlueprintCollection(kind, fixedType = "") {
         <div class="list-control-fields">
           <div class="field">
             <label>搜尋</label>
-            <input type="search" value="${esc(filters.search)}" placeholder="${isProductPage ? "搜尋名稱、類型、分類、狀態或備註" : "搜尋文章名稱、分類、狀態或備註"}" data-data-filter="search" data-data-filter-kind="${kind}">
+            <input type="search" value="${esc(filters.search)}" placeholder="${esc(searchPlaceholder)}" data-data-filter="search" data-data-filter-kind="${kind}">
           </div>
           <div class="field">
             <label>${categoryLabel}</label>
@@ -5305,7 +5321,9 @@ function renderBlueprintCollection(kind, fixedType = "") {
                   </div>
                 </details>
               `
-              : typeOptions.map((type) => `<button class="btn" type="button" data-quick-add-data="${kind}" data-quick-add-type="${esc(type)}">新增${esc(type)}</button>`).join("")}
+              : isLocationPage
+                ? `<button class="btn primary" type="button" data-quick-add-data="${kind}" data-quick-add-type="${esc(typeOptions[0])}">新增據點</button>`
+                : typeOptions.map((type) => `<button class="btn" type="button" data-quick-add-data="${kind}" data-quick-add-type="${esc(type)}">新增${esc(type)}</button>`).join("")}
         </div>
       </div>
 
@@ -5318,7 +5336,7 @@ function renderBlueprintCollection(kind, fixedType = "") {
         </div>
         <table class="admin-table responsive-table">
           <thead>
-            <tr>${kind === "articles" || hasFixedType ? `<th>${isFaqPage ? "FAQ 類型" : "文章類型"}</th><th>名稱</th>` : isProductPage ? "<th>類型</th><th>名稱</th><th>分類</th>" : "<th>名稱</th><th>分類</th>"}<th>狀態</th><th>更新 / 備註</th><th>操作</th></tr>
+            <tr>${kind === "articles" || hasFixedType ? `<th>${isFaqPage ? "FAQ 類型" : "文章類型"}</th><th>名稱</th>` : isProductPage ? "<th>類型</th><th>名稱</th><th>分類</th>" : isLocationPage ? "<th>名稱</th><th>縣市 / 區域</th>" : "<th>名稱</th><th>分類</th>"}<th>狀態</th><th>${isLocationPage ? "地址" : "更新 / 備註"}</th><th>操作</th></tr>
           </thead>
           <tbody>
             ${visibleItems.length ? visibleItems.map((item) => `
@@ -5330,12 +5348,15 @@ function renderBlueprintCollection(kind, fixedType = "") {
                   <td data-label="類型"><span class="status-pill">${esc(item.type)}</span></td>
                   <td data-label="名稱"><strong>${esc(item.title)}</strong></td>
                   <td data-label="分類">${esc(item.category)}</td>
+                ` : isLocationPage ? `
+                  <td data-label="名稱"><strong>${esc(item.title)}</strong></td>
+                  <td data-label="縣市 / 區域">${esc(item.category)}</td>
                 ` : `
                   <td data-label="名稱"><strong>${esc(item.title)}</strong><p class="hint">${esc(item.type)}</p></td>
-                  <td data-label="分類">${esc(item.category)}</td>
+                  <td data-label="${isLocationPage ? "縣市 / 區域" : "分類"}">${esc(item.category)}</td>
                 `}
                 <td data-label="狀態"><span class="status-pill">${esc(item.status)}</span></td>
-                <td data-label="更新 / 備註">${esc(item.updated)}</td>
+                <td data-label="${isLocationPage ? "地址" : "更新 / 備註"}">${esc(item.updated)}</td>
                 <td data-label="操作">
                   <div class="actions">
                     <button class="btn" type="button" data-edit-data="${kind}:${item.id}">編輯</button>
@@ -5464,17 +5485,17 @@ const blueprintPagePlans = [
   },
   {
     id: "resource",
-    name: "據點 / 資源列表頁",
-    source: "據點 / 資源資料",
-    use: "門市據點、服務站、水質報告、下載資源。",
-    note: "同一頁型支援多種資源；地址電話只在資源類型是據點時出現，檔案欄位只在下載資源時出現。",
+    name: "據點列表頁",
+    source: "據點資料",
+    use: "前台據點卡片、據點列表與地圖導引。",
+    note: "列表頁只控制據點集合呈現；單一據點的地址、電話、營業時間與地圖連結放在據點管理，避免每頁重複填。",
     fields: [
-      ["列表標題", "title", "必填", "例如找水站、水質報告", "<h1>、預設搜尋標題"],
-      ["列表說明", "description", "選填", "說明這批資源用途", "頁面介紹、預設搜尋摘要"],
-      ["資源類型", "resource_type", "必填", "據點、文件、報告、連結", "決定前台呈現方式與需要欄位"],
-      ["資源名稱", "item_name", "資料欄位", "據點或資源名稱", "卡片標題、ItemList item name"],
-      ["地址 / 電話", "item_address_phone", "視情況", "據點型資源才需要", "頁面顯示、Place / LocalBusiness 可用資料"],
-      ["檔案 / 連結", "item_file_url", "視情況", "文件、報告、外部資源入口", "下載連結、ItemList item url"]
+      ["列表標題", "title", "必填", "例如服務據點、找水站", "<h1>、預設搜尋標題"],
+      ["列表說明", "description", "選填", "說明據點服務範圍與查找方式", "頁面介紹、預設搜尋摘要"],
+      ["縣市 / 區域", "location_area", "必填", "例如桃園市、新北市", "篩選器、地區標籤"],
+      ["據點名稱", "item_name", "資料欄位", "前台卡片上的據點名稱", "卡片標題、ItemList item name"],
+      ["地址標籤 / 地址", "item_address", "資料欄位", "例如案場地址、桃園市桃園區復興路96號", "頁面顯示、Place / LocalBusiness 可用資料"],
+      ["Google / LINE 連結", "item_links", "資料欄位", "Google 導航與 LINE 詢問連結", "前台按鈕、ItemList item url"]
     ],
     jsonld: "CollectionPage + ItemList；據點可用 Place 或 LocalBusiness"
   }
@@ -5500,10 +5521,10 @@ const blueprintDataPlans = [
     usedBy: "服務列表頁、商品/服務模塊、方案比較區"
   },
   {
-    name: "據點 / 資源資料",
-    types: ["據點", "檔案下載", "外部連結", "常用資源"],
-    fields: ["名稱", "類型", "分類", "位置 / 說明", "檔案或連結", "更新資訊", "狀態"],
-    usedBy: "據點頁、下載區、資源列表、Footer 或頁面連結"
+    name: "據點資料",
+    types: ["據點"],
+    fields: ["排序編號", "據點圖片", "縣市 / 區域", "據點名稱", "地址標籤", "地址", "Google 導航連結", "LINE 詢問連結", "狀態"],
+    usedBy: "據點列表頁、據點卡片、地圖區塊"
   }
 ];
 
@@ -6850,9 +6871,12 @@ function renderManagerPanel() {
         const config = dataManagerConfig[kind];
         const item = createDataItem(kind, config);
         item.type = button.dataset.quickAddType;
-        item.category = button.dataset.quickAddCategory || "未分類";
+        item.category = kind === "resources" ? "待填縣市 / 區域" : button.dataset.quickAddCategory || "未分類";
+        item.updated = kind === "resources" ? "待填地址" : item.updated;
         item.title = kind === "products"
           ? `新增商品 / 服務資料 ${state.dataCollections[kind].length + 1}`
+          : kind === "resources"
+            ? `新增據點 ${state.dataCollections[kind].length + 1}`
           : `${item.category} ${state.dataCollections[kind].length + 1}`;
         state.dataCollections[kind].push(item);
         state.activeDataEditor = { kind, id: item.id, isDirty: true };
