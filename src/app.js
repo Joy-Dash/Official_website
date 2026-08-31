@@ -309,6 +309,45 @@ const defaultSiteInfo = {
   showFooterInfo: "yes"
 };
 
+const socialPlatformOptions = [
+  { id: "instagram", name: "Instagram", url: "https://www.instagram.com/" },
+  { id: "youtube", name: "YouTube", url: "https://www.youtube.com/" },
+  { id: "tiktok", name: "TikTok", url: "https://www.tiktok.com/" },
+  { id: "line", name: "LINE", url: "https://line.me/R/ti/p/" },
+  { id: "facebook", name: "Facebook", url: "https://www.facebook.com/" },
+  { id: "threads", name: "Threads", url: "https://www.threads.net/" },
+  { id: "x", name: "X", url: "https://x.com/" },
+  { id: "linkedin", name: "LinkedIn", url: "https://www.linkedin.com/" },
+  { id: "whatsapp", name: "WhatsApp", url: "https://wa.me/" },
+  { id: "website", name: "官網 / 外部網站", url: "https://" },
+  { id: "other", name: "其他", url: "https://" }
+];
+
+const floatingIconOptions = [
+  { id: "line", name: "LINE", symbol: "chat" },
+  { id: "diamond", name: "鑽石", symbol: "diamond" },
+  { id: "calendar", name: "日曆", symbol: "calendar" },
+  { id: "instagram", name: "Instagram", symbol: "camera" },
+  { id: "youtube", name: "YouTube", symbol: "play" },
+  { id: "tiktok", name: "TikTok", symbol: "music" },
+  { id: "map", name: "地圖", symbol: "pin" },
+  { id: "phone", name: "電話", symbol: "phone" },
+  { id: "mail", name: "信件", symbol: "mail" },
+  { id: "spark", name: "亮點", symbol: "spark" }
+];
+
+const defaultSocialLinks = [
+  { id: "social-instagram", platform: "instagram", label: "Instagram", url: "https://www.instagram.com/" },
+  { id: "social-youtube", platform: "youtube", label: "YouTube", url: "https://www.youtube.com/" },
+  { id: "social-tiktok", platform: "tiktok", label: "TikTok", url: "https://www.tiktok.com/" }
+];
+
+const defaultFloatingEntries = [
+  { id: "float-line", title: "LINE", subtitle: "洽詢預約", linkType: "page", linkValue: "contact", icon: "line" },
+  { id: "float-stations", title: "找水站", subtitle: "地圖導覽", linkType: "page", linkValue: "stations", icon: "diamond" },
+  { id: "float-hours", title: "服務時間", subtitle: "", linkType: "page", linkValue: "contact", icon: "calendar" }
+];
+
 function createPage(item) {
   const template = getPageTemplate(item.template);
   const content = {};
@@ -957,6 +996,10 @@ const state = {
   },
   siteInfo: clone(defaultSiteInfo),
   savedSiteInfo: clone(defaultSiteInfo),
+  socialLinks: clone(defaultSocialLinks),
+  savedSocialLinks: clone(defaultSocialLinks),
+  floatingEntries: clone(defaultFloatingEntries),
+  savedFloatingEntries: clone(defaultFloatingEntries),
   savedModules: clone(initialModules),
   draftModules: clone(initialModules),
   navGroups: {
@@ -1064,7 +1107,7 @@ function toggleAdminTheme() {
 
 applyAdminTheme(loadAdminTheme());
 
-const managedDropdownSelector = ".style-dropdown, .action-menu, .admin-account-menu";
+const managedDropdownSelector = ".style-dropdown, .action-menu, .admin-account-menu, .icon-dropdown";
 
 function closeManagedDropdowns(except = null) {
   document.querySelectorAll(`${managedDropdownSelector}[open]`).forEach((dropdown) => {
@@ -1075,7 +1118,7 @@ function closeManagedDropdowns(except = null) {
 document.addEventListener("click", (event) => {
   const activeDropdown = event.target.closest(managedDropdownSelector);
   closeManagedDropdowns(activeDropdown);
-  if (activeDropdown && event.target.closest(".style-dropdown-option, .action-menu button, .admin-account-dropdown button")) {
+  if (activeDropdown && event.target.closest(".style-dropdown-option, .action-menu button, .admin-account-dropdown button, .icon-choice")) {
     activeDropdown.open = false;
   }
 });
@@ -3778,7 +3821,9 @@ function renderBrandStyleManager() {
 }
 
 function isSiteInfoDirty() {
-  return JSON.stringify(state.siteInfo) !== JSON.stringify(state.savedSiteInfo);
+  return JSON.stringify(state.siteInfo) !== JSON.stringify(state.savedSiteInfo)
+    || JSON.stringify(state.socialLinks) !== JSON.stringify(state.savedSocialLinks)
+    || JSON.stringify(state.floatingEntries) !== JSON.stringify(state.savedFloatingEntries);
 }
 
 function renderYesNoSelect(field) {
@@ -3788,6 +3833,201 @@ function renderYesNoSelect(field) {
       <option value="yes" ${value === "yes" ? "selected" : ""}>顯示</option>
       <option value="no" ${value === "no" ? "selected" : ""}>不顯示</option>
     </select>
+  `;
+}
+
+function getSocialPlatform(platformId) {
+  return socialPlatformOptions.find((item) => item.id === platformId) || socialPlatformOptions[0];
+}
+
+function getFloatingIcon(iconId) {
+  return floatingIconOptions.find((item) => item.id === iconId) || floatingIconOptions[0];
+}
+
+function renderPlatformOptions(selected) {
+  return socialPlatformOptions.map((item) => `
+    <option value="${esc(item.id)}" ${selected === item.id ? "selected" : ""}>${esc(item.name)}</option>
+  `).join("");
+}
+
+function socialLinkLabel(link) {
+  const platform = getSocialPlatform(link.platform);
+  return link.label?.trim() || platform.name;
+}
+
+function pageUrlForId(pageId) {
+  const setting = state.pageSeoSettings.find((item) => item.pageId === pageId);
+  return setting ? `/${setting.slug || ""}`.replace(/\/$/, "") || "/" : `/${pageId}`;
+}
+
+function floatingLinkOptions(entry) {
+  const socialOptions = state.socialLinks.map((link) => ({ value: link.id, label: `社群：${socialLinkLabel(link)}` }));
+  const pageOptions = state.pages.map((page) => ({ value: page.id, label: `功能頁：${page.name}` }));
+  const selected = entry.linkValue || "";
+  return `
+    <optgroup label="社群連結">
+      ${socialOptions.length
+        ? socialOptions.map((item) => `<option value="${esc(item.value)}" ${entry.linkType === "social" && selected === item.value ? "selected" : ""}>${esc(item.label)}</option>`).join("")
+        : `<option value="" disabled>請先新增社群連結</option>`}
+    </optgroup>
+    <optgroup label="其他功能頁面">
+      ${pageOptions.map((item) => `<option value="${esc(item.value)}" ${entry.linkType === "page" && selected === item.value ? "selected" : ""}>${esc(item.label)}</option>`).join("")}
+    </optgroup>
+  `;
+}
+
+function floatingLinkDisplay(entry) {
+  if (entry.linkType === "page") {
+    const page = state.pages.find((item) => item.id === entry.linkValue);
+    return page ? pageUrlForId(page.id) : "請選擇功能頁";
+  }
+  const link = state.socialLinks.find((item) => item.id === entry.linkValue);
+  return link?.url || "請選擇社群連結";
+}
+
+function iconSvg(symbol) {
+  const icons = {
+    chat: `<path d="M5 6.5h14v9H9l-4 3v-12Z"/><path d="M8 10h8M8 13h5"/>`,
+    diamond: `<path d="M12 3 20 9l-8 12L4 9l8-6Z"/><path d="M4 9h16M9 9l3 12 3-12"/>`,
+    calendar: `<path d="M6 5h12a2 2 0 0 1 2 2v12H4V7a2 2 0 0 1 2-2Z"/><path d="M8 3v4M16 3v4M4 10h16"/>`,
+    camera: `<path d="M7 5h10a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3Z"/><circle cx="12" cy="12" r="3"/><path d="M17 8h.01"/>`,
+    play: `<path d="M5 8a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V8Z"/><path d="m11 9 5 3-5 3V9Z"/>`,
+    music: `<path d="M14 4v11.5a3 3 0 1 1-2-2.83V7h6"/><path d="M14 7c1.2 2.4 2.4 3.6 4 4"/>`,
+    pin: `<path d="M12 21s7-5.2 7-11a7 7 0 0 0-14 0c0 5.8 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/>`,
+    phone: `<path d="M7 4h4l1 5-2.5 1.5a12 12 0 0 0 4 4L15 12l5 1v4a2 2 0 0 1-2 2A14 14 0 0 1 5 6a2 2 0 0 1 2-2Z"/>`,
+    mail: `<path d="M4 6h16v12H4V6Z"/><path d="m4 7 8 6 8-6"/>`,
+    spark: `<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z"/><path d="M18 15l.8 2.2L21 18l-2.2.8L18 21l-.8-2.2L15 18l2.2-.8L18 15Z"/>`
+  };
+  return `<svg viewBox="0 0 24 24" aria-hidden="true">${icons[symbol] || icons.chat}</svg>`;
+}
+
+function renderIconPicker(entry) {
+  const currentIcon = getFloatingIcon(entry.icon);
+  return `
+    <details class="icon-dropdown">
+      <summary class="icon-dropdown-trigger" aria-label="選擇浮動入口圖示">
+        <span class="icon-dropdown-current">${iconSvg(currentIcon.symbol)}</span>
+        <span>${esc(currentIcon.name)}</span>
+      </summary>
+      <div class="icon-dropdown-menu">
+        <div class="icon-picker" role="radiogroup" aria-label="選擇浮動入口圖示">
+          ${floatingIconOptions.map((icon) => `
+            <button class="icon-choice ${entry.icon === icon.id ? "is-active" : ""}" type="button" data-floating-icon="${esc(entry.id)}:${esc(icon.id)}" data-tooltip="${esc(icon.name)}" aria-label="${esc(icon.name)}">
+              ${iconSvg(icon.symbol)}
+            </button>
+          `).join("")}
+        </div>
+      </div>
+    </details>
+  `;
+}
+
+function renderSocialLinksEditor() {
+  return `
+    <section class="settings-card stack-card">
+      <div class="section-title">
+        <div>
+          <h3>社群連結</h3>
+          <p>可建立多個社群、影音、通訊或外部連結，供 Footer、聯絡頁與浮動入口引用。</p>
+        </div>
+        <span class="status-pill">${state.socialLinks.length} / 50 個</span>
+      </div>
+      <div class="repeat-list">
+        ${state.socialLinks.map((link, index) => `
+          <article class="repeat-item social-link-row">
+            <div class="repeat-index">第 ${index + 1} 項</div>
+            <div class="field">
+              <label>Platform</label>
+              <select data-social-link-field="${esc(link.id)}:platform">
+                ${renderPlatformOptions(link.platform)}
+              </select>
+            </div>
+            <div class="field">
+              <label>Label</label>
+              <input type="text" value="${esc(link.label)}" data-social-link-field="${esc(link.id)}:label">
+            </div>
+            <div class="field">
+              <label>Url <span class="required-text">必填</span></label>
+              <input type="text" value="${esc(link.url)}" data-social-link-field="${esc(link.id)}:url">
+            </div>
+            <button class="text-danger" type="button" data-remove-social-link="${esc(link.id)}">移除</button>
+          </article>
+        `).join("")}
+      </div>
+      <button class="btn compact-add" type="button" data-add-social-link ${state.socialLinks.length >= 50 ? "disabled" : ""}>新增一項</button>
+    </section>
+  `;
+}
+
+function renderFloatingEntriesEditor() {
+  return `
+    <section class="settings-card stack-card">
+      <div class="section-title">
+        <div>
+          <h3>浮動自動入口</h3>
+          <p>這是前台右側浮動快捷入口，可最多設定 6 個，連到社群連結或其他功能頁面。</p>
+        </div>
+        <span class="status-pill">${state.floatingEntries.length} / 6 個</span>
+      </div>
+      <div class="repeat-list">
+        ${state.floatingEntries.map((entry, index) => `
+          <article class="repeat-item floating-entry-row">
+            <div class="repeat-index">第 ${index + 1} 項</div>
+            <div class="field">
+              <label>標題 <span class="required-text">必填</span></label>
+              <input type="text" value="${esc(entry.title)}" data-floating-field="${esc(entry.id)}:title">
+            </div>
+            <div class="field">
+              <label>副標題</label>
+              <input type="text" value="${esc(entry.subtitle)}" data-floating-field="${esc(entry.id)}:subtitle">
+            </div>
+            <div class="field">
+              <label>連結</label>
+              <select data-floating-link="${esc(entry.id)}">
+                ${floatingLinkOptions(entry)}
+              </select>
+              <div class="field-help">目前指向：${esc(floatingLinkDisplay(entry))}</div>
+            </div>
+            <div class="field icon-field">
+              <label>圖示</label>
+              ${renderIconPicker(entry)}
+            </div>
+            <button class="text-danger" type="button" data-remove-floating-entry="${esc(entry.id)}">移除</button>
+          </article>
+        `).join("")}
+      </div>
+      <button class="btn compact-add" type="button" data-add-floating-entry ${state.floatingEntries.length >= 6 ? "disabled" : ""}>新增一項</button>
+    </section>
+  `;
+}
+
+function renderFloatingPreview() {
+  const entries = state.floatingEntries.slice(0, 6);
+  const socialButtons = state.socialLinks.slice(0, 3);
+  return `
+    <section class="site-info-preview-card">
+      <div class="section-title">
+        <div>
+          <h3>浮動入口預覽</h3>
+          <p>模擬前台右側固定入口，內容由上方設定帶入。</p>
+        </div>
+      </div>
+      <div class="floating-rail-mock">
+        ${entries.map((entry) => {
+          const icon = getFloatingIcon(entry.icon);
+          return `
+            <a href="${esc(floatingLinkDisplay(entry))}" class="floating-entry-mock">
+              <span>${iconSvg(icon.symbol)}</span>
+              <strong>${esc(entry.title || "未命名")}</strong>
+              ${entry.subtitle ? `<small>${esc(entry.subtitle)}</small>` : ""}
+            </a>
+          `;
+        }).join("")}
+        ${socialButtons.length ? `<div class="floating-social-mock">
+          ${socialButtons.map((link) => `<span title="${esc(socialLinkLabel(link))}">${iconSvg(getFloatingIcon(link.platform)?.symbol || "chat")}</span>`).join("")}
+        </div>` : ""}
+      </div>
+    </section>
   `;
 }
 
@@ -3848,11 +4088,12 @@ function renderSiteHeaderFooterPreview(info) {
           <div>
             <span class="eyebrow">Company</span>
             <p>${esc(info.address)}</p>
-            <p>${esc(info.lineUrl)}</p>
+            <p>${esc(state.socialLinks.map(socialLinkLabel).join(" / "))}</p>
           </div>
         </div>
       </div>
     </section>
+    ${renderFloatingPreview()}
   `;
 }
 
@@ -3931,10 +4172,6 @@ function renderSiteBasicInfoManager() {
               <label>Email</label>
               <input type="email" value="${esc(info.email)}" data-site-info-field="email">
             </div>
-            <div class="field">
-              <label>LINE / 社群連結</label>
-              <input type="text" value="${esc(info.lineUrl)}" data-site-info-field="lineUrl">
-            </div>
             <div class="field full">
               <label>地址</label>
               <input type="text" value="${esc(info.address)}" data-site-info-field="address">
@@ -3968,6 +4205,9 @@ function renderSiteBasicInfoManager() {
             </div>
           </div>
         </section>
+
+        ${renderSocialLinksEditor()}
+        ${renderFloatingEntriesEditor()}
         ` : `
           <div class="site-info-preview-panel">
             ${renderSiteHeaderFooterPreview(info)}
@@ -5834,7 +6074,7 @@ function pageLayoutPreviewParams(page) {
     note2: page.content?.field4 || "",
     phone: page.content?.field2 || state.siteInfo.phone || "",
     email: page.content?.field3 || state.siteInfo.email || "",
-    line: page.content?.field4 || state.siteInfo.lineUrl || "",
+    line: page.content?.field4 || state.socialLinks.find((link) => link.platform === "line")?.url || "",
     category: page.dataCategory || "全部",
     source: source?.name || template.name,
     limit: page.dataLimit || "6",
@@ -7577,8 +7817,106 @@ function renderManagerPanel() {
         render();
       });
     });
+    els.managerPanel.querySelector("[data-add-social-link]")?.addEventListener("click", () => {
+      if (state.socialLinks.length >= 50) return;
+      const platform = socialPlatformOptions[0];
+      state.socialLinks.push({
+        id: `social-${Date.now()}`,
+        platform: platform.id,
+        label: platform.name,
+        url: platform.url
+      });
+      render();
+    });
+    els.managerPanel.querySelectorAll("[data-remove-social-link]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const id = button.dataset.removeSocialLink;
+        state.socialLinks = state.socialLinks.filter((item) => item.id !== id);
+        state.floatingEntries.forEach((entry) => {
+          if (entry.linkType === "social" && entry.linkValue === id) {
+            entry.linkType = "page";
+            entry.linkValue = "contact";
+          }
+        });
+        render();
+      });
+    });
+    els.managerPanel.querySelectorAll("[data-social-link-field]").forEach((input) => {
+      const updateSocialField = () => {
+        const [id, field] = input.dataset.socialLinkField.split(":");
+        const link = state.socialLinks.find((item) => item.id === id);
+        if (!link) return;
+        if (field === "platform") {
+          const previous = getSocialPlatform(link.platform);
+          const next = getSocialPlatform(input.value);
+          const labelWasDefault = !link.label || link.label === previous.name;
+          const urlWasDefault = !link.url || link.url === previous.url;
+          link.platform = next.id;
+          if (labelWasDefault) link.label = next.name;
+          if (urlWasDefault) link.url = next.url;
+          return;
+        }
+        link[field] = input.value;
+      };
+      input.addEventListener("input", updateSocialField);
+      input.addEventListener("change", () => {
+        updateSocialField();
+        render();
+      });
+    });
+    els.managerPanel.querySelector("[data-add-floating-entry]")?.addEventListener("click", () => {
+      if (state.floatingEntries.length >= 6) return;
+      const firstSocial = state.socialLinks[0]?.id || "";
+      state.floatingEntries.push({
+        id: `float-${Date.now()}`,
+        title: "新入口",
+        subtitle: "",
+        linkType: firstSocial ? "social" : "page",
+        linkValue: firstSocial || "contact",
+        icon: "line"
+      });
+      render();
+    });
+    els.managerPanel.querySelectorAll("[data-remove-floating-entry]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.floatingEntries = state.floatingEntries.filter((item) => item.id !== button.dataset.removeFloatingEntry);
+        render();
+      });
+    });
+    els.managerPanel.querySelectorAll("[data-floating-field]").forEach((input) => {
+      const updateFloatingField = () => {
+        const [id, field] = input.dataset.floatingField.split(":");
+        const entry = state.floatingEntries.find((item) => item.id === id);
+        if (entry) entry[field] = input.value;
+      };
+      input.addEventListener("input", updateFloatingField);
+      input.addEventListener("change", () => {
+        updateFloatingField();
+        render();
+      });
+    });
+    els.managerPanel.querySelectorAll("[data-floating-link]").forEach((select) => {
+      select.addEventListener("change", () => {
+        const entry = state.floatingEntries.find((item) => item.id === select.dataset.floatingLink);
+        if (!entry) return;
+        const isPage = state.pages.some((page) => page.id === select.value);
+        entry.linkType = isPage ? "page" : "social";
+        entry.linkValue = select.value;
+        render();
+      });
+    });
+    els.managerPanel.querySelectorAll("[data-floating-icon]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const [id, icon] = button.dataset.floatingIcon.split(":");
+        const entry = state.floatingEntries.find((item) => item.id === id);
+        if (entry) entry.icon = icon;
+        render();
+      });
+    });
     els.managerPanel.querySelector("[data-save-site-info]")?.addEventListener("click", () => {
       state.savedSiteInfo = clone(state.siteInfo);
+      state.savedSocialLinks = clone(state.socialLinks);
+      state.savedFloatingEntries = clone(state.floatingEntries);
       render();
     });
   }
