@@ -1,4 +1,4 @@
-﻿const moduleTypes = [
+const moduleTypes = [
   {
     id: "hero",
     name: "首屏主視覺",
@@ -4449,29 +4449,25 @@ function renderSeoModal() {
             <div class="field-grid">
               <div class="field">
                 <label>SEO 標題（必填）</label>
-                <div class="field-help">顯示於 Google 搜尋結果標題與瀏覽器頁籤。</div>
+                <div class="field-help">SEO 標題預設為頁面名稱，可依需要調整。顯示於 Google 搜尋結果標題與瀏覽器頁籤。</div>
                 <input type="text" value="${esc(draft.seoTitle)}" data-seo-field="seoTitle">
                 ${renderCount(draft.seoTitle, 25, 35)}
                 ${renderError("seoTitle")}
               </div>
               <div class="field full">
                 <label>SEO 描述（必填）</label>
-                <div class="field-help">顯示於搜尋結果標題下方，用來簡述頁面內容。</div>
+                <div class="field-help">SEO 描述預設為頁面簡介，可依需要調整。用於搜尋結果摘要，簡述頁面內容。</div>
                 <textarea data-seo-field="seoDescription">${esc(draft.seoDescription)}</textarea>
                 ${renderCount(draft.seoDescription, 70, 100)}
                 ${renderError("seoDescription")}
               </div>
               <div class="field">
-                <label>網址路徑 Slug</label>
+                <label>頁面網址路徑</label>
+                <div class="field-help">決定訪客實際開啟的頁面網址；下方供搜尋引擎使用的正式網址，預設會自動沿用此網址。</div>
                 <div class="field-help">${draft.pageId === "home" ? "首頁不可修改。" : "預設會依頁面名稱帶入；可改成中文或英文網址，只能使用文字、數字及連字號。"}</div>
                 <input type="text" value="${esc(draft.slug)}" data-seo-field="slug" ${draft.pageId === "home" ? "disabled" : ""}>
                 ${draft.pageId !== "home" ? `<div class="field-warning">修改網址可能造成原連結失效，正式環境應設定 301 Redirect。</div>` : ""}
                 ${renderError("slug")}
-              </div>
-              <div class="field">
-                <label>主要關鍵字（選填）</label>
-                <div class="field-help">可用逗號或頓號分隔；僅供內容規劃及後台管理，不輸出 meta keywords。</div>
-                <input type="text" value="${esc(keywordsText(draft))}" data-seo-field="keywords">
               </div>
             </div>
           </section>
@@ -4511,21 +4507,33 @@ function renderSeoModal() {
           </section>
 
           <section class="seo-edit-section">
-            <h4>C. 搜尋引擎設定</h4>
-            <div class="field-grid">
-              <label class="check-line"><input type="checkbox" ${draft.indexable ? "checked" : ""} data-seo-check="indexable"> 允許搜尋引擎收錄</label>
-              <label class="check-line"><input type="checkbox" ${draft.followable ? "checked" : ""} data-seo-check="followable"> 允許搜尋引擎追蹤頁面連結</label>
-              <div class="field full">
-                <label>Canonical URL</label>
-                <div class="field-help">用來指定此頁面的正式版本網址，避免重複內容問題。</div>
-                <div class="segmented-control">
-                  <label><input type="radio" name="canonicalMode" value="auto" ${draft.canonicalMode === "auto" ? "checked" : ""} data-seo-radio="canonicalMode"> 使用自動網址</label>
-                  <label><input type="radio" name="canonicalMode" value="custom" ${draft.canonicalMode === "custom" ? "checked" : ""} data-seo-radio="canonicalMode"> 自訂網址</label>
-                </div>
-                <input type="text" value="${esc(draft.canonicalMode === "auto" ? pageCanonicalUrl(draft.slug) : draft.canonicalUrl)}" data-seo-field="canonicalUrl" ${draft.canonicalMode === "auto" ? "disabled" : ""}>
-                ${renderError("canonicalUrl")}
-              </div>
+            <h4>C. 搜尋顯示設定</h4>
+            <label class="check-line" style="display:flex;align-items:center;gap:10px"><input style="width:18px;height:18px;flex:0 0 18px;margin:0" type="checkbox" ${draft.indexable ? "checked" : ""} data-seo-check="indexable"> 允許出現在搜尋結果</label>
+            <p class="field-help">開啟後，Google 等搜尋引擎可收錄此頁；關閉不影響訪客透過網址瀏覽。</p>
+            <div style="margin-top:18px;padding:14px 16px;background:#f1f5f9;border-radius:8px">
+              <strong style="font-size:13px">正式網址 · ${draft.canonicalMode === "custom" ? "已自訂" : "系統自動設定"}</strong>
+              <div style="margin-top:6px;font-size:13px;overflow-wrap:anywhere">${esc(canonical)}</div>
+              <div class="field-help">${draft.canonicalMode === "custom" ? "目前使用自訂正式網址，可在進階設定中改回自動。" : "系統會依頁面網址自動產生，通常不需要調整。"}</div>
             </div>
+            <details style="margin-top:18px;border-top:1px solid #dce4eb;padding-top:14px" ${state.seoAdvancedOpen || state.seoErrors?.canonicalUrl ? "open" : ""} ontoggle="state.seoAdvancedOpen = this.open">
+              <summary style="cursor:pointer;font-size:13px;font-weight:600;color:#526575">進階設定</summary>
+              <div style="display:grid;gap:16px;margin-top:16px">
+                <div>
+                  <label class="check-line" style="display:flex;align-items:center;gap:10px"><input style="width:18px;height:18px;flex:0 0 18px;margin:0" type="checkbox" ${draft.followable ? "checked" : ""} data-seo-check="followable"> 允許搜尋引擎探索頁面中的連結</label>
+                  <div class="field-help">建議保持開啟，協助搜尋引擎找到網站的其他頁面。</div>
+                </div>
+                <div class="field full">
+                  <label>正式網址設定</label>
+                  <div class="field-help">僅在有重複內容等特殊需求時調整，不會變更訪客實際開啟的網址。</div>
+                  <div style="display:flex;flex-wrap:wrap;gap:12px 24px;padding:10px 0">
+                    <label style="display:flex;align-items:center;gap:8px;white-space:nowrap"><input style="width:16px;height:16px;margin:0" type="radio" name="canonicalMode" value="auto" ${draft.canonicalMode === "auto" ? "checked" : ""} data-seo-radio="canonicalMode"> 自動設定（建議）</label>
+                    <label style="display:flex;align-items:center;gap:8px;white-space:nowrap"><input style="width:16px;height:16px;margin:0" type="radio" name="canonicalMode" value="custom" ${draft.canonicalMode === "custom" ? "checked" : ""} data-seo-radio="canonicalMode"> 自訂正式網址</label>
+                  </div>
+                  ${draft.canonicalMode === "custom" ? `<input type="url" aria-label="自訂正式網址" placeholder="https://www.example.com/about" value="${esc(draft.canonicalUrl)}" data-seo-field="canonicalUrl">` : ""}
+                  ${renderError("canonicalUrl")}
+                </div>
+              </div>
+            </details>
           </section>
 
           <section class="seo-preview-grid">
