@@ -413,7 +413,7 @@ function pageCanonicalUrl(slug) {
 }
 
 function defaultSeoTitleForName(name) {
-  return `${name || "未命名頁面"}｜${defaultSiteMeta.titleSuffix}`;
+  return name || "未命名頁面";
 }
 
 function createSeoSetting({ id, name }) {
@@ -423,7 +423,10 @@ function createSeoSetting({ id, name }) {
     pageId: id,
     pageName: name,
     seoTitle,
-    seoDescription: defaultSiteMeta.description,
+    seoDescription: id === "home" ? defaultSiteMeta.description : (initialPages.find(p => p.id === id)?.content?.field1 || ""),
+    titleAuto: true,
+    descriptionAuto: true,
+    faqIds: [], resourceIds: [], servicePageIds: [], region: "",
     slug,
     keywords: [],
     syncOg: true,
@@ -458,8 +461,9 @@ function syncSeoDefaultsFromPage(page, previousName = "") {
   const ogTitleLooksDefault = !setting.ogTitle || setting.ogTitle === setting.seoTitle || setting.ogTitle === oldTitle || setting.syncOg;
 
   setting.pageName = page.name;
-  if (slugLooksDefault) setting.slug = nextSlug;
-  if (titleLooksDefault) setting.seoTitle = nextTitle;
+  if (!setting.slug) setting.slug = nextSlug;
+  if (setting.titleAuto !== false) setting.seoTitle = nextTitle;
+  if (setting.descriptionAuto !== false) setting.seoDescription = page.content?.field1 || "";
   if (ogTitleLooksDefault) setting.ogTitle = setting.syncOg ? setting.seoTitle : nextTitle;
   if (setting.syncOg) setting.ogDescription = setting.seoDescription;
   if (setting.canonicalMode === "auto" || !setting.canonicalUrl || setting.canonicalUrl === pageCanonicalUrl(oldSlugFromName) || setting.canonicalUrl === pageCanonicalUrl(oldSlugFromId)) {
@@ -486,7 +490,9 @@ function loadSeoSettings() {
     if (!Array.isArray(stored)) return defaults;
     return defaults.map((item) => {
       const saved = stored.find((entry) => entry.pageId === item.pageId);
-      return saved ? { ...item, ...saved, pageName: item.pageName } : item;
+      return saved ? { ...item, ...saved, pageName: item.pageName,
+        titleAuto: saved.titleAuto ?? (!saved.seoTitle || saved.seoTitle === item.pageName || saved.seoTitle === `${item.pageName}｜${defaultSiteMeta.titleSuffix}`),
+        descriptionAuto: saved.descriptionAuto ?? (!saved.seoDescription || saved.seoDescription === defaultSiteMeta.description || saved.seoDescription === item.seoDescription) } : item;
     });
   } catch (error) {
     return defaults;
@@ -496,6 +502,7 @@ function loadSeoSettings() {
 function persistSeoSettings() {
   try {
     localStorage.setItem(seoStorageKey, JSON.stringify(state.pageSeoSettings));
+    localStorage.setItem("seo-redirect-records", JSON.stringify(state.seoRedirects || []));
   } catch (error) {
     // Demo storage can fail in private browsing; the in-memory state still works.
   }
@@ -984,6 +991,7 @@ const state = {
   adminUsers: clone(initialAdminUsers),
   adminUserFilters: { search: "", role: "", status: "" },
   pageSeoSettings: loadSeoSettings(),
+  seoRedirects: (() => { try { const value = JSON.parse(localStorage.getItem("seo-redirect-records") || "[]"); return Array.isArray(value) ? value : []; } catch { return []; } })(),
   activeSeoPageId: "",
   seoDraft: null,
   seoErrors: {},
@@ -1415,6 +1423,7 @@ function renderHomeOverview() {
   els.settingsRoot.innerHTML = `
     <div class="settings-body">
       ${renderHomeActionStrip()}
+      ${renderPageSeoEntry("home")}
       <section class="settings-card home-overview-panel">
         <div class="section-head">
           <div>
@@ -4219,6 +4228,7 @@ function renderSiteBasicInfoManager() {
 }
 
 function getSeoSetting(pageId) {
+  if(contentSeoTarget(pageId))return contentSeoSetting(pageId);
   return state.pageSeoSettings.find((item) => item.pageId === pageId) || state.pageSeoSettings[0];
 }
 
@@ -4281,9 +4291,16 @@ function renderCount(value, min, max) {
   return `<span class="char-count ${ok ? "is-ok" : ""}">${count} 字，建議 ${min}～${max} 個中文字</span>`;
 }
 
-function openSeoModal(pageId) {
+function openSeoModal(pageId, mode = "advanced") {
+  state.seoEditorMode = mode;
+  state.seoAdvancedOpen = false;
+  state.seoFullAdvancedOpen = false;
   state.activeSeoPageId = pageId;
-  state.seoDraft = clone(getSeoSetting(pageId));
+  const current = getSeoSetting(pageId);
+  const page = state.pages.find(p => p.id === pageId);
+  if (current.titleAuto !== false) current.seoTitle = page?.name || "首頁";
+  if (current.descriptionAuto !== false) current.seoDescription = seoPageIntro(pageId);
+  state.seoDraft = clone(current);
   state.seoErrors = {};
   state.seoSavedNotice = "";
   render();
@@ -4298,6 +4315,8 @@ function closeSeoModal() {
 
 function updateSeoDraft(field, value) {
   if (!state.seoDraft) return;
+  if (field === "seoTitle") state.seoDraft.titleAuto = false;
+  if (field === "seoDescription") state.seoDraft.descriptionAuto = false;
   if (field === "keywords") {
     state.seoDraft.keywords = parseKeywords(value);
   } else if (["syncOg", "useDefaultOgImage", "indexable", "followable"].includes(field)) {
@@ -4315,27 +4334,23 @@ function updateSeoDraft(field, value) {
 function validateSeoDraft() {
   const draft = state.seoDraft;
   const errors = {};
-  if (!draft.seoTitle?.trim()) errors.seoTitle = "SEO 標題不可空白。";
-  if (!draft.seoDescription?.trim()) errors.seoDescription = "SEO 描述不可空白。";
-  if (draft.pageId !== "home" && !/^[\p{L}\p{N}-]+$/u.test(draft.slug || "")) {
-    errors.slug = "Slug 只能輸入文字、數字及連字號。";
-  }
-  if (draft.pageId !== "home" && /(^-|-$|--)/.test(draft.slug || "")) {
-    errors.slug = "Slug 不可連續使用連字號，也不可放在開頭或結尾。";
-  }
-  if (draft.canonicalMode === "custom" && !/^https:\/\/[^ ]+\.[^ ]+/.test(draft.canonicalUrl || "")) {
-    errors.canonicalUrl = "自訂 Canonical URL 必須是完整的 HTTPS URL。";
+  if (state.seoEditorMode !== "advanced" && !draft.seoTitle?.trim()) errors.seoTitle = "SEO 標題不可空白。";
+  if (state.seoEditorMode !== "advanced" && !draft.seoDescription?.trim()) errors.seoDescription = "SEO 描述不可空白。";
+  if (state.seoEditorMode !== "basic" && draft.canonicalMode === "custom") {
+    try { const url = new URL(draft.canonicalUrl); if (url.protocol !== 'https:' || !url.hostname.includes('.') || url.username || url.password || /\s/.test(draft.canonicalUrl)) throw new Error(); }
+    catch { errors.canonicalUrl = "請填寫完整且有效的 HTTPS 正式網址。"; }
   }
   if (!draft.useDefaultOgImage && draft.ogImageUrl && !["image/jpeg", "image/png", "image/webp"].includes(draft.ogImageType)) {
     errors.ogImage = "分享圖片僅支援 JPG、PNG、WebP。";
   }
+  if (state.seoEditorMode !== "advanced" && state.seoErrors.ogImage) errors.ogImage = state.seoErrors.ogImage;
   state.seoErrors = errors;
   return Object.keys(errors).length === 0;
 }
 
 function focusFirstSeoError() {
   requestAnimationFrame(() => {
-    const firstError = els.managerPanel.querySelector(".field-error");
+    const firstError = document.querySelector("#seo-modal-host .field-error");
     const field = firstError?.closest(".field")?.querySelector("input, textarea, select, button");
     firstError?.scrollIntoView({ block: "center", behavior: "smooth" });
     field?.focus();
@@ -4348,6 +4363,10 @@ function saveSeoDraft() {
     render();
     focusFirstSeoError();
     return;
+  }
+  if (state.seoEditorMode !== 'basic') {
+    const sources = {faqIds:state.dataCollections.articles.filter(x=>x.type==='FAQ'),resourceIds:state.dataCollections.resources,servicePageIds:state.pages};
+    for (const [key, items] of Object.entries(sources)) state.seoDraft[key]=(state.seoDraft[key]||[]).filter(id=>items.some(x=>x.id===id));
   }
   state.pageSeoSettings = state.pageSeoSettings.map((item) =>
     item.pageId === state.seoDraft.pageId ? clone(state.seoDraft) : item
@@ -4403,6 +4422,7 @@ function removeSeoImage() {
   state.seoDraft.ogImageWidth = 0;
   state.seoDraft.ogImageHeight = 0;
   state.seoDraft.useDefaultOgImage = true;
+  delete state.seoErrors.ogImage;
   render();
 }
 
@@ -4438,14 +4458,14 @@ function renderSeoModal() {
       <section class="quick-modal seo-modal" role="dialog" aria-modal="true" aria-labelledby="seoModalTitle" data-modal-panel>
         <div class="quick-modal-head">
           <div>
-            <h3 id="seoModalTitle">編輯 SEO／分享設定－${esc(draft.pageName)}</h3>
-            <p>設定搜尋結果、社群預覽與搜尋引擎收錄方式。</p>
+            <h3 id="seoModalTitle">${state.seoEditorMode === "basic" ? "搜尋與分享設定" : "編輯 SEO"}－${esc(draft.pageName)}</h3>
+            <p>${state.seoEditorMode === "basic" ? "A、B 方案共用｜設定此頁的搜尋文字及分享圖片。" : "直接編輯此頁的搜尋與分享資料；需要時展開 B 方案進階設定。"}</p>
           </div>
           <button class="btn" type="button" data-close-seo-modal>取消</button>
         </div>
         <div class="quick-modal-body seo-modal-body">
-          <section class="seo-edit-section">
-            <h4>A. 搜尋結果設定</h4>
+          ${state.seoEditorMode !== "advanced" ? `<section class="seo-edit-section">
+            <h4>搜尋結果設定</h4>
             <div class="field-grid">
               <div class="field">
                 <label>SEO 標題（必填）</label>
@@ -4461,19 +4481,12 @@ function renderSeoModal() {
                 ${renderCount(draft.seoDescription, 70, 100)}
                 ${renderError("seoDescription")}
               </div>
-              <div class="field">
-                <label>頁面網址路徑</label>
-                <div class="field-help">決定訪客實際開啟的頁面網址；下方供搜尋引擎使用的正式網址，預設會自動沿用此網址。</div>
-                <div class="field-help">${draft.pageId === "home" ? "首頁不可修改。" : "預設會依頁面名稱帶入；可改成中文或英文網址，只能使用文字、數字及連字號。"}</div>
-                <input type="text" value="${esc(draft.slug)}" data-seo-field="slug" ${draft.pageId === "home" ? "disabled" : ""}>
-                ${draft.pageId !== "home" ? `<div class="field-warning">修改網址可能造成原連結失效，正式環境應設定 301 Redirect。</div>` : ""}
-                ${renderError("slug")}
-              </div>
+
             </div>
           </section>
 
           <section class="seo-edit-section">
-            <h4>B. 社群分享設定</h4>
+            <h4>社群分享設定</h4>
             <div class="field-grid">
               <label class="check-line full"><input type="checkbox" ${draft.syncOg ? "checked" : ""} data-seo-check="syncOg"> 分享標題與描述沿用 SEO 設定</label>
               <div class="field">
@@ -4506,8 +4519,9 @@ function renderSeoModal() {
             </div>
           </section>
 
-          <section class="seo-edit-section">
-            <h4>C. 搜尋顯示設定</h4>
+          ` : ""}
+          ${state.seoEditorMode !== "basic" ? `<details class="seo-edit-section" ${state.seoFullAdvancedOpen || state.seoErrors?.canonicalUrl ? "open" : ""} ontoggle="state.seoFullAdvancedOpen = this.open"><summary style="cursor:pointer;font-weight:700">進階設定（B 方案）</summary><section>
+            <h4>搜尋顯示設定</h4>
             <label class="check-line" style="display:flex;align-items:center;gap:10px"><input style="width:18px;height:18px;flex:0 0 18px;margin:0" type="checkbox" ${draft.indexable ? "checked" : ""} data-seo-check="indexable"> 允許出現在搜尋結果</label>
             <p class="field-help">開啟後，Google 等搜尋引擎可收錄此頁；關閉不影響訪客透過網址瀏覽。</p>
             <div style="margin-top:18px;padding:14px 16px;background:#f1f5f9;border-radius:8px">
@@ -4536,7 +4550,9 @@ function renderSeoModal() {
             </details>
           </section>
 
-          <section class="seo-preview-grid">
+          ${renderSeoRelations(draft)}
+          </details>` : ""}
+          ${state.seoEditorMode !== "advanced" ? `<section class="seo-preview-grid">
             <div class="seo-preview-card">
               <h4>Google 搜尋結果預覽</h4>
               <div class="google-preview">
@@ -4556,11 +4572,7 @@ function renderSeoModal() {
                 </div>
               </div>
             </div>
-            <div class="seo-preview-card full">
-              <h4>HTML 輸出模擬</h4>
-              <pre>${renderSeoOutputPreview(draft)}</pre>
-            </div>
-          </section>
+          </section>` : ""}
         </div>
         <div class="quick-modal-actions">
           <button class="btn" type="button" data-close-seo-modal>取消</button>
@@ -4772,7 +4784,7 @@ function renderSeoSummaryCards() {
 
 function refreshSeoLivePreview() {
   const draft = state.seoDraft;
-  const modal = els.managerPanel.querySelector(".seo-modal");
+  const modal = document.querySelector("#seo-modal-host .seo-modal");
   if (!draft || !modal) return;
   const canonical = canonicalForSetting(draft);
   const ogTitle = effectiveOgTitle(draft) || "請輸入分享標題";
@@ -4803,57 +4815,7 @@ function refreshSeoLivePreview() {
   });
 }
 
-function renderBannerMetaManager() {
-  const homeSetting = getSeoSetting("home");
-  return `
-    <section class="settings-stack">
-      ${managerHeader("SEO 管理", "以功能頁為單位管理 Meta Title、Description、社群分享、Canonical 與搜尋引擎收錄；未啟用的模組可保留預設值。", [])}
-      ${state.seoSavedNotice ? `<div class="save-toast">${esc(state.seoSavedNotice)}</div>` : ""}
-      <section class="settings-card">
-        <div class="section-title">
-          <div>
-            <h3>SEO 管理總覽</h3>
-            <p>新增或改名前台頁面時，系統會依頁面名稱預設 SEO 標題、網址 Slug、Canonical 與分享標題；需要時可在各功能頁覆寫。</p>
-          </div>
-          <button class="btn primary" type="button" data-edit-seo="home">編輯首頁 SEO</button>
-        </div>
-        ${renderSeoSummaryCards()}
-        <div class="seo-default-strip">
-          <div>
-            <span>全站預設</span>
-            <strong>${esc(defaultSiteMeta.titleSuffix)}</strong>
-            <p>${esc(defaultSiteMeta.description)}</p>
-          </div>
-          <div>
-            <span>首頁 Canonical</span>
-            <strong>${esc(canonicalForSetting(homeSetting))}</strong>
-            <p>${esc(robotsText(homeSetting))} · ${esc(ogImageStatus(homeSetting))}</p>
-          </div>
-        </div>
-        <div class="seo-auto-note">
-          <strong>自動帶入規則</strong>
-          <span>頁面名稱 → SEO Title / OG Title；頁面名稱 → Slug → Canonical URL；描述與分享圖未設定時沿用全站預設。</span>
-        </div>
-      </section>
-      ${renderSeoPageTreeList()}
-      <section class="settings-card">
-        <div class="section-title">
-          <div>
-            <h3>技術輸出規則</h3>
-            <p>這些欄位由每個功能頁的設定輸出，工程端可依模組啟用狀態產生對應 head tags。</p>
-          </div>
-        </div>
-        <div class="seo-rule-grid">
-          <div><strong>Meta 基礎</strong><span>title、description、canonical、robots</span></div>
-          <div><strong>社群分享</strong><span>og:title、og:description、og:image、og:url</span></div>
-          <div><strong>模組化販售</strong><span>每個功能頁保有獨立 SEO 設定，可隨模組開關與權限拆分</span></div>
-          <div><strong>進階資料</strong><span>文章、FAQ、據點可於正式版再接 JSON-LD 結構化資料</span></div>
-        </div>
-      </section>
-      ${renderSeoModal()}
-    </section>
-  `;
-}
+function renderBannerMetaManager() { return renderSeoAdvancedDashboard(); }
 
 function renderTrackingSettingsManager() {
   return `
@@ -5105,6 +5067,7 @@ function renderDataEditor(kind, item) {
         `).join("")}
       </div>
     </div>
+    ${renderContentSeo(kind,item)}
   `;
 }
 
@@ -5170,6 +5133,7 @@ function renderBlueprintArticleEditor(item) {
         </div>
         <div class="actions">
           <span class="save-pill ${isDirty ? "unsaved" : ""}">${isDirty ? "尚未儲存" : "已儲存"}</span>
+          ${state.articleSeoReturn && !isFaq ? `<button class="btn" type="button" data-article-seo-return>返回 SEO 檢核</button>` : ""}
           <button class="btn primary" type="button" data-save-data="articles:${item.id}">儲存</button>
           <button class="btn" type="button" data-back-data-list>返回列表</button>
         </div>
@@ -5277,6 +5241,7 @@ function renderBlueprintArticleEditor(item) {
         </div>
       </div>
     </div>
+    ${renderContentSeo("articles",item)}
   `;
 }
 
@@ -6389,6 +6354,7 @@ function renderPageSettingsWorkspace(page, template, parentOptions) {
           <div class="field-help">顯示在後台與前台選單中的頁面名稱。</div>
           <input type="text" value="${esc(page.name)}" data-page-field="name">
         </div>
+        <div class="field"><label>頁面網址路徑</label><input value="${esc(getSeoSetting(page.id).slug)}" data-page-seo-slug="${esc(page.id)}"><p class="field-help">改完離開欄位即儲存；舊網址會記錄至進階 SEO 的待處理清單。</p></div>
         <div class="field">
           <label>頁面狀態</label>
           <div class="field-help">控制頁面是否對外發布。</div>
@@ -6422,6 +6388,7 @@ function renderPageSettingsWorkspace(page, template, parentOptions) {
     </section>
     ${renderPageDataSettings(page)}
     ${renderPageContentEditor(page, template)}
+    ${renderPageSeoEntry(page.id)}
   `;
 }
 
@@ -7759,45 +7726,6 @@ function renderManagerPanel() {
     });
   }
 
-  if (state.adminSection === "seo") {
-    els.managerPanel.querySelectorAll("[data-edit-seo]").forEach((button) => {
-      button.addEventListener("click", () => openSeoModal(button.dataset.editSeo));
-    });
-    els.managerPanel.querySelectorAll("[data-close-seo-modal]").forEach((button) => {
-      button.addEventListener("click", () => closeSeoModal());
-    });
-    els.managerPanel.querySelector("[data-modal-panel]")?.addEventListener("click", (event) => {
-      event.stopPropagation();
-    });
-    els.managerPanel.querySelectorAll("[data-seo-field]").forEach((input) => {
-      input.addEventListener("input", () => {
-        updateSeoDraft(input.dataset.seoField, input.value);
-        refreshSeoLivePreview();
-      });
-      input.addEventListener("change", () => {
-        updateSeoDraft(input.dataset.seoField, input.value);
-        render();
-      });
-    });
-    els.managerPanel.querySelectorAll("[data-seo-check]").forEach((input) => {
-      input.addEventListener("change", () => {
-        updateSeoDraft(input.dataset.seoCheck, input.checked);
-        render();
-      });
-    });
-    els.managerPanel.querySelectorAll("[data-seo-radio]").forEach((input) => {
-      input.addEventListener("change", () => {
-        updateSeoDraft(input.dataset.seoRadio, input.value);
-        render();
-      });
-    });
-    els.managerPanel.querySelector("[data-seo-image]")?.addEventListener("change", (event) => {
-      handleSeoImageUpload(event.currentTarget);
-    });
-    els.managerPanel.querySelector("[data-remove-seo-image]")?.addEventListener("click", removeSeoImage);
-    els.managerPanel.querySelector("[data-save-seo-modal]")?.addEventListener("click", saveSeoDraft);
-  }
-
   if (state.adminSection === "siteBasicInfo") {
     els.managerPanel.querySelectorAll("[data-site-info-preview-tab]").forEach((button) => {
       button.addEventListener("click", () => {
@@ -8075,7 +8003,411 @@ function renderManagerPanel() {
   }
 }
 
+function seoPageIntro(id) {
+  const target=contentSeoTarget(id);if(target)return target.item.summary||'';
+  if (id === 'home') return state.siteInfo?.seoDescription || defaultSiteMeta.description;
+  return state.pages.find(p => p.id === id)?.content?.field1 || '';
+}
+function seoIsPublished(setting) {
+  return setting.pageId === 'home' || state.pages.find(p => p.id === setting.pageId)?.status === '已發布';
+}
+function seoManagedSettings() { return orderedSeoPageTree().map(item => item.setting); }
+function seoChecks(setting) {
+  const notes = [];
+  if (!setting.seoTitle?.trim()) notes.push('缺少搜尋標題');
+  if (!setting.seoDescription?.trim()) notes.push('缺少搜尋描述');
+  if (seoManagedSettings().some(s => s.pageId !== setting.pageId && s.slug === setting.slug)) notes.push('網址路徑重複');
+  const page = state.pages.find(p => p.id === setting.pageId);
+  if (page?.template === 'product' && !(setting.faqIds || []).length) notes.push('服務頁尚未選擇相關 FAQ');
+  if (setting.region && !(setting.resourceIds || []).length) notes.push('地區頁尚未選擇據點');
+  if (setting.region && !(setting.servicePageIds || []).length) notes.push('地區頁尚未選擇服務頁');
+  for (const [field, items] of [['faqIds', state.dataCollections.articles.filter(x => x.type === 'FAQ')], ['resourceIds', state.dataCollections.resources], ['servicePageIds', state.pages]]) {
+    if ((setting[field] || []).some(id => !items.some(x => x.id === id))) notes.push('有已刪除的關聯資料，請重新選擇');
+  }
+  return notes;
+}
+// Independent content SEO settings for the local prototype.
+function contentSeoKey(kind,id){return `content:${kind}:${id}`;}
+function contentSeoTarget(key){const match=/^content:([^:]+):(.+)$/.exec(key);if(!match)return null;const item=state.dataCollections[match[1]]?.find(i=>i.id===match[2]);return item?{kind:match[1],item}:null;}
+function contentSeoStore(){if(!state.contentSeoSettings){try{state.contentSeoSettings=JSON.parse(localStorage.getItem('content-seo-v1')||'{}');if(!state.contentSeoSettings||Array.isArray(state.contentSeoSettings)||typeof state.contentSeoSettings!=='object')state.contentSeoSettings={};}catch{state.contentSeoSettings={};}}return state.contentSeoSettings;}
+function contentSeoSetting(key){const target=contentSeoTarget(key);if(!target)return null;const {kind,item}=target,store=contentSeoStore();if(!store[key])store[key]={pageId:key,pageName:item.title||item.name,titleAuto:true,descriptionAuto:true,seoTitle:item.title||item.name||'',seoDescription:item.summary||'',slug:`${kind}/${item.id}`,detailEnabled:kind==='articles'&&item.type!=='FAQ',canonicalMode:'auto',canonicalUrl:'',indexable:true,followable:true,syncOg:true,useDefaultOgImage:true,ogTitle:'',ogDescription:'',ogImageUrl:''};return store[key];}
+function contentSeoName(key){const t=contentSeoTarget(key);return t?(t.item.title||t.item.name||'未命名內容'):state.pages.find(p=>p.id===key)?.name||'首頁';}
+function persistContentSeo(){try{localStorage.setItem('content-seo-v1',JSON.stringify(contentSeoStore()));return true;}catch{return false;}}
+function contentSeoVirtualPages(){return Object.entries(state.dataCollections).flatMap(([kind,items])=>['articles','products','resources'].includes(kind)?items.filter(item=>contentSeoSetting(contentSeoKey(kind,item.id)).detailEnabled).map(item=>({id:contentSeoKey(kind,item.id),name:item.title||item.name||'未命名內容',status:item.status||'草稿',contentSource:'manual',contentKind:kind,contentItem:item})):[]);}
+function renderContentSeo(kind,item){
+ const key=contentSeoKey(kind,item.id),setting=contentSeoSetting(key),draft=inlineSeoDraft(key);
+ return `<section class="page-subsection">${state.routeSeoEditing?'<button class="btn" type="button" data-route-seo-return>返回頁面 SEO 診斷</button>':''}<h3>獨立詳情頁與 SEO</h3><p class="field-help">有獨立網址的內容可設定自己的搜尋與分享資訊；僅作為列表卡片或問答區塊時可關閉。</p><label class="check-line"><input type="checkbox" style="width:16px;height:16px;margin-right:8px" data-content-seo-enabled="${esc(key)}" ${setting.detailEnabled?'checked':''}>提供獨立詳情頁</label><p class="field-help">此原型設定預定網址；正式頁面發布、路由與轉址需由工程串接。</p><p class="field-help" role="status">${esc(state.contentSeoMessages?.[key]||'')}</p>${setting.detailEnabled?`<div class="field"><label>詳情頁路徑</label><input aria-label="詳情頁路徑" data-content-seo-path="${esc(key)}" value="/${esc(String(draft.slug||'').replace(/^\//,''))}"><p class="field-help">以 / 開頭，不含網域、查詢參數或 #。發布後改址需建立 301 轉址。</p></div>${renderPageSeoEntry(key)}`:'<p>此筆內容不建立獨立頁面 SEO，沿用所在列表頁的頁面設定。</p>'}</section>`;
+}
+function bindContentSeo(){
+ document.querySelector('[data-content-seo-parent]')?.addEventListener('click',()=>{state.routeSeoPageId=state.routeSeoParentId;state.routeSeoParentId='';state.articleSeoView='list';render();});
+ document.querySelectorAll('[data-content-seo-enabled]').forEach(input=>input.onchange=()=>{const key=input.dataset.contentSeoEnabled,setting=contentSeoSetting(key);setting.detailEnabled=input.checked;const saved=persistContentSeo();state.contentSeoMessages||={};state.contentSeoMessages[key]=saved?'詳情頁設定已儲存（本機原型）。':'瀏覽器儲存失敗，此次設定僅保留於本次操作。';if(state.inlineSeoDrafts?.[key])state.inlineSeoDrafts[key].detailEnabled=input.checked;render();});
+ document.querySelectorAll('[data-content-seo-path]').forEach(input=>input.oninput=()=>{inlineSeoDraft(input.dataset.contentSeoPath).slug=input.value;state.inlineSeoNotices||={};state.inlineSeoNotices[input.dataset.contentSeoPath]='網址尚未儲存';const notice=input.closest('section').querySelector('[data-inline-seo-notice]');if(notice)notice.textContent='網址尚未儲存';});
+}
+
+function inlineSeoDraft(pageId) {
+  state.inlineSeoDrafts ||= {};
+  if (!state.inlineSeoDrafts[pageId]) state.inlineSeoDrafts[pageId] = clone(getSeoSetting(pageId));
+  const draft=state.inlineSeoDrafts[pageId],page=state.pages.find(p=>p.id===pageId);
+  if(draft.titleAuto!==false)draft.seoTitle=contentSeoName(pageId);
+  if(draft.descriptionAuto!==false)draft.seoDescription=seoPageIntro(pageId);
+  return draft;
+}
+function renderPageSeoEntry(pageId) {
+  const draft=inlineSeoDraft(pageId);
+  return `<section class="page-subsection inline-seo-simple" data-inline-seo="${esc(pageId)}">
+  ${state.routeSeoEditing&&!contentSeoTarget(pageId)?'<button class="btn" type="button" data-route-seo-return>返回頁面 SEO 診斷</button>':''}<h3>搜尋與分享設定</h3><p class="field-help">這一頁在搜尋結果與社群分享時顯示的標題、描述與圖片。留空會自動帶入。</p>
+  <h4>搜尋結果設定</h4><div class="field-grid">
+  <div class="field"><label>SEO 標題</label><input aria-label="SEO 標題" data-inline-seo-field="seoTitle" value="${esc(draft.titleAuto!==false?'':draft.seoTitle||'')}" placeholder="${esc(draft.seoTitle||'預設為頁面名稱')}"><p class="field-help">顯示於搜尋結果與瀏覽器頁籤。留空時預設為頁面名稱。</p></div>
+  <div class="field"><label>網址規範（Canonical）</label><select aria-label="網址規範" data-inline-seo-mode><option value="auto" ${draft.canonicalMode!=='custom'?'selected':''}>使用自動網址</option><option value="custom" ${draft.canonicalMode==='custom'?'selected':''}>自訂正式網址</option></select>${draft.canonicalMode==='custom'?`<input type="url" aria-label="自訂正式網址" data-inline-seo-field="canonicalUrl" value="${esc(draft.canonicalUrl||'')}" placeholder="https://www.example.com/about">`:''}</div>
+  <div class="field full"><label>Meta 描述</label><textarea aria-label="SEO 描述" data-inline-seo-field="seoDescription" placeholder="預設為頁面簡介">${esc(draft.descriptionAuto!==false?'':draft.seoDescription||'')}</textarea><p class="field-help">顯示於搜尋結果標題下方。留空時預設為頁面簡介；首頁使用官網基本資訊的預設描述。</p></div>
+  <h4 class="full">社群分享設定</h4>
+  <label class="check-line full"><input type="checkbox" data-inline-seo-check="syncOg" ${draft.syncOg?'checked':''}>分享標題與描述沿用 SEO 設定</label>
+  <div class="field"><label>分享標題（OG Title）</label><input aria-label="分享標題" data-inline-seo-field="ogTitle" value="${esc(draft.syncOg?draft.seoTitle:draft.ogTitle||'')}" ${draft.syncOg?'disabled':''}></div>
+  <div class="field"><label>分享描述（OG Description）</label><textarea aria-label="分享描述" data-inline-seo-field="ogDescription" ${draft.syncOg?'disabled':''}>${esc(draft.syncOg?draft.seoDescription:draft.ogDescription||'')}</textarea></div>
+  <label class="check-line full"><input type="checkbox" data-inline-seo-check="useDefaultOgImage" ${draft.useDefaultOgImage?'checked':''}>使用全站預設分享圖</label>
+  ${`<div class="field full"><label>社群預覽圖（OG Image）</label><div class="og-image-editor"><img src="${esc(effectiveOgImage(draft))}" alt="分享圖片預覽"><div><input type="file" aria-label="上傳分享圖片" accept="image/jpeg,image/png,image/webp" data-inline-seo-image ${draft.useDefaultOgImage?'disabled':''}><p class="field-help">支援 JPG、PNG、WebP，建議 1200 × 630 px。</p>${draft.ogImageUrl?'<button class="btn" type="button" data-inline-seo-remove>移除專屬圖片</button>':''}</div></div></div>`}
+  <h4 class="full">搜尋顯示設定</h4><div class="full inline-seo-options"><label class="check-line"><input type="checkbox" data-inline-seo-check="indexable" ${draft.indexable!==false?'checked':''}>允許搜尋引擎收錄</label><label class="check-line"><input type="checkbox" data-inline-seo-check="followable" ${draft.followable!==false?'checked':''}>允許追蹤頁面連結</label></div>
+  </div>
+
+  <div class="field-grid inline-seo-previews"><section class="field"><h4>Google 搜尋結果預覽</h4><div class="google-preview"><cite>${esc(canonicalForSetting({...getSeoSetting(pageId),...draft}))}</cite><strong data-inline-preview="title">${esc(draft.seoTitle)}</strong><p data-inline-preview="description">${esc(draft.seoDescription)}</p></div></section><section class="field"><h4>LINE／Facebook 分享預覽</h4><div class="social-preview"><img src="${esc(effectiveOgImage(draft))}" alt="社群預覽圖"><div><strong data-inline-preview="ogTitle">${esc(draft.syncOg?draft.seoTitle:draft.ogTitle||'')}</strong><p data-inline-preview="ogDescription">${esc(draft.syncOg?draft.seoDescription:draft.ogDescription||'')}</p></div></div></section></div>
+  <p class="field-help">預覽僅供參考，實際顯示由搜尋引擎與社群平台決定。</p><p class="field-help" role="status" data-inline-seo-notice>${esc(state.inlineSeoNotices?.[pageId]||'')}</p><button class="btn primary" type="button" data-inline-seo-save>儲存搜尋與分享設定</button></section>`;
+}
+function saveInlineSeo(pageId) {
+  const draft=inlineSeoDraft(pageId);state.inlineSeoNotices ||= {};
+  if(!draft.seoTitle?.trim()){draft.titleAuto=true;draft.seoTitle=contentSeoName(pageId);}
+  if(!draft.seoDescription?.trim()){draft.descriptionAuto=true;draft.seoDescription=seoPageIntro(pageId);}
+  if(draft.canonicalMode==='custom'){try{const url=new URL(draft.canonicalUrl);if(!['https:','http:'].includes(url.protocol))throw Error();}catch{state.inlineSeoNotices[pageId]='請填寫完整的 http 或 https 正式網址。';return false;}}
+
+  if(state.inlineSeoUploading?.[pageId]){state.inlineSeoNotices[pageId]='圖片處理中，請稍候再儲存。';return false;}
+  if(draft.syncOg){draft.ogTitle=draft.seoTitle;draft.ogDescription=draft.seoDescription;}
+  const basicFields=['seoTitle','seoDescription','titleAuto','descriptionAuto','syncOg','ogTitle','ogDescription','useDefaultOgImage','ogImageUrl','ogImageName','ogImageType','ogImageSize','ogImageWidth','ogImageHeight','canonicalMode','canonicalUrl','indexable','followable'];
+  if(contentSeoTarget(pageId)){
+    const path=String(draft.slug||'').trim().replace(/^\//,'');
+    if(!path||/[?#\s]/.test(path)||path.includes('//')||path.split('/').some(p=>!p||p==='.'||p==='..')||!path.split('/').every(p=>/^[\p{L}\p{N}_-]+$/u.test(p))){state.inlineSeoNotices[pageId]='請填寫有效路徑，只能使用文字、數字、連字號、底線及 /。';return false;}
+    const collision=routeSeoPages().some(p=>p.id!==pageId&&String(getSeoSetting(p.id).slug||'').replace(/^\//,'').toLowerCase()===path.toLowerCase());
+    if(collision){state.inlineSeoNotices[pageId]='此路徑已被其他頁面使用，請更換。';return false;}
+    const current=contentSeoSetting(pageId);if(current.slug!==path){state.contentSeoRedirects||=[];state.contentSeoRedirects.push({from:current.slug,to:path,targetId:pageId});}
+    Object.assign(current,clone(Object.fromEntries(basicFields.map(key=>[key,draft[key]]))),{slug:path});draft.slug=path;
+    state.inlineSeoNotices[pageId]=persistContentSeo()?'網址與搜尋分享設定已儲存（本機原型）。':'瀏覽器儲存失敗，設定僅保留於本次操作。';return true;
+  }
+  const basicValues=Object.fromEntries(basicFields.map(key=>[key,draft[key]]));
+  state.pageSeoSettings=state.pageSeoSettings.map(s=>s.pageId===pageId?{...s,...clone(basicValues)}:s);
+  persistSeoSettings();state.inlineSeoNotices[pageId]='搜尋與分享設定已儲存。';return true;
+}
+function bindInlineSeo() {
+  document.querySelectorAll('[data-inline-seo]').forEach(section=>{
+    const id=section.dataset.inlineSeo,draft=inlineSeoDraft(id);
+    const notice=text=>{state.inlineSeoNotices||={};state.inlineSeoNotices[id]=text;section.querySelector('[data-inline-seo-notice]').textContent=text;};
+    section.querySelectorAll('[data-inline-seo-field]').forEach(input=>input.addEventListener('input',()=>{
+      const key=input.dataset.inlineSeoField;draft[key]=input.value;
+      if(key==='seoTitle')draft.titleAuto=false;if(key==='seoDescription')draft.descriptionAuto=false;
+
+      const title=draft.seoTitle||contentSeoName(id),description=draft.seoDescription||seoPageIntro(id);
+      const values={title,description,ogTitle:draft.syncOg?title:draft.ogTitle,ogDescription:draft.syncOg?description:draft.ogDescription};
+      section.querySelectorAll('[data-inline-preview]').forEach(el=>el.textContent=values[el.dataset.inlinePreview]||'');
+      if(draft.syncOg){section.querySelector('[data-inline-seo-field="ogTitle"]').value=title;section.querySelector('[data-inline-seo-field="ogDescription"]').value=description;}
+      notice('尚未儲存');
+    }));
+    section.querySelector('[data-inline-seo-mode]')?.addEventListener('change',e=>{draft.canonicalMode=e.target.value;notice('尚未儲存');render();});
+    section.querySelectorAll('[data-inline-seo-check]').forEach(input=>input.addEventListener('change',()=>{if(input.dataset.inlineSeoCheck==='syncOg'&&!input.checked&&draft.syncOg){draft.ogTitle=draft.seoTitle;draft.ogDescription=draft.seoDescription;}draft[input.dataset.inlineSeoCheck]=input.checked;notice('尚未儲存');render();}));
+    section.querySelector('[data-inline-seo-image]')?.addEventListener('change',e=>{
+      const file=e.target.files?.[0];if(!file)return;
+      if(!['image/jpeg','image/png','image/webp'].includes(file.type)){notice('圖片僅支援 JPG、PNG、WebP，原圖片未變更。');return;}
+      state.inlineSeoUploading||={};state.inlineSeoUploading[id]=true;
+      const reader=new FileReader();const fail=()=>{state.inlineSeoUploading[id]=false;notice('無法讀取圖片，請重新選擇。');};reader.onerror=fail;
+      reader.onload=()=>{const img=new Image();img.onerror=fail;img.onload=()=>{Object.assign(draft,{ogImageUrl:String(reader.result),ogImageName:file.name,ogImageType:file.type,ogImageSize:file.size,ogImageWidth:img.naturalWidth,ogImageHeight:img.naturalHeight,useDefaultOgImage:false});state.inlineSeoUploading[id]=false;notice('圖片已選擇，尚未儲存。');render();};img.src=String(reader.result);};reader.readAsDataURL(file);
+    });
+    section.querySelector('[data-inline-seo-remove]')?.addEventListener('click',()=>{Object.assign(draft,{ogImageUrl:'',ogImageName:'',ogImageType:'',ogImageSize:0,ogImageWidth:0,ogImageHeight:0,useDefaultOgImage:true});notice('圖片已移除，尚未儲存。');render();});
+    section.querySelector('[data-inline-seo-save]').addEventListener('click',()=>{saveInlineSeo(id);render();});
+  });
+}
+
+function goToSeoPage(pageId) {
+  const target=contentSeoTarget(pageId);if(target){state.adminSection=target.kind==='articles'&&target.item.type==='FAQ'?'blueprintFaq':({articles:'blueprintArticles',products:'blueprintProducts',resources:'blueprintResources'})[target.kind];state.activeDataEditor={kind:target.kind,id:target.item.id,isDirty:false};render();return;}
+  state.activeSeoPageId = ''; state.seoDraft = null;
+  if (pageId === 'home') { state.adminSection = 'home'; state.homeMode = 'overview'; }
+  else { state.adminSection = 'pages'; state.activePageId = pageId; state.pageMode = 'edit'; state.pageLayoutTab = 'settings'; }
+  render();
+
+}
+function renderSeoRelations(draft) {
+  const groups = [
+    ['servicePageIds', '相關服務頁', state.pages.filter(p => p.id !== draft.pageId && p.template === 'product').map(p => ({id:p.id,title:p.name}))],
+    ['faqIds', '相關 FAQ', state.dataCollections.articles.filter(x => x.type === 'FAQ')],
+    ['resourceIds', '相關據點', state.dataCollections.resources]
+  ];
+  return `<section class="seo-edit-section"><h4>內容關聯與地區設定</h4><p class="field-help">選擇既有資料，不重複撰寫內容。地區名稱留空代表一般頁面。關聯先保存在原型，前台區塊需由工程串接；已刪除資料的關聯會在儲存時清除。</p>
+    <div class="field"><label>服務地區（選填）</label><input data-seo-field="region" value="${esc(draft.region || '')}" placeholder="例如：新北市板橋區"></div>
+    ${groups.map(([key,label,items]) => `<div class="field"><label>${label}</label><div style="display:grid;gap:8px">${items.map(item => `<label style="display:flex;gap:8px;align-items:center"><input style="width:16px;height:16px" type="checkbox" data-seo-relation="${key}" value="${esc(item.id)}" ${(draft[key] || []).includes(item.id) ? 'checked' : ''}>${esc(item.title)}</label>`).join('') || '<span class="field-help">尚無資料，請先到對應的內容管理新增。</span>'}</div></div>`).join('')}
+    </section>`;
+}
+function seoSitemapSettings() {
+  return seoManagedSettings().filter(s => seoIsPublished(s) && s.indexable && canonicalForSetting(s) === pageCanonicalUrl(s.slug));
+}
+function seoSitemapXml() {
+  return '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + seoSitemapSettings().map(s => `  <url><loc>${esc(pageCanonicalUrl(s.slug))}</loc></url>`).join('\n') + '\n</urlset>';
+}
+function seoStructuredPreview(setting) {
+  const page = state.pages.find(p => p.id === setting.pageId);
+  const parent = page?.parentId ? state.pages.find(p => p.id === page.parentId) : null;
+  const path = [{name:'首頁',url:pageCanonicalUrl('')}];
+  if (parent) path.push({name:parent.name,url:pageCanonicalUrl(getSeoSetting(parent.id).slug)});
+  if (setting.pageId !== 'home') path.push({name:setting.pageName,url:pageCanonicalUrl(setting.slug)});
+  return JSON.stringify({'@context':'https://schema.org','@graph':[
+    {'@type':'WebPage',name:setting.seoTitle,description:setting.seoDescription,url:canonicalForSetting(setting)},
+    {'@type':'BreadcrumbList',itemListElement:path.map((p,i) => ({'@type':'ListItem',position:i+1,name:p.name,item:p.url}))}
+  ]}, null, 2);
+}
+// Article writing checks: inspect existing fields only; no ranking score or AI.
+function articleSeoText(value) {
+  return String(value || '').normalize('NFKC').replace(/[\u200B-\u200D\uFEFF]/g, '').replace(/\s+/g, ' ').trim();
+}
+function articleSeoKey(value) { return articleSeoText(value).toLowerCase(); }
+function articleSeoLength(value) {
+  const text = articleSeoText(value).replace(/\s/g, '');
+  return typeof Intl.Segmenter === 'function' ? [...new Intl.Segmenter('zh-Hant', {granularity:'grapheme'}).segment(text)].length : [...text].length;
+}
+function articleSeoContent(item) {
+  const doc = new DOMParser().parseFromString(String(item.bodyHtml || ''), 'text/html');
+  const root = doc.body;
+  const media = [...root.querySelectorAll('img,video')].filter(el => el.getAttribute('src') || el.querySelector('source[src]')).length;
+  const links = [...root.querySelectorAll('a')].map(el => ({
+    href: el.getAttribute('href'), text: articleSeoText(el.textContent),
+    media: !!el.querySelector('img,svg,video'), anchor: el.hasAttribute('id') || el.hasAttribute('name')
+  }));
+  root.querySelectorAll('script,style,figcaption,template').forEach(el => el.remove());
+  const visible = articleSeoText(root.textContent);
+  const bodyText = item.bodyHtml ? visible : articleSeoText(item.body);
+  // Walk once, treating nested block wrappers as boundaries without duplicating text.
+  const parts = [];
+  function walk(node) {
+    if (node.nodeType === 3) { parts.push(node.nodeValue); return; }
+    if (node.nodeType !== 1) return;
+    const tag = node.tagName.toLowerCase();
+    if (['pre','table','figure','img','video'].includes(tag)) { parts.push('\n'); return; }
+    const boundary = ['p','div','li','blockquote','section','h1','h2','h3','h4','h5','h6','br'].includes(tag);
+    if (boundary) parts.push('\n');
+    [...node.childNodes].forEach(walk);
+    if (boundary) parts.push('\n');
+  }
+  [...root.childNodes].forEach(walk);
+  const paragraphs = (item.bodyHtml ? parts.join('') : String(item.body || '')).split(/\n+/).map(articleSeoText).filter(Boolean);
+  return {text: bodyText, paragraphs, links, media};
+}
+function articleSeoItems() { return state.dataCollections.articles.filter(item => item.type !== 'FAQ'); }
+function articleSeoEvaluate(item, peers, content = articleSeoContent(item)) {
+  const results = [];
+  const add = (id, level, title, detail, field, evidence = '') => results.push({id,level,title,detail,field,evidence});
+  const title = articleSeoText(item.title), summary = articleSeoText(item.summary);
+  const others = peers.filter(p => p.id !== item.id && p.type !== 'FAQ' && p.status === '已發布');
+  if (!title) add('A01','missing','文章標題尚未填寫','請填入能辨識這篇文章的標題。','title');
+  else {
+    add('A01','done','文章標題已填寫','已提供文章名稱；這項只檢查是否填寫。','title');
+    const duplicate = others.filter(p => articleSeoKey(p.title) === articleSeoKey(title));
+    if (duplicate.length) add('A02','advice','文章標題與其他文章相同','建議確認這些文章是否需要不同標題。','title',duplicate.map(p=>p.title || '未命名文章').join('、'));
+    if (articleSeoLength(title)>35) add('A03','advice','文章標題較長','超過平台建議的 35 字提醒門檻，可確認主要重點是否清楚；不代表搜尋結果一定截斷。','title',`${articleSeoLength(title)} 字`);
+  }
+  if (!summary) add('A04','advice','建議補上文章摘要','目前摘要可留空；補上簡短介紹，方便讀者在列表理解內容。','summary');
+  else {
+    add('A04','done','文章摘要已填寫','這是文章摘要，並非已驗證的搜尋描述輸出。','summary');
+    const duplicate = others.filter(p=>articleSeoKey(p.summary) === articleSeoKey(summary));
+    if (duplicate.length) add('A05','advice','摘要與其他文章相同','建議調整成這篇文章的專屬摘要。','summary',duplicate.map(p=>p.title || '未命名文章').join('、'));
+    if (title && articleSeoKey(title) === articleSeoKey(summary)) add('A06','advice','摘要與標題相同','可以在摘要補充文章的主要內容，而不只是重複標題。','summary',summary);
+    if (articleSeoLength(content.text)>=100 && articleSeoKey(content.text) === articleSeoKey(summary)) add('A07','advice','摘要與整篇正文相同','可以濃縮成重點說明。','summary');
+    if (articleSeoLength(summary)>100) add('A08','advice','摘要較長','超過平台建議的 100 字提醒門檻，可考慮精簡；不直接判定為 SEO 錯誤。','summary',`${articleSeoLength(summary)} 字`);
+  }
+  if (!content.text && !content.media) add('C01','missing','文章內容尚未填寫','請加入正式內容；空白行不算文章內容。','bodyHtml');
+  else if (!content.text) add('C02','advice','目前只有圖片或影片','若有需要，可以補充文字說明；影音型文章不一定需要調整。','bodyHtml');
+  else add('C01','done','文章已有文字內容','這項只檢查內容存在，不判斷專業性或搜尋排名。','bodyHtml');
+  const long = content.paragraphs.map((p,i)=>({p,index:i+1})).filter(x=>articleSeoLength(x.p)>300);
+  if(long.length) add('C03','advice',`${long.length} 個段落較長`,'單段超過平台設定的 300 字提醒門檻，建議視閱讀需求分段。','bodyHtml',long.map(x=>`第 ${x.index} 段：${x.p.slice(0,70)}…`).join('\n'));
+  const seen = new Map(), repeated=[];
+  content.paragraphs.forEach((p,i)=>{if(articleSeoLength(p)<=50)return;const key=articleSeoKey(p);if(seen.has(key))repeated.push(`第 ${seen.get(key)} 與第 ${i+1} 段：${p.slice(0,60)}…`);else seen.set(key,i+1);});
+  if(repeated.length)add('C04','advice','正文有完全相同的段落','請確認是否重複貼上；刻意重述的內容可以保留。','bodyHtml',repeated.join('\n'));
+  if(title && content.paragraphs[0] && articleSeoKey(content.paragraphs[0])===articleSeoKey(title))add('C05','advice','開頭重複文章標題','可以考慮將第一段改成引言。','bodyHtml',content.paragraphs[0]);
+  for(const [prefix,name,fileField,altField] of [['cover','封面圖','coverFileName','imageAlt'],['hero','文章首圖','heroFileName','heroImageAlt']]){
+    const file=articleSeoText(item[fileField]), alt=articleSeoText(item[altField]);
+    if(file && !alt)add(prefix+'-alt','missing',`${name}缺少描述`,`已選擇圖片，請補上${name}內容說明。`,altField,file);
+    else if(file){
+      add(prefix+'-alt','done',`${name}描述已填寫`,'已提供描述文字，系統不判斷文字與圖片是否吻合。',altField);
+      if(articleSeoKey(file)===articleSeoKey(alt))add(prefix+'-filename','advice',`${name}描述只是檔名`,'建議改成圖片內容說明。',altField,alt);
+      else if(['圖片','照片','封面圖','首圖','image','photo'].includes(articleSeoKey(alt)))add(prefix+'-generic','advice',`${name}描述較籠統`,'建議描述圖片實際呈現的內容。',altField,alt);
+    }else if(alt)add(prefix+'-orphan','advice',`${name}已有描述，但尚未選圖`,'請確認是否漏選圖片；這項不扣分。',fileField,alt);
+  }
+  let empty=0,blank=0,hash=0,generic=0;
+  content.links.forEach(link=>{
+    if(!articleSeoText(link.href) && !link.anchor)empty++;
+    if(articleSeoText(link.href)==='#')hash++;
+    if(!link.text && !link.media && !link.anchor && articleSeoText(link.href))blank++;
+    if(['點這裡','更多','了解更多','click here'].includes(articleSeoKey(link.text)))generic++;
+  });
+  if(empty)add('L01','missing',`${empty} 個連結沒有網址`,'請在文章中重新設定或移除這些連結。','bodyHtml');
+  if(blank)add('L03','missing',`${blank} 個連結沒有可見內容`,'請補上可辨識的連結文字，或刪除空連結。','bodyHtml');
+  if(hash)add('L02','advice',`${hash} 個連結只填了 #`,'請確認是否刻意用來回到頁首；不是所有 # 都是錯誤。','bodyHtml');
+  if(generic)add('L04','advice',`${generic} 個連結文字較籠統`,'「點這裡」「更多」可改成「查看設備租賃方案」等具體文字。','bodyHtml');
+  if(content.links.length && !empty && !blank)add('L01','done','連結已填網址與可辨識內容','僅檢查文章中的連結資料，尚未確認目標網站是否能開啟。','bodyHtml');
+  return {item, results, missing:results.filter(r=>r.level==='missing'), advice:results.filter(r=>r.level==='advice'), done:results.filter(r=>r.level==='done')};
+}
+function articleSeoVisibleReports(reports) {
+  const query=articleSeoKey(state.articleSeoQuery), status=state.articleSeoStatus || '已發布', filter=state.articleSeoFilter || 'all', type=state.articleSeoType || '';
+  return reports.filter(r=>(status==='all'||r.item.status===status) && (!type || r.item.type===type) && (!query || articleSeoKey(r.item.title).includes(query)) && (filter==='all'||(filter==='missing'?r.missing.length:filter==='advice'?r.advice.length:!r.missing.length)));
+}
+function renderArticleSeoReport(report) {
+  if(!report)return '';
+  const table=rows=>`<div class="article-seo-table-wrap"><table class="admin-table seo-check-table"><thead><tr><th>狀態</th><th>檢核項目</th><th>檢核結果與建議</th><th>操作</th></tr></thead><tbody>${rows.map(r=>`<tr><td><span class="seo-check-status ${r.level}">${({missing:'待補',advice:'建議',done:'已完成'})[r.level]}</span></td><td><strong>${esc(r.title)}</strong></td><td>${esc(r.detail)}${r.evidence?`<blockquote>${esc(r.evidence)}</blockquote>`:''}</td><td>${r.level!=='done'?`<button class="btn compact" type="button" data-article-seo-edit="${esc(report.item.id)}" data-article-seo-field="${esc(r.field)}">前往修改</button>`:'—'}</td></tr>`).join('')}</tbody></table></div>`;
+  const pending=[...report.missing,...report.advice],done=report.results.filter(r=>r.level==='done');
+  return `<section class="article-seo-report" id="article-seo-report" tabindex="-1" aria-label="文章檢核結果"><div class="section-title"><div><span class="article-seo-eyebrow">文章檢核結果 · ${esc(report.item.status||'草稿')}</span><h3>${esc(report.item.title||'未命名文章')}</h3><p>${report.missing.length} 項待補 · ${report.advice.length} 項改善建議</p></div><button class="btn" type="button" data-article-seo-edit="${esc(report.item.id)}">編輯文章</button></div>${pending.length?table(pending):'<p class="article-seo-empty-line">目前沒有待補項目或改善建議。</p>'}<details class="seo-check-completed"><summary>已完成 ${done.length} 項，展開查看</summary>${done.length?table(done):'<p class="field-help">目前沒有已完成項目。</p>'}</details><p class="field-help">未選擇圖片時不要求圖片描述；撰寫建議不阻擋發布，也不代表搜尋排名。</p></section>`;
+}
+function renderSeoAdvancedDashboard() { return renderRouteSeoDashboard(); }
+function renderLegacyArticleSeoDashboard() {
+  const items=articleSeoItems(),reports=items.map(item=>articleSeoEvaluate(item,items)),visible=articleSeoVisibleReports(reports);
+  const scope=reports.filter(r=>(state.articleSeoStatus||'已發布')==='all'||r.item.status===(state.articleSeoStatus||'已發布'));
+  const selected=reports.find(r=>r.item.id===state.articleSeoSelectedId);
+  if(state.articleSeoView==='detail')return `<section class="settings-stack article-seo-workspace"><div class="section-title"><button class="btn" type="button" data-article-seo-back>← 返回文章清單</button><button class="btn" type="button" data-article-seo-refresh>重新檢核</button></div>${selected?renderArticleSeoReport(selected):'<section class="settings-card"><h3>找不到這篇文章</h3><p>文章可能已移除或已不適用文章檢核，請返回文章清單。</p></section>'}</section>`;
+  const filter=state.articleSeoFilter||'all',status=state.articleSeoStatus||'已發布';
+  const card=(name,value,detail)=>`<div class="seo-summary-card"><span>${name}</span><strong>${value}</strong><small>${detail}</small></div>`;
+  return `<section class="settings-stack article-seo-workspace">
+    ${managerHeader('SEO 管理','文章撰寫檢核｜查看待補資料與改善建議，基本設定仍在原本的文章編輯畫面維護。',[])}
+    <div class="article-seo-intro"><div><span class="article-seo-eyebrow">B 方案 · 規則式檢核</span><h3>找出可以改善的地方，不用追求分數</h3><p>只檢查現有標題、摘要、正文、圖片描述與連結，不使用 AI，也不評估搜尋排名。</p></div><button class="btn" type="button" data-article-seo-refresh>重新檢核</button></div>
+    <div class="seo-summary-grid">${card('範圍內文章',scope.length,status==='all'?'包含草稿與隱藏文章':'目前發布狀態範圍')}${card('有待補項目',scope.filter(r=>r.missing.length).length,'文章數；先補明確缺漏')}${card('有改善建議',scope.filter(r=>r.advice.length).length,'文章數；依內容需求調整')}${card('基本資料完整',scope.filter(r=>!r.missing.length).length,'未發現缺漏，仍可能有建議')}</div>
+    <section class="settings-card"><div class="section-title"><div><h3>文章檢核清單</h3><p>點選「查看建議」，進入該文章的檢核結果頁。FAQ 不套用文章檢核。</p></div><span class="status-pill">${visible.length} 篇</span></div>
+    <form class="article-seo-filters" data-article-seo-search><label>搜尋文章<input type="search" name="query" value="${esc(state.articleSeoQuery||'')}" placeholder="輸入文章標題"></label><label>發布狀態<select data-article-seo-filter="Status">${[['已發布','已發布'],['草稿','草稿'],['隱藏','隱藏'],['all','全部狀態']].map(([v,l])=>`<option value="${v}" ${status===v?'selected':''}>${l}</option>`).join('')}</select></label><label>文章類型<select data-article-seo-filter="Type"><option value="">全部類型</option>${[...new Set(items.map(i=>i.type||'未分類'))].map(t=>`<option value="${esc(t)}" ${state.articleSeoType===t?'selected':''}>${esc(t)}</option>`).join('')}</select></label><label>檢核結果<select data-article-seo-filter="Filter">${[['all','全部結果'],['missing','有待補項目'],['advice','有改善建議'],['complete','基本資料完整']].map(([v,l])=>`<option value="${v}" ${filter===v?'selected':''}>${l}</option>`).join('')}</select></label><button class="btn" type="submit">搜尋</button><button class="btn" type="button" data-article-seo-clear>重設</button></form>
+    <div class="article-seo-table-wrap"><table class="admin-table responsive-table"><thead><tr><th>文章</th><th>類型／狀態</th><th>待補項目</th><th>改善建議</th><th>操作</th></tr></thead><tbody>${visible.map(r=>`<tr class="${selected?.item.id===r.item.id?'article-seo-selected':''}"><td data-label="文章"><strong>${esc(r.item.title||'未命名文章')}</strong></td><td data-label="類型／狀態">${esc(r.item.type||'未分類')}<small class="table-subtext">${esc(r.item.status||'草稿')}</small></td><td data-label="待補項目"><span class="status-pill ${r.missing.length?'':'green'}">${r.missing.length?`${r.missing.length} 項待補`:'無缺漏'}</span></td><td data-label="改善建議">${r.advice.length} 項</td><td data-label="操作"><button class="btn ${selected?.item.id===r.item.id?'primary':''}" type="button" data-article-seo-select="${esc(r.item.id)}">查看建議</button></td></tr>`).join('')||'<tr><td colspan="5"><div class="article-seo-empty-line">沒有符合條件的文章。可調整篩選，或先到文章管理建立內容。</div></td></tr>'}</tbody></table></div><p class="field-help">${state.articleSeoCheckedAt?`最近重新檢核：${esc(state.articleSeoCheckedAt)}。`:''}依本次後台資料即時計算；不是線上網站掃描結果。</p></section>
+
+    <details class="settings-card article-seo-scope"><summary>本版檢核範圍與判定方式</summary><p>檢查標題、摘要、文字內容、段落、封面與首圖描述、正文連結。摘要空白目前列為建議，因原欄位可留空。</p><p>長度提醒：標題 35 字、摘要 100 字、單段 300 字；相同正文段落需超過 50 字才提醒。這些是平台初始門檻，不是 Google 規定。</p><p>不檢查尚未提供編輯功能的 H2／H3、正文圖片描述、文章關聯；也不顯示網站地圖、結構化資料、Canonical 或效能分數。封面及首圖僅檢查選檔與描述，不驗證正式檔案是否可存取。</p></details>
+  </section>`;
+}
+function openArticleSeoEditor(id, field) {
+  const item=articleSeoItems().find(x=>x.id===id);if(!item)return;
+  state.articleSeoSelectedId=id;state.articleSeoReturn=true;
+  state.activeSeoPageId='';state.seoDraft=null;
+  state.adminSection='blueprintArticles';state.activeDataEditor={kind:'articles',id,isDirty:false};
+  render();
+  if(field){
+    const selector=field==='coverFileName'?'[data-file-field="coverFileName"]':field==='heroFileName'?'[data-file-field="heroFileName"]':`[data-data-field="${CSS.escape(field)}"]`;
+    const input=els.managerPanel.querySelector(selector), target=input?.closest('.field')||input;
+    target?.scrollIntoView({block:'center',behavior:'smooth'});
+    if(input?.type==='file' && target){target.tabIndex=-1;target.focus();}else input?.focus();
+  }
+}
+function renderRouteSeoOtherChildren(page){
+ const source=page.dataSource||recommendedPageDataSource(page.template),kind=source==='faq'?'articles':source;
+ const items=(source==='faq'?state.dataCollections.articles.filter(i=>i.type==='FAQ'):state.dataCollections[source]||[]).filter(i=>!page.dataCategory||page.dataCategory==='全部'||i.category===page.dataCategory);
+ return '<p class="field-help">有獨立詳情頁者可查看基本 SEO 診斷；商品、FAQ 與據點尚未啟用專用內容規則。</p><div class="article-seo-table-wrap"><table class="admin-table"><thead><tr><th>內容名稱</th><th>發布狀態</th><th>檢核狀態</th><th>操作</th></tr></thead><tbody>'+ (items.map(i=>{const key=contentSeoKey(kind,i.id),record=contentSeoVirtualPages().find(p=>p.id===key);return '<tr><td>'+esc(i.title||i.name||'未命名')+'</td><td>'+esc(i.status||'未設定')+'</td><td>'+(record?routeSeoHealth(routeSeoDiagnose(record)):'未啟用獨立詳情頁；不建立獨立 Meta')+'</td><td>'+(record?'<button class="btn" data-route-seo-open="'+esc(key)+'">查看建議</button>':'—')+'</td></tr>';}).join('')||'<tr><td colspan="4">目前沒有符合綁定分類的內容。</td></tr>')+'</tbody></table></div>';
+}
+function routeSeoPages(){return [{id:'home',name:'首頁',status:'已發布',contentSource:'manual'},...state.pages.filter(p=>p.id!=='home'),...contentSeoVirtualPages()];}
+function routeSeoChildren(page){
+  if(page.contentSource!=='data')return [];
+  const source=page.dataSource||recommendedPageDataSource(page.template);
+  if(source!=='articles')return [];
+  return articleSeoItems().filter(item=>!page.dataCategory||page.dataCategory==='全部'||item.type===page.dataCategory);
+}
+function routeSeoDiagnose(page){
+  const setting=getSeoSetting(page.id),results=[];
+  const add=(id,level,title,detail)=>results.push({id,level,title,detail,field:'seo'});
+  const title=setting.titleAuto!==false?page.name:setting.seoTitle;
+  const description=setting.descriptionAuto!==false?seoPageIntro(page.id):setting.seoDescription;
+  add('title',title?.trim()?'done':'missing',title?.trim()?'搜尋標題已填寫':'缺少搜尋標題','可在原頁面的搜尋與分享設定修改。');
+  add('description',description?.trim()?'done':'missing',description?.trim()?'搜尋描述已填寫':'缺少搜尋描述','留空時依頁面簡介自動帶入；請確認已有適合的簡介。');
+  if(title?.trim()&&articleSeoLength(title)>60)add('title-length','advice','搜尋標題較長','超過 60 字，建議確認重點是否清楚；此為平台提醒門檻。');
+  if(description?.trim()&&articleSeoLength(description)>150)add('description-length','advice','搜尋描述較長','超過 150 字，建議精簡；此為平台提醒門檻。');
+  if(setting.indexable===false)add('index','advice','此頁設定為不收錄','若是刻意排除搜尋結果，可保留目前設定。');
+  if(setting.canonicalMode==='custom'){try{const url=new URL(setting.canonicalUrl);if(!['http:','https:'].includes(url.protocol))throw Error();add('canonical','done','已設定自訂正式網址','請確認此網址是希望搜尋引擎採用的版本。');}catch{add('canonical','missing','自訂正式網址格式不完整','請填寫完整 HTTP 或 HTTPS 網址。');}}
+  else add('canonical','done','正式網址由系統產生','依目前頁面路徑產生。');
+  if(page.template==='content'&&page.contentSource!=='data'){
+    const content=articleSeoContent({bodyHtml:page.content?.field2Html,body:page.content?.field2});
+    if(!content.text&&!content.media)add('body','missing','頁面正文尚未填寫','請到原頁面編輯畫面補上主要內容。');
+  }
+  if(page.contentKind==='articles'&&page.contentItem.type!=='FAQ'){const bodyReport=articleSeoEvaluate(page.contentItem,articleSeoItems());results.push(...bodyReport.results);}
+  return {item:{id:page.id,title:page.name,status:page.status},results,missing:results.filter(r=>r.level==='missing'),advice:results.filter(r=>r.level==='advice'),setting:{...setting,seoTitle:title,seoDescription:description}};
+}
+function routeSeoHealth(report){return report.missing.length?'<span class="seo-check-status missing">● 待補資料</span>':report.advice.length?'<span class="seo-check-status advice">● 有改善建議</span>':'<span class="seo-check-status done">● 已檢項目通過</span>';}
+function routeSeoFingerprint(page){return JSON.stringify([page,getSeoSetting(page.id),page.id==='home'?state.siteInfo:null]);}
+function routeSeoCheckTime(page,refresh=false){state.routeSeoChecks||={};const key=routeSeoFingerprint(page);if(refresh||!state.routeSeoChecks[page.id])state.routeSeoChecks[page.id]={key,time:new Date().toLocaleString('zh-TW')};const saved=state.routeSeoChecks[page.id];return esc(saved.time)+(saved.key!==key?'（內容已變更，待重新檢測）':'');}
+function renderSeoDiagnosticPanel(report,page){return renderArticleSeoReport(report).replaceAll('文章檢核結果','頁面檢核結果').replaceAll('編輯文章','編輯頁面').replaceAll('data-article-seo-edit=', 'data-route-seo-edit=');}
+function renderRouteSeoDashboard(){
+ const pages=routeSeoPages(),page=pages.find(p=>p.id===state.routeSeoPageId);
+ if(page){
+  const children=routeSeoChildren(page),report=routeSeoDiagnose(page),s=report.setting;
+  if(state.articleSeoView==='detail'){
+   const item=children.find(i=>i.id===state.articleSeoSelectedId);
+   return `<section class="settings-stack"><button class="btn" data-route-seo-parent>← 返回 ${esc(page.name)}</button>${item?renderArticleSeoReport(articleSeoEvaluate(item,articleSeoItems())):'<p>這篇文章已不屬於目前頁面，請返回頁面診斷。</p>'}</section>`;
+  }
+  return `<section class="settings-stack"><div class="section-title"><div>${state.routeSeoParentId&&page.contentKind?'<button class="btn" data-content-seo-parent>← 返回所屬列表頁</button>':''}<button class="btn" data-route-seo-overview>← 返回頁面總覽</button></div><button class="btn" data-route-seo-refresh>重新檢測</button></div><p>${esc(page.id==='home'?'/':'/'+(s.slug||'').replace(/^\//,''))} · ${routeSeoHealth(report)} · 最後檢測：${routeSeoCheckTime(page)}</p>${page.contentKind?'<p class="field-help">詳情頁網址為原型設定，正式路由需工程串接。非公開狀態不得因開啟詳情頁而對外發布。'+(page.contentKind==='articles'&&page.contentItem.type!=='FAQ'?'此頁同時檢查獨立 Meta 與文章內容。':'此頁僅檢查基本 Meta，專用內容規則尚未啟用。')+'</p>':''}${renderSeoDiagnosticPanel(report,page)}<h3>搜尋與分享設定摘要</h3><table class="admin-table"><tbody><tr><th>SEO 標題</th><td>${esc(s.seoTitle||'尚未填寫')}</td></tr><tr><th>Meta 描述</th><td>${esc(s.seoDescription||'尚未填寫')}</td></tr><tr><th>Canonical</th><td>${esc(canonicalForSetting(s))}</td></tr><tr><th>搜尋顯示</th><td>${s.indexable===false?'noindex':'index'} / ${s.followable===false?'nofollow':'follow'}</td></tr></tbody></table><div class="field-grid"><section><h4>Google 搜尋結果預覽</h4><div class="google-preview"><cite>${esc(canonicalForSetting(s))}</cite><strong>${esc(s.seoTitle)}</strong><p>${esc(s.seoDescription)}</p></div></section><section><h4>LINE／Facebook 分享預覽</h4><div class="social-preview"><img src="${esc(effectiveOgImage(s))}" alt="分享預覽圖"><div><strong>${esc(s.syncOg?s.seoTitle:s.ogTitle)}</strong><p>${esc(s.syncOg?s.seoDescription:s.ogDescription)}</p></div></div></section></div>${page.contentSource==='data'?`<h3>所屬內容</h3><p class="field-help">依實際資料來源及分類綁定，列出所有狀態的內容，不受前台顯示筆數限制。列表頁燈號只代表列表頁本身。</p>${(page.dataSource||recommendedPageDataSource(page.template))==='articles'?`<div class="article-seo-table-wrap"><table class="admin-table"><thead><tr><th>文章標題</th><th>發布狀態</th><th>檢核狀態</th><th>主要待優化項目</th><th>操作</th></tr></thead><tbody>${children.map(item=>{const record=contentSeoVirtualPages().find(p=>p.id===contentSeoKey('articles',item.id));const r=record?routeSeoDiagnose(record):articleSeoEvaluate(item,articleSeoItems());return `<tr><td>${esc(item.title)}</td><td>${esc(item.status)}</td><td>${routeSeoHealth(r)}</td><td>${esc([...r.missing,...r.advice].map(x=>x.title).join('；')||'已檢項目通過')}</td><td><button class="btn" data-article-seo-select="${esc(item.id)}">查看建議</button></td></tr>`;}).join('')||'<tr><td colspan="5">目前沒有符合綁定分類的文章。</td></tr>'}</tbody></table></div>`:renderRouteSeoOtherChildren(page)}`:''}<p class="field-help">依後台資料檢測，非線上爬取。未檢測 H1／H2／H3、正文圖片 alt、分頁 Canonical、排名或關鍵字；預覽不保證平台實際呈現相同。</p></section>`;
+ }
+ const query=state.routeSeoQuery||'';return `<section class="settings-stack">${managerHeader('SEO 管理','以網站頁面與網址為入口，查看頁面本身及所屬文章的改善建議。',[])}<form data-route-seo-search><label>搜尋頁面名稱或網址<input name="query" value="${esc(query)}" placeholder="例如：品牌故事、/about"></label><button class="btn">搜尋</button><button class="btn" type="button" data-route-seo-reset>重設</button></form><p class="field-help">包含首頁、已發布、草稿與隱藏頁面。燈號只代表目前可檢測項目，不是排名或分數。</p><div class="article-seo-table-wrap"><table class="admin-table"><thead><tr><th>頁面路徑</th><th>頁面名稱</th><th>頁面形式</th><th>發布狀態</th><th>檢核狀態</th><th>待優化項目</th><th>最後檢測時間</th><th>操作</th></tr></thead><tbody>${pages.filter(p=>(p.name+' '+(p.id==='home'?'/':getSeoSetting(p.id).slug)).toLowerCase().includes(query.toLowerCase())).map(p=>{const r=routeSeoDiagnose(p);return `<tr><td>${esc(p.id==='home'?'/':'/'+(r.setting.slug||'').replace(/^\//,''))}</td><td>${esc(p.name)}</td><td>${p.contentKind?'內容詳情頁':p.contentSource==='data'?'列表頁':'單一頁面'}</td><td>${esc(p.status)}</td><td>${routeSeoHealth(r)}</td><td>${r.missing.length+r.advice.length}</td><td>${routeSeoCheckTime(p)}</td><td><button class="btn" data-route-seo-open="${esc(p.id)}">查看建議</button></td></tr>`;}).join('')||'<tr><td colspan="8">沒有符合條件的頁面。</td></tr>'}</tbody></table></div></section>`;
+}
+function bindRouteSeo(){
+ document.querySelectorAll('[data-route-seo-open]').forEach(b=>b.onclick=()=>{const parent=state.routeSeoPageId;state.routeSeoPageId=b.dataset.routeSeoOpen;state.routeSeoParentId=parent&&contentSeoTarget(state.routeSeoPageId)?parent:'';state.articleSeoView='list';render();});
+ document.querySelector('[data-route-seo-overview]')?.addEventListener('click',()=>{state.routeSeoPageId='';state.articleSeoView='list';render();});
+ document.querySelector('[data-route-seo-parent]')?.addEventListener('click',()=>{state.articleSeoView='list';render();});
+ document.querySelector('[data-route-seo-search]')?.addEventListener('submit',e=>{e.preventDefault();state.routeSeoQuery=new FormData(e.currentTarget).get('query')||'';render();});
+ document.querySelector('[data-route-seo-reset]')?.addEventListener('click',()=>{state.routeSeoQuery='';render();});
+ document.querySelector('[data-route-seo-refresh]')?.addEventListener('click',()=>{const p=routeSeoPages().find(p=>p.id===state.routeSeoPageId);if(p)routeSeoCheckTime(p,true);render();});
+ document.querySelectorAll('[data-route-seo-edit]').forEach(b=>b.onclick=()=>{state.routeSeoEditing=true;goToSeoPage(b.dataset.routeSeoEdit);const key=b.dataset.articleSeoField;if(key&&key!=='seo'){const el=document.querySelector('[data-data-field="'+CSS.escape(key)+'"]');el?.scrollIntoView({block:'center'});el?.focus();}});
+ document.querySelector('[data-route-seo-return]')?.addEventListener('click',()=>{state.routeSeoEditing=false;state.adminSection='seo';state.articleSeoView='list';if(!routeSeoPages().some(p=>p.id===state.routeSeoPageId))state.routeSeoPageId=state.routeSeoParentId||'';render();});
+}
+
+function bindArticleSeoChecks() {
+  bindRouteSeo();
+  document.querySelector('[data-article-seo-back]')?.addEventListener('click',()=>{state.articleSeoView='list';render();const button=[...document.querySelectorAll('[data-article-seo-select]')].find(b=>b.dataset.articleSeoSelect===state.articleSeoSelectedId);button?.focus();});
+  document.querySelectorAll('[data-article-seo-select]').forEach(b=>b.onclick=()=>{state.articleSeoSelectedId=b.dataset.articleSeoSelect;const key=contentSeoKey('articles',state.articleSeoSelectedId);if(contentSeoSetting(key).detailEnabled){state.routeSeoParentId=state.routeSeoPageId;state.routeSeoPageId=key;state.articleSeoView='list';}else{state.articleSeoView='detail';}render();const report=document.getElementById('article-seo-report');report?.scrollIntoView({block:'start',behavior:'smooth'});report?.focus({preventScroll:true});});
+  document.querySelectorAll('[data-article-seo-edit]').forEach(b=>b.onclick=()=>openArticleSeoEditor(b.dataset.articleSeoEdit,b.dataset.articleSeoField));
+  document.querySelectorAll('[data-article-seo-filter]').forEach(input=>input.onchange=()=>{state['articleSeo'+input.dataset.articleSeoFilter]=input.value;render();});
+  document.querySelector('[data-article-seo-search]')?.addEventListener('submit',e=>{e.preventDefault();state.articleSeoQuery=new FormData(e.currentTarget).get('query')||'';render();});
+  document.querySelector('[data-article-seo-clear]')?.addEventListener('click',()=>{state.articleSeoQuery='';state.articleSeoStatus='已發布';state.articleSeoType='';state.articleSeoFilter='all';render();});
+  document.querySelector('[data-article-seo-refresh]')?.addEventListener('click',()=>{state.articleSeoCheckedAt=new Date().toLocaleString('zh-TW');render();});
+  document.querySelector('[data-article-seo-return]')?.addEventListener('click',()=>{
+    state.articleSeoView='detail';
+    state.articleSeoReturn=false;state.adminSection='seo';state.activeDataEditor=null;
+    state.articleSeoCheckedAt=new Date().toLocaleString('zh-TW');render();
+  });
+}
+
+function bindSeoWorkspace() {
+  document.querySelectorAll('[data-basic-seo]').forEach(b => b.onclick = () => openSeoModal(b.dataset.basicSeo, 'basic'));
+  document.querySelectorAll('[data-go-seo-page]').forEach(b => b.onclick = () => goToSeoPage(b.dataset.goSeoPage));
+  document.querySelectorAll('[data-edit-seo]').forEach(b => b.onclick = () => openSeoModal(b.dataset.editSeo, 'all'));
+  document.querySelector('[data-seo-issue-filter]')?.addEventListener('change', e => {state.seoIssueFilter=e.target.value;render();});
+  document.querySelector('[data-seo-schema-page]')?.addEventListener('change', e => {state.seoSchemaPageId=e.target.value;render();});
+  document.querySelector('[data-download-seo-sitemap]')?.addEventListener('click', () => {
+    const url=URL.createObjectURL(new Blob([seoSitemapXml()],{type:'application/xml'})); const a=document.createElement('a'); a.href=url;a.download='sitemap-preview.xml';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  });
+  document.querySelector('[data-page-seo-slug]')?.addEventListener('change', e => {
+    const setting=getSeoSetting(e.target.dataset.pageSeoSlug), next=e.target.value.trim();
+    e.target.setCustomValidity('');
+    if (!/^[\p{L}\p{N}]+(?:-[\p{L}\p{N}]+)*$/u.test(next) || seoManagedSettings().some(s=>s.pageId!==setting.pageId && s.slug===next)) {e.target.setCustomValidity('請輸入不重複的文字、數字或連字號路徑。');e.target.reportValidity();return;}
+    if (next !== setting.slug) {
+      state.seoRedirects ||= []; state.seoRedirects.push({from:pageCanonicalUrl(setting.slug),to:pageCanonicalUrl(next)});
+      setting.slug=next; if(setting.canonicalMode==='auto')setting.canonicalUrl=pageCanonicalUrl(next);persistSeoSettings();render();
+    }
+  });
+  let host=document.getElementById('seo-modal-host');
+  if(!host){host=document.createElement('div');host.id='seo-modal-host';document.body.append(host);}
+  host.innerHTML=renderSeoModal();
+  host.querySelectorAll('[data-close-seo-modal]').forEach(b=>b.addEventListener('click',closeSeoModal));
+  host.querySelector('[data-modal-panel]')?.addEventListener('click',e=>e.stopPropagation());
+  host.querySelectorAll('[data-seo-field]').forEach(input=>{
+    input.addEventListener('input',()=>{updateSeoDraft(input.dataset.seoField,input.value);refreshSeoLivePreview();});
+    input.addEventListener('change',()=>{updateSeoDraft(input.dataset.seoField,input.value);render();});
+  });
+  host.querySelectorAll('[data-seo-check]').forEach(input=>input.addEventListener('change',()=>{updateSeoDraft(input.dataset.seoCheck,input.checked);render();}));
+  host.querySelectorAll('[data-seo-radio]').forEach(input=>input.addEventListener('change',()=>{updateSeoDraft(input.dataset.seoRadio,input.value);render();}));
+  host.querySelectorAll('[data-seo-relation]').forEach(input=>input.addEventListener('change',()=>{
+    const field=input.dataset.seoRelation, chosen=new Set(state.seoDraft[field] || []);
+    input.checked?chosen.add(input.value):chosen.delete(input.value);state.seoDraft[field]=[...chosen];
+  }));
+  host.querySelector('[data-seo-image]')?.addEventListener('change',e=>handleSeoImageUpload(e.target));
+  host.querySelector('[data-remove-seo-image]')?.addEventListener('click',removeSeoImage);
+  host.querySelector('[data-save-seo-modal]')?.addEventListener('click',saveSeoDraft);
+}
+
 function render() {
+  state.pageSeoSettings.forEach(setting => {
+    const page = state.pages.find(p => p.id === setting.pageId);
+    if (setting.titleAuto !== false) setting.seoTitle = page?.name || setting.pageName;
+    if (setting.descriptionAuto !== false) setting.seoDescription = seoPageIntro(setting.pageId);
+  });
   els.addModuleBtn.textContent = state.homeMode === "insert" ? "返回現況" : "新增模塊";
   const isHomeSubFlow = state.adminSection === "home" && state.homeMode !== "overview";
   els.moduleToolbar.classList.toggle("hidden", isHomeSubFlow);
@@ -8090,6 +8422,10 @@ function render() {
   setView();
   updateSaveState();
   expandFrontPreviewFrames();
+  bindSeoWorkspace();
+  bindArticleSeoChecks();
+  bindInlineSeo();
+  bindContentSeo();
 }
 
 els.addModuleBtn.addEventListener("click", toggleModuleTemplateChooser);

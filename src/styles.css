@@ -5940,3 +5940,49 @@ textarea {
 :root[data-theme="dark"] .real-preview-frame {
   background: var(--preview-bg, #ffffff);
 }
+
+/* Article SEO: writing advice displayed in the management page, without scores. */
+.article-seo-intro{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px;border:1px solid var(--line);border-radius:var(--radius);background:var(--soft)}
+.article-seo-intro h3{margin:8px 0;font-size:21px;line-height:1.5}
+.article-seo-intro p{margin:0;color:var(--muted);line-height:1.8}
+.article-seo-eyebrow{display:block;font-size:12px;font-weight:700;color:var(--brand);letter-spacing:.04em}
+.article-seo-filters{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin:20px 0}
+.article-seo-filters label{display:grid;gap:8px;min-width:140px;font-size:13px;font-weight:600}
+.article-seo-filters label:first-child{flex:1;min-width:220px}
+.article-seo-filters input,.article-seo-filters select{width:100%;min-height:40px}
+.article-seo-table-wrap{overflow-x:auto}
+.article-seo-selected{background:var(--soft)}
+.article-seo-report{scroll-margin-top:20px}
+.article-seo-report:focus{outline:2px solid var(--brand);outline-offset:3px}
+.article-seo-report .section-title h3{margin:8px 0;overflow-wrap:anywhere}
+.article-seo-report .section-title p{color:var(--muted)}
+.article-seo-group{padding-top:20px;margin-top:20px;border-top:1px solid var(--line)}
+.article-seo-group h4{display:flex;gap:10px;align-items:center;margin:0 0 14px;font-size:15px}
+.article-seo-count{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;border-radius:12px;background:var(--soft);font-size:12px;color:var(--brand)}
+.article-seo-finding{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding:16px;margin:10px 0;border:1px solid var(--line);border-left:4px solid var(--brand);border-radius:6px;background:var(--panel)}
+.article-seo-finding>div{min-width:0;flex:1}
+.article-seo-finding strong{font-size:14px;line-height:1.6;overflow-wrap:anywhere}
+.article-seo-finding p{margin:6px 0 0;font-size:13px;line-height:1.8;color:var(--muted)}
+.article-seo-finding.missing{border-left-color:var(--danger)}
+.article-seo-finding.advice{border-left-color:#b77c1b}
+.article-seo-finding.done{border-left-color:var(--green)}
+.article-seo-finding blockquote{margin:12px 0 0;padding:10px 12px;background:var(--soft);border-radius:4px;font-size:12px;line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--muted)}
+.article-seo-finding .btn{flex-shrink:0}
+.article-seo-empty-line{padding:12px 0;color:var(--muted);font-size:13px;line-height:1.8}
+.article-seo-scope summary{cursor:pointer;font-weight:600}
+.article-seo-scope p{color:var(--muted);font-size:13px;line-height:1.9}
+@media(max-width:760px){.article-seo-intro{align-items:flex-start;flex-direction:column;padding:18px}.article-seo-filters label,.article-seo-filters label:first-child{flex:1 1 100%;min-width:0}.article-seo-finding{flex-direction:column;gap:12px}.article-seo-report .section-title{flex-wrap:wrap;gap:12px}.article-seo-intro h3{font-size:18px}}
+
+/* SEO report table and compact page settings */
+.article-seo-report:focus{outline:none}
+.article-seo-report:focus-visible{outline:2px solid var(--brand);outline-offset:4px}
+.seo-check-table{width:100%;min-width:620px;table-layout:fixed}
+.seo-check-table th:first-child{width:90px}.seo-check-table th:nth-child(2){width:25%}.seo-check-table th:last-child{width:110px}
+.seo-check-table td{vertical-align:top;white-space:normal;overflow-wrap:anywhere;padding:18px 14px}
+.seo-check-table blockquote{margin:10px 0 0;padding-left:12px;border-left:2px solid var(--line);color:var(--muted);white-space:pre-wrap}
+.seo-check-status{font-weight:600}.seo-check-status.missing{color:var(--danger)}.seo-check-status.advice{color:#94620d}.seo-check-status.done{color:var(--green)}
+.seo-check-completed{margin:24px 0;border-top:1px solid var(--line);padding-top:16px}.seo-check-completed summary{cursor:pointer;margin-bottom:16px}
+.inline-seo-simple{padding:16px;background:var(--soft);border:1px solid var(--line);border-radius:6px}
+.inline-seo-simple h3{font-size:14px;margin:0}.inline-seo-simple .field-grid{margin-top:18px}.inline-seo-simple textarea{min-height:70px}
+.inline-seo-options{display:flex;gap:24px;flex-wrap:wrap}.inline-seo-simple .check-line{display:flex;align-items:center;gap:8px}.inline-seo-simple .check-line input{width:14px;height:14px;margin:0}
+@media(max-width:760px){.inline-seo-simple .field-grid{grid-template-columns:1fr}}
